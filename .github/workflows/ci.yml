@@ -34,8 +34,11 @@ jobs:
         with:
           python-version: "3.12.11"
           cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
       - run: pip install -r requirements-dev.txt
-      - run: pytest -q
+      - run: python -m pytest -q
 
   compose-smoke:
     runs-on: ubuntu-24.04
