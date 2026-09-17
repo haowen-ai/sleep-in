@@ -31,8 +31,8 @@ docker compose exec web python -m taskconsole setup-token
 
 打开 **http://localhost:8080**，输入本机 setup token，设置管理员账号、至少 12 位密码和时区。点击 **简体中文** 切换界面。
 
-1. 新建任务，选择 **Create an output file** 示例。
-2. 设置每 1 分钟运行，查看预览后创建并启用。
+1. 点击 **创建任务**，选择输出文件示例（**Create an output file**）。
+2. 计划选择 **间隔**，将 **间隔（分钟）** 设为 **1**，查看预览后创建并启用。
 3. 等待执行成功，在执行详情下载 `hello.txt`。
 
 示例不需要邮件、云服务或业务数据库凭据；n8n 自动初始化，无需手动导入工作流或创建 API Key。保存任务不会立即运行脚本。

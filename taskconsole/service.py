@@ -8,6 +8,18 @@ from .store import now, stamp, uid
 
 ACTIVE = {'queued','running','cancelling'}
 TERMINAL = {'succeeded','failed','timed_out','cancelled','interrupted','skipped'}
+RESERVED_PARAMETER_KEYS = {'recipients','TASK_RUN_ID','TASK_OUTPUT_DIR','TASK_PARAMS_FILE'}
+RESERVED_VARIABLE_NAMES = {'PATH','HOME','VIRTUAL_ENV'}
+RESERVED_VARIABLE_PREFIXES = ('TASK_','APP_','N8N_','DATABASE_','PYTHON','LD_','DYLD_')
+
+
+def valid_variable_name(name):
+    return (
+        isinstance(name,str)
+        and re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*',name) is not None
+        and name not in RESERVED_VARIABLE_NAMES
+        and not name.startswith(RESERVED_VARIABLE_PREFIXES)
+    )
 
 
 def audit(tx, user, action, target):
@@ -18,7 +30,7 @@ def validate_params(params, manifest, recipients):
     if not isinstance(params,dict) or len(params)>100:
         raise ValueError('Use at most 100 unique parameter keys')
     for key,value in params.items():
-        if not isinstance(key,str) or not key.strip() or len(key)>200 or key in {'recipients','TASK_RUN_ID','TASK_OUTPUT_DIR','TASK_PARAMS_FILE'}:
+        if not isinstance(key,str) or not key.strip() or len(key)>200 or key in RESERVED_PARAMETER_KEYS:
             raise ValueError('Parameter key is empty or reserved')
         if not isinstance(value,str) or len(value.encode())>1048576:
             raise ValueError('Parameter values must be strings, at most 1 MiB each')
@@ -41,14 +53,14 @@ def validate_manifest(manifest):
         raise ValueError('Invalid parameter definitions')
     keys=[]
     for row in rows:
-        if not isinstance(row,dict) or not isinstance(row.get('key'),str) or not row['key'].strip() or row['key'] in keys or row['key']=='recipients':
+        if not isinstance(row,dict) or not isinstance(row.get('key'),str) or not row['key'].strip() or len(row['key'])>200 or row['key'] in keys or row['key'] in RESERVED_PARAMETER_KEYS:
             raise ValueError('Parameter definitions require unique keys')
         keys.append(row['key'])
         for field in ('help','default'):
             if field in row and not isinstance(row[field],str):
                 raise ValueError('Parameter help and defaults must be text')
     required=manifest.get('required_variables',[])
-    if not isinstance(required,list) or any(not isinstance(v,str) or not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*',v) for v in required):
+    if not isinstance(required,list) or any(not valid_variable_name(v) for v in required):
         raise ValueError('Invalid required variable names')
     return manifest
 

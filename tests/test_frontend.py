@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import shutil
 import subprocess
 import unittest
@@ -55,6 +56,18 @@ class FrontendContractTests(unittest.TestCase):
         )
         self.assertEqual(json.loads(result), ["Tasks", "任务", "CUSTOMER_JOB_42"])
 
+    def test_every_literal_translation_reference_exists(self):
+        source = (STATIC / "app.js").read_text()
+        referenced = set(re.findall(r"\bt\(['\"]([^'\"]+)['\"]\)", source))
+        result = self._node(
+            "import('./taskconsole/static/i18n.js').then(m => {"
+            "const flatten=(o,p='')=>Object.entries(o).flatMap(([k,v])=>"
+            "v&&typeof v==='object'?flatten(v,p+k+'.'):[p+k]);"
+            "console.log(JSON.stringify(flatten(m.catalogs.en)))})"
+        )
+        missing = referenced - set(json.loads(result))
+        self.assertEqual(missing, set())
+
     def test_shell_has_accessible_landmarks_and_module_entrypoint(self):
         html = (STATIC / "index.html").read_text()
         self.assertIn('id="app"', html)
@@ -96,6 +109,25 @@ class FrontendContractTests(unittest.TestCase):
             {"key": "who", "value": "world", "required": True},
             {"key": "extra", "value": "kept", "required": False},
         ])
+
+    def test_run_and_parameter_helpers_cover_live_states_and_invalid_rows(self):
+        result = self._node(
+            "import('./taskconsole/static/model.js').then(m => {"
+            "let duplicate='';let incomplete='';"
+            "try{m.paramsFromRows([{key:'x',value:'1'},{key:'x',value:'2'}])}catch(e){duplicate=e.message}"
+            "try{m.paramsFromRows([{key:'',value:'orphan'}])}catch(e){incomplete=e.message}"
+            "console.log(JSON.stringify({"
+            "live:['queued','running','cancelling','succeeded'].map(m.executionIsLive),"
+            "cancel:['queued','running','cancelling','failed'].map(m.canCancelExecution),"
+            "end:m.endOfDay('2026-09-17'),duplicate,incomplete"
+            "}))})"
+        )
+        value = json.loads(result)
+        self.assertEqual(value["live"], [True, True, True, False])
+        self.assertEqual(value["cancel"], [True, True, True, False])
+        self.assertEqual(value["end"], "2026-09-17T23:59:59.999Z")
+        self.assertTrue(value["duplicate"])
+        self.assertTrue(value["incomplete"])
 
 
 if __name__ == "__main__":

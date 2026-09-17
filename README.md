@@ -4,6 +4,8 @@
 
 English · [简体中文](README.zh-CN.md)
 
+[![CI](https://github.com/haowenchen0811/n8n-task-console/actions/workflows/ci.yml/badge.svg)](https://github.com/haowenchen0811/n8n-task-console/actions/workflows/ci.yml) · [MIT license](LICENSE)
+
 A self-hosted task console for people who want a schedule, parameters, logs, and downloadable results without opening a workflow editor. Independently written in Python and browser JavaScript, with **n8n driving scheduled dispatch**.
 
 > Early development release. Use with trusted script authors. This is not a sandbox for code uploaded by strangers. See [verification status](docs/VERIFICATION.md) for what has actually been tested.
@@ -40,8 +42,8 @@ docker compose exec web python -m taskconsole setup-token
 
 Open **http://localhost:8080**, enter the token, and choose an administrator username, a password of at least 12 characters, and your timezone. The initial interface is always English; select **简体中文** if you prefer it.
 
-1. Select **New task** and the **Create an output file** example.
-2. Choose **Every 1 minute**, check the preview, then create and enable it.
+1. Select **Create task** and the **Create an output file** example.
+2. Choose **Interval**, set **Every (minutes)** to **1**, check the preview, then create and enable it.
 3. Open the execution when it finishes and download `hello.txt`.
 
 n8n initializes its dispatch workflow automatically. Its editor and database are not exposed to the host. A task is only reported as ready after a recent n8n heartbeat. Saving a schedule does not immediately execute the script.

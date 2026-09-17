@@ -17,7 +17,7 @@ from . import __version__
 from .store import Store, now, stamp, uid
 from .auth import password_hash, password_valid, public_user, revoke, session_create, session_lookup
 from .schedule import next_runs
-from .service import audit, validate_manifest, task_data, enqueue, tick, ACTIVE
+from .service import audit, validate_manifest, valid_variable_name, task_data, enqueue, tick, ACTIVE
 
 
 def fail(status,code,message):
@@ -57,8 +57,7 @@ def create_app(state_dir=None,database_url=None):
         response.headers['X-Frame-Options']='DENY'
         response.headers['Referrer-Policy']='same-origin'
         response.headers['Content-Security-Policy']="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
-        if request.url.path.startswith('/api/'):
-            response.headers['Cache-Control']='no-store'
+        response.headers['Cache-Control']='no-store'
         return response
 
     @app.exception_handler(ValueError)
@@ -156,21 +155,21 @@ def create_app(state_dir=None,database_url=None):
 
     @app.post('/api/login')
     def login(request:Request,data:dict):
-        # Persist throttling before raising, so transaction rollback cannot reset it.
         ip=request.client.host if request.client else 'unknown'
         key=hashlib.sha256(ip.encode()).hexdigest()
         with store.transaction() as tx:
             attempt=tx.get('attempt',key) or {'id':key,'at':stamp(),'count':0}
             if (now()-datetime.fromisoformat(attempt['at'])).total_seconds()>300:attempt={'id':key,'at':stamp(),'count':0}
-            blocked=attempt['count']>=10
-            attempt['count']+=1;tx.put('attempt',attempt)
-        if blocked:fail(429,'rate_limited','Too many attempts. Try again in five minutes')
-        with store.transaction() as tx:
+            if attempt['count']>=10:fail(429,'rate_limited','Too many attempts. Try again in five minutes')
             user=next((u for u in tx.all('user') if u['username'].lower()==str(data.get('username','')).lower()),None)
             if not user or not user['enabled'] or not password_valid(data.get('password'),user['password']):
-                fail(401,'invalid_login','Invalid username or password')
-            tx.remove('attempt',key)
-            return login_response(tx,user)
+                # Store the failure before raising outside this transaction.
+                attempt['count']+=1;tx.put('attempt',attempt)
+                valid=False
+            else:valid=True
+            if valid:
+                return login_response(tx,user)
+        fail(401,'invalid_login','Invalid username or password')
 
     @app.post('/api/logout')
     def logout(request:Request):
@@ -461,7 +460,7 @@ def create_app(state_dir=None,database_url=None):
     def variable_set(request:Request,data:dict):
         with store.transaction() as tx:
             user=require(request,tx,True);name=data.get('name','');scope=data.get('scope','instance');value=data.get('value')
-            if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*',name) or name.startswith(('TASK_','APP_','N8N_','DATABASE_','PYTHON','LD_','DYLD_')) or name in {'PATH','HOME','VIRTUAL_ENV'}:raise ValueError('Invalid or reserved variable name')
+            if not valid_variable_name(name):raise ValueError('Invalid or reserved variable name')
             if not isinstance(value,str) or len(value)>65536 or '\0' in value:raise ValueError('Invalid variable value')
             if scope!='instance':get(tx,'script',scope)
             key=hashlib.sha256((scope+':'+name).encode()).hexdigest()

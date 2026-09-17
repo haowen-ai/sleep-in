@@ -127,3 +127,51 @@ def test_invalid_shapes_return_structured_400_or_422_never_500(tmp_path):
     assert wrong_body.status_code == 422
     assert wrong_body.json()["detail"]["code"] == "validation"
     assert isinstance(wrong_body.json()["detail"]["message"], str)
+
+
+def test_successful_login_does_not_reset_failed_attempts_against_another_account(tmp_path):
+    client = authenticated_client(tmp_path)
+    response = client.post(
+        "/api/admin/users",
+        json={"username": "operator", "password": "operator pass 123", "role": "operator"},
+    )
+    assert response.status_code == 200, response.text
+    assert client.post("/api/logout").status_code == 200
+
+    for _ in range(9):
+        assert client.post(
+            "/api/login", json={"username": "owner", "password": "wrong password"}
+        ).status_code == 401
+
+    assert client.post(
+        "/api/login", json={"username": "operator", "password": "operator pass 123"}
+    ).status_code == 200
+    assert client.post(
+        "/api/login", json={"username": "owner", "password": "wrong password"}
+    ).status_code == 401
+    assert client.post(
+        "/api/login", json={"username": "owner", "password": "wrong password"}
+    ).status_code == 429
+
+
+def test_manifest_rejects_parameter_and_variable_names_that_tasks_cannot_supply(tmp_path):
+    client = authenticated_client(tmp_path)
+    manifests = [
+        {"parameters": [{"key": "TASK_RUN_ID", "required": True}]},
+        {"required_variables": ["PATH"]},
+    ]
+
+    for index, manifest in enumerate(manifests):
+        response = client.post(
+            "/api/scripts",
+            json={"name": f"Invalid manifest {index}", "source": "print('never')", "manifest": manifest},
+        )
+        assert response.status_code == 400
+        assert response.json()["detail"]["code"] == "invalid"
+
+
+def test_html_and_static_assets_are_revalidated_after_upgrade(tmp_path):
+    client = TestClient(create_app(state_dir=tmp_path, database_url=f"sqlite:///{tmp_path / 'cache.db'}"))
+
+    assert client.get("/").headers["cache-control"] == "no-store"
+    assert client.get("/static/app.js").headers["cache-control"] == "no-store"

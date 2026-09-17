@@ -341,7 +341,10 @@ def test_execute_rejects_symlink_and_excess_outputs(tmp_path, monkeypatch):
     )
     assert result["status"] == "succeeded"
     assert result["artifact_reason"] == "artifact limits exceeded"
-    assert result["artifacts"] == [{"name": "a", "size": 1}]
+    # Filesystem traversal order differs between APFS and Linux. The contract
+    # retains a valid file within the cap, without promising which one wins.
+    assert len(result["artifacts"]) == 1
+    assert result["artifacts"][0] in ({"name": "a", "size": 1}, {"name": "b", "size": 1})
 
 
 def test_execute_caps_forwarded_logs(tmp_path, monkeypatch):
