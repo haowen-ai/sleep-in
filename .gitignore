@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.superpowers/
+*.pyc
+*.db
+*.sqlite*
+state/
+node_modules/
+.DS_Store
+dist/
+*.egg-info/
