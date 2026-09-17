@@ -1,0 +1,147 @@
+name: n8n-task-console
+
+x-postgres-environment: &postgres-environment
+  DB_TYPE: postgresdb
+  DB_POSTGRESDB_HOST: postgres
+  DB_POSTGRESDB_PORT: "5432"
+  DB_POSTGRESDB_DATABASE: taskconsole
+  DB_POSTGRESDB_USER: taskconsole
+  DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD:-taskconsole-local-db}
+  DB_POSTGRESDB_SCHEMA: n8n
+
+x-app-environment: &app-environment
+  APP_STATE_DIR: /state
+  DATABASE_URL: postgresql+psycopg://taskconsole:${POSTGRES_PASSWORD:-taskconsole-local-db}@postgres:5432/taskconsole
+
+services:
+  postgres:
+    image: postgres:17.6-alpine3.22
+    environment:
+      POSTGRES_DB: taskconsole
+      POSTGRES_USER: taskconsole
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-taskconsole-local-db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./deploy/postgres/init.sql:/docker-entrypoint-initdb.d/10-n8n-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U taskconsole -d taskconsole"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+  state-permissions:
+    image: busybox:1.37.0-uclibc
+    user: "0:0"
+    command: ["sh", "-c", "chown 1000:1000 /state /dispatch /n8n && chmod 700 /state /dispatch /n8n"]
+    volumes:
+      - app_state:/state
+      - dispatch_token:/dispatch
+      - n8n_data:/n8n
+    restart: "no"
+
+  app-init:
+    build:
+      context: .
+    image: n8n-task-console:${TASK_CONSOLE_IMAGE_TAG:-local}
+    user: "1000:1000"
+    command: ["sh", "-c", "python -m taskconsole init && cp /state/dispatch-token /dispatch/dispatch-token && chmod 600 /dispatch/dispatch-token"]
+    environment: *app-environment
+    volumes:
+      - app_state:/state
+      - dispatch_token:/dispatch
+    depends_on:
+      postgres:
+        condition: service_healthy
+      state-permissions:
+        condition: service_completed_successfully
+    restart: "no"
+
+  web:
+    image: n8n-task-console:${TASK_CONSOLE_IMAGE_TAG:-local}
+    user: "1000:1000"
+    command: ["python", "-m", "taskconsole", "serve"]
+    environment: *app-environment
+    volumes:
+      - app_state:/state
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      app-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/readyz', timeout=2)"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+  worker:
+    image: n8n-task-console:${TASK_CONSOLE_IMAGE_TAG:-local}
+    user: "1000:1000"
+    command: ["python", "-m", "taskconsole", "worker"]
+    environment: *app-environment
+    volumes:
+      - app_state:/state
+    depends_on:
+      app-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  n8n-init:
+    image: n8nio/n8n:2.39.7
+    user: "1000:1000"
+    entrypoint: ["/bin/sh", "/bootstrap/bootstrap.sh"]
+    environment:
+      <<: *postgres-environment
+      N8N_USER_FOLDER: /home/node/.n8n
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_PERSONALIZATION_ENABLED: "false"
+      N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./deploy/n8n:/bootstrap:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      state-permissions:
+        condition: service_completed_successfully
+    restart: "no"
+
+  n8n:
+    image: n8nio/n8n:2.39.7
+    user: "1000:1000"
+    environment:
+      <<: *postgres-environment
+      N8N_USER_FOLDER: /home/node/.n8n
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_PERSONALIZATION_ENABLED: "false"
+      N8N_VERSION_NOTIFICATIONS_ENABLED: "false"
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      N8N_RESTRICT_FILE_ACCESS_TO: /state
+      N8N_SECURE_COOKIE: "false"
+      EXECUTIONS_DATA_SAVE_ON_SUCCESS: none
+      EXECUTIONS_DATA_SAVE_ON_ERROR: none
+      EXECUTIONS_DATA_PRUNE: "true"
+      EXECUTIONS_DATA_MAX_AGE: "24"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - dispatch_token:/state:ro
+    depends_on:
+      n8n-init:
+        condition: service_completed_successfully
+      web:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:5678/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  app_state:
+  dispatch_token:
+  n8n_data:

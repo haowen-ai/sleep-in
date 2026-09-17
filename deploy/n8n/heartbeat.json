@@ -1,0 +1,65 @@
+{
+  "id": "task-console-heartbeat",
+  "name": "Task Console Dispatch Heartbeat",
+  "active": false,
+  "nodes": [
+    {
+      "id": "553a46a2-ad19-4cbd-a370-ac77093389ae",
+      "name": "Every five seconds",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [0, 0],
+      "parameters": {
+        "rule": {
+          "interval": [{"field": "seconds", "secondsInterval": 5}]
+        }
+      }
+    },
+    {
+      "id": "01aef92a-284f-4e46-84f2-659046948597",
+      "name": "Read dispatch token",
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [240, 0],
+      "parameters": {
+        "fileSelector": "/state/dispatch-token",
+        "options": {"mimeType": "text/plain", "fileName": "dispatch-token"}
+      }
+    },
+    {
+      "id": "c113131b-87af-422e-b0ae-5a2b22945e5d",
+      "name": "Extract dispatch token",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [480, 0],
+      "parameters": {"operation": "text", "options": {"destinationKey": "data"}}
+    },
+    {
+      "id": "e3405986-6826-46bd-8c92-47a3da9bb538",
+      "name": "Dispatch due tasks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "http://web:8080/internal/tick",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {"name": "X-Dispatch-Token", "value": "={{ $json.data.trim() }}"}
+          ]
+        },
+        "options": {"timeout": 4000}
+      }
+    }
+  ],
+  "connections": {
+    "Every five seconds": {"main": [[{"node": "Read dispatch token", "type": "main", "index": 0}]]},
+    "Read dispatch token": {"main": [[{"node": "Extract dispatch token", "type": "main", "index": 0}]]},
+    "Extract dispatch token": {"main": [[{"node": "Dispatch due tasks", "type": "main", "index": 0}]]}
+  },
+  "settings": {"executionOrder": "v1", "timezone": "UTC"},
+  "staticData": null,
+  "pinData": {},
+  "tags": []
+}
