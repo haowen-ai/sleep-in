@@ -42,10 +42,10 @@ APP_STATE_DIR=/state, DATABASE_URL=postgresql+psycopg://..., shared restricted s
 
 ## Execution tasks and checks
 
-- [ ] 1. Runtime: failing tests for AST no side effects, one execution, unsafe archives, Unicode logs, outputs, timeout and cancellation; implement runtime and sample scripts; run tests.
-- [ ] 2. Core: failing tests for monthly/DST schedules, setup/login/revocation/RBAC, snapshots, overlap/dedupe, cancellation, variable non-disclosure; implement persistence/API/worker/CLI; run unit and API integration tests.
-- [ ] 3. Frontend: implement all P0 routes against this contract; English/Chinese dictionaries with identical keys; test locale fallback/persistence and unsaved fields; browser verify synthetic first-run, task and log flows.
-- [ ] 4. Deployment: verify pinned n8n CLI provisioning and heartbeat; Docker Compose, healthchecks, CI PostgreSQL and compose smoke, release workflow; repeat boot does not duplicate heartbeat.
-- [ ] 5. Delivery: English README first, linked Chinese README, architecture/script contracts, backup/security/license docs. Review, scan staged exact paths, create GitHub repo, push over verified SSH, verify remote SHA and CI.
+- [x] 1. Runtime: failing tests for AST no side effects, one execution, unsafe archives, Unicode logs, outputs, timeout and cancellation; implement runtime and sample scripts; run tests.
+- [x] 2. Core: failing tests for monthly/DST schedules, setup/login/revocation/RBAC, snapshots, overlap/dedupe, cancellation, variable non-disclosure; implement persistence/API/worker/CLI; run unit and API integration tests.
+- [x] 3. Frontend: implement all P0 routes against this contract; English/Chinese dictionaries with identical keys; test locale fallback/persistence and unsaved fields; browser verify synthetic first-run, task and log flows.
+- [x] 4. Deployment: verify pinned n8n CLI provisioning and heartbeat; Docker Compose, healthchecks, CI PostgreSQL and compose smoke, release workflow; repeat boot does not duplicate heartbeat.
+- [x] 5. Delivery: English README first, linked Chinese README, architecture/script contracts, backup/security/license docs. Review, scan staged exact paths, create GitHub repo, push over verified SSH, verify remote SHA and CI.
 
 Tests use real temporary directories, database transactions and subprocesses, never real business jobs. Each implementer writes and runs the behavioral tests before implementation. Public test results state which environments actually ran; unavailable OS runs remain unverified.
