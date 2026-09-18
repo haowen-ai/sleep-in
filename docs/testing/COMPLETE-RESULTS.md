@@ -2,6 +2,18 @@
 
 This ledger supersedes the earlier [core-preview results](RESULTS.md). Tests use synthetic, isolated state. The original test design was committed before implementation; later defects were reproduced with failing tests before fixes. Passing software tests do not establish physical power or public-distribution behavior.
 
+## Case-by-case acceptance closure — 2026-09-18
+
+The [reviewed trace](traceability/README.md) now maps every original design ID and expands 310 language-pair combinations that the original inventory omitted. There are 674 designed entries, not 674 independent test functions. Exact pytest selectors, remaining assertions, manual gates and superseded interaction cases are recorded separately. CI preserves regression, actual n8n, external SQL and actual Chromium JUnit evidence, then joins it into the `case-by-case-acceptance` artifact. A green test job does not mean `release_ready` is true.
+
+This revision adds authenticated real-graph data oracles, browser editing/retry stories, cross-process schedule contention, database rollback and SMTP uncertainty tests. Reproduced defects include lost-response duplicate admission risk, stranded invalid requests, stale node samples, dropped failure logs, stale retry errors, local Host/Origin validation, missing-driver publication, schedule-bound normalization and unsafe notification retry classification. The admission recovery endpoint resolves an existing run or durably retires its request key, so a delayed original request cannot execute after the user recovers.
+
+Both PRDs now present the current fixed-downward, Mac-first flow consistently. Formal Apple signing/notarization is still unavailable for this preview. Ad-hoc package build/self-tests remain local preview evidence. Physical background/power trials and software cases with partial or missing exact oracles remain open; promotion has not been evaluated as a completed-release activity.
+
+## Pre-closure acceptance audit — 2026-09-18
+
+Source `47f6e905a142315c0c26267f635d69354bf1949f` has [four successful CI jobs](https://github.com/haowenchen0811/sleep-in/actions/runs/35373110451): default regression **396 passed, 96 skipped**; integration **100 passed**; external SQL **29 passed**; clean Compose scheduled graph/artifact/bootstrap checks passed. Counts overlap. At that revision the 364-case design index had no per-case execution trace, and Mac physical/distribution gates remained open. Therefore this was **not complete PRD acceptance or an all-designed-cases-passed claim**. See the [historical audit](ACCEPTANCE-AUDIT-2026-09-18.md).
+
 ## Flowchart editing revision — 2026-09-18
 
 Node-list editing, duplication and reviewed deletion; add-next branches; edge insertion; atomic endpoint rewiring; and explicit node-type replacement now have model and DOM coverage. The combined frontend, geometry, fixed-layout and structure suites pass **40 tests**. Tests cover single-action undo, preserved input bindings and edge conditions, cycles/duplicate rejection without partial changes, delete cancellation, type replacement and insertion buttons not starting canvas pan.

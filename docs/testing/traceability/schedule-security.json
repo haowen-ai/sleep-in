@@ -1,0 +1,783 @@
+[
+  {
+    "id": "SCH-001",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch001_manual_preview_tick_and_one_manual_run"
+    ],
+    "coverage": "full",
+    "rationale": "Authenticated API preview is empty, scheduler admits nothing, manual HTTP request creates exactly one run.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-002",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch002_five_anchored_preview_instants_over_api"
+    ],
+    "coverage": "full",
+    "rationale": "Compares all five API timestamps to independent fixed 15-minute anchor oracles.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-003",
+    "tests": [
+      "tests/test_workflow_schedule_contract.py::test_fixed_schedule_oracles",
+      "tests/test_acceptance_schedule_security.py::test_sch003_sch004_sch022_exact_boundary_admission"
+    ],
+    "coverage": "full",
+    "rationale": "Calculator excludes equal after instant; actual store admission at next due occurs once with repeated tick checks.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-004",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_schedule_fixed_api_oracles",
+      "tests/test_acceptance_schedule_security.py::test_sch003_sch004_sch022_exact_boundary_admission"
+    ],
+    "coverage": "full",
+    "rationale": "API two-hour preview and integration tick use fixed 10:00 UTC oracle.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-005",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch005_daily_two_days_actual_n8n_with_controlled_clock"
+    ],
+    "coverage": "full",
+    "rationale": "Runs installed n8n graph for both explicit UTC days and asserts completion leaves daily schedule enabled; clock is controlled, not overnight evidence.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-006",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch006_sch007_multiple_daily_times_no_duplicate",
+      "tests/test_acceptance_schedule_security.py::test_schedule_fixed_api_oracles"
+    ],
+    "coverage": "full",
+    "rationale": "Independent preview and two real admissions/executions retain 07:00 and 18:30 occurrences.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-007",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch006_sch007_multiple_daily_times_no_duplicate",
+      "tests/test_acceptance_schedule_security.py::test_schedule_fixed_api_oracles",
+      "tests/test_acceptance_release_edges.py::test_sch007_saved_daily_times_are_sorted_and_deduplicated"
+    ],
+    "coverage": "full",
+    "rationale": "Saved schedule response and reread now contain sorted unique times; independent API preview and integrated occurrences also prove no duplicate execution.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-008",
+    "tests": [
+      "tests/test_workflow_schedule_contract.py::test_fixed_schedule_oracles"
+    ],
+    "coverage": "full",
+    "rationale": "Friday-after-time fixed oracle yields Monday September 28, then Tuesday without adding a holiday calendar.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-009",
+    "tests": [
+      "tests/test_workflow_schedule_contract.py::test_fixed_schedule_oracles",
+      "tests/test_acceptance_browser.py::test_browser_schedule_locale_weekdays_and_validation"
+    ],
+    "coverage": "partial",
+    "rationale": "Unit Monday/Wednesday dates and real browser weekday numeric protocol tested separately.",
+    "remaining": [
+      "Assert third September 28 preview and exact Monday/Wednesday UI [0,2] rather than browser Monday/Thursday fixture."
+    ]
+  },
+  {
+    "id": "SCH-010",
+    "tests": [
+      "tests/test_workflow_schedule_contract.py::test_fixed_schedule_oracles"
+    ],
+    "coverage": "full",
+    "rationale": "Fixed April-after oracle yields May 31 then July 31; never clamps to short month.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-011",
+    "tests": [
+      "tests/test_workflow_schedule_contract.py::test_fixed_schedule_oracles"
+    ],
+    "coverage": "full",
+    "rationale": "Fixed non-leap month-end oracles are February 28 and March 31 at 07:00 UTC.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-012",
+    "tests": [
+      "tests/test_workflow_schedule_contract.py::test_fixed_schedule_oracles"
+    ],
+    "coverage": "full",
+    "rationale": "Fixed leap-year month-end oracle is February 29, 2028.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-013",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch013_once_completion_keeps_manual_run_available"
+    ],
+    "coverage": "full",
+    "rationale": "One due admission, no repeat or future dates, followed by successful manual execution.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-014",
+    "tests": [
+      "tests/test_workflow_schedule_contract.py::test_once_completes_and_inclusive_start_end"
+    ],
+    "coverage": "partial",
+    "rationale": "Calculator returns no future occurrence after one-time due.",
+    "remaining": [
+      "Exercise expired once enable via API and browser; assert explicit expired notice and no silent run."
+    ]
+  },
+  {
+    "id": "SCH-015",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch015_inclusive_boundaries_admit_only_two_days",
+      "tests/test_acceptance_schedule_security.py::test_schedule_fixed_api_oracles"
+    ],
+    "coverage": "full",
+    "rationale": "API preview includes both exact bounds; integration executes 21st/22nd and rejects 23rd.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-016",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_schedule_invalid_api_values_are_specific_without_runs",
+      "tests/test_acceptance_browser.py::test_browser_schedule_locale_weekdays_and_validation"
+    ],
+    "coverage": "full",
+    "rationale": "Specific End validation error through preview/enable APIs, no runs, and real browser retains invalid bounds and shows error.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-017",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_schedule_fixed_api_oracles",
+      "tests/test_workflow_schedule_contract.py::test_fixed_schedule_oracles"
+    ],
+    "coverage": "full",
+    "rationale": "Explicit Chicago noon UTC and Shanghai 23:00 UTC next-date oracles checked by API and calculator.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-018",
+    "tests": [
+      "tests/test_workflow_schedule_contract.py::test_fixed_schedule_oracles"
+    ],
+    "coverage": "full",
+    "rationale": "Chicago nonexistent March 8 02:30 is skipped to March 9 07:30 UTC.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-019",
+    "tests": [
+      "tests/test_workflow_schedule_contract.py::test_fixed_schedule_oracles",
+      "tests/test_acceptance_schedule_security.py::test_sch019_dst_fold_admits_only_first_local_time"
+    ],
+    "coverage": "full",
+    "rationale": "Fixed preview plus actual admissions at first fold only; second fold absent and next day admitted.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-020",
+    "tests": [
+      "tests/test_acceptance_browser.py::test_browser_schedule_locale_weekdays_and_validation"
+    ],
+    "coverage": "partial",
+    "rationale": "Real browser EN/ZH preserves saved schedule and UTC previews using Shanghai.",
+    "remaining": [
+      "Repeat exact Chicago case with page reload and EN restoration; assert displayed local time plus unchanged next_run."
+    ]
+  },
+  {
+    "id": "SCH-021",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch021_sch028_two_processes_admit_once_and_side_effect_once"
+    ],
+    "coverage": "full",
+    "rationale": "Two spawned Python processes share SQLite state and race tick; one run and one actual file side effect under concurrent node calls.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-022",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch003_sch004_sch022_exact_boundary_admission"
+    ],
+    "coverage": "full",
+    "rationale": "Asserts no runs due-minus-one second, one exact due, no extra equal/plus-one ticks.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-023",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch023_overlap_is_recorded_without_second_execution"
+    ],
+    "coverage": "partial",
+    "rationale": "Queued active run suppresses next occurrence with persisted overlap_skipped reason.",
+    "remaining": [
+      "Use actual 90-second running subprocess and assert no second simultaneous write; current active run remains queued."
+    ]
+  },
+  {
+    "id": "SCH-024",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch024_queue_limit_two_keeps_fifo_and_admission_snapshots",
+      "tests/test_acceptance_schedule_security_closure.py::test_sch024_running_process_plus_two_waiters_is_bounded_fifo"
+    ],
+    "coverage": "full",
+    "rationale": "Actual first subprocess blocks after a counted effect while two queued runs fill bounded capacity; overflow is recorded, dispatcher waits, and frozen parameter effects finish FIFO 0/1/2.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-025",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch025_pause_and_resume_never_replay_missed_times",
+      "tests/test_acceptance_release_edges.py::test_sch025_authenticated_pause_resume_skips_past_and_keeps_future"
+    ],
+    "coverage": "full",
+    "rationale": "Authenticated pause/resume changes persist; disabled due creates nothing, resume at 08:00 does not replay missed 07:00, next-day preview/admission/execution succeeds.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-026",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch026_pub002_queued_snapshot_and_latest_pinned_versions"
+    ],
+    "coverage": "full",
+    "rationale": "Queued v1 executes original code, parameter and binding; scheduled pinned run stays v1 while later unpinned trigger follows v2.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-027",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch027_sch029_missed_and_expired_grace_logged_without_runs"
+    ],
+    "coverage": "full",
+    "rationale": "07/08/09 offline gap creates no runs at 09:10, records gap, admits next future day.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-028",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch021_sch028_two_processes_admit_once_and_side_effect_once"
+    ],
+    "coverage": "full",
+    "rationale": "Two actual processes recover at 09:10, admit only 09:00 original occurrence and execute one side effect.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-029",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch027_sch029_missed_and_expired_grace_logged_without_runs"
+    ],
+    "coverage": "full",
+    "rationale": "11:00:01 recovery is beyond two-hour grace, records missed gap and creates no run.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-030",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch030_recovery_after_admission_commit_reuses_run"
+    ],
+    "coverage": "full",
+    "rationale": "Fault after durable run commit before occurrence acknowledgement leaves one run; new service recovers same ID after claim expiry.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-031",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch031_committed_sql_lost_result_is_uncertain_never_replayed"
+    ],
+    "coverage": "full",
+    "rationale": "Real SQLite increment commits then injected process-loss exception prevents callback; recovery marks uncertain and cannot replay increment.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-032",
+    "tests": [
+      "tests/test_workflow_api_contract.py::test_workflow_health_uses_fresh_worker_not_legacy_tick",
+      "tests/test_workflows_n8n.py::test_worker_heartbeat_and_stopped_state_keep_instance_generation",
+      "tests/test_acceptance_release_edges.py::test_sch032_unavailable_engine_never_turns_accepted_202_into_success"
+    ],
+    "coverage": "full",
+    "rationale": "Actual unavailable executable causes both 202-accepted manual and due scheduled runs to fail explicitly; no node attempts occur and public API never shows success.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-033",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch033_unpublished_schedule_enable_rejected_draft_preserved",
+      "tests/test_acceptance_browser.py::test_browser_schedule_locale_weekdays_and_validation"
+    ],
+    "coverage": "full",
+    "rationale": "Authenticated enable rejects unpublished draft without mutation or runs; browser disabled enable control.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-034",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch034_edit_schedule_preserves_active_snapshot_and_replaces_future_due",
+      "tests/test_acceptance_schedule_security_closure.py::test_sch034_schedule_edit_while_process_running_preserves_snapshot"
+    ],
+    "coverage": "full",
+    "rationale": "Real subprocess is running during schedule/parameter edit; current snapshot/version/params stay frozen, old next minute disappears, and new 08:00 trigger executes new params.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-035",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch035_backward_and_forward_clock_jump_never_replays"
+    ],
+    "coverage": "full",
+    "rationale": "Backward ten-minute then forward ten-minute ticks return without loops, never replay existing occurrence, and persist skipped gap.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-036",
+    "tests": [
+      "tests/test_workflow_schedule_contract.py::test_fixed_schedule_oracles"
+    ],
+    "coverage": "manual",
+    "rationale": "Calculator uses explicit IANA zone; no physical Mac system timezone switch has been performed.",
+    "remaining": [
+      "Manually switch Mac system timezone and verify Chicago preview/execution remains unchanged."
+    ]
+  },
+  {
+    "id": "SCH-037",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_schedule_invalid_api_values_are_specific_without_runs",
+      "tests/test_acceptance_browser.py::test_browser_schedule_locale_weekdays_and_validation"
+    ],
+    "coverage": "partial",
+    "rationale": "Every listed invalid value has structured specific API failure with no runs; browser only invalid bounds proven.",
+    "remaining": [
+      "Repeat entire invalid value matrix through real browser form controls."
+    ]
+  },
+  {
+    "id": "SCH-038",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch038_new_cron_rejected_for_draft_save_preview_and_publish",
+      "tests/test_workflow_migration.py::test_migration_cron_disabled_manual_and_active_handoff_rejected"
+    ],
+    "coverage": "full",
+    "rationale": "New Cron save/preview/publication all rejected; legacy migration explicitly requests form review and disables automatic schedule.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-039",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch039_naive_boundary_uses_selected_zone_first_fold_and_rejects_gap"
+    ],
+    "coverage": "partial",
+    "rationale": "API now persists explicit UTC instants and first DST fold, rejects nonexistent boundary with actionable error.",
+    "remaining": [
+      "Real browser local boundary entry/preview still required.",
+      "Original oracle says skip nonexistent boundary; implementation rejects it rather than silently choosing a different instant. Resolve intended boundary semantics without changing historical oracle."
+    ]
+  },
+  {
+    "id": "SCH-040",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch040_independent_triggers_keep_occurrences_params_and_versions",
+      "tests/test_acceptance_schedule_security_closure.py::test_sch040_public_scheduled_instant_is_separate_from_actual_start"
+    ],
+    "coverage": "full",
+    "rationale": "Two independent triggers retain occurrence/version/parameter identities; authenticated run response now exposes immutable scheduled_at separately from actual started_at.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-041",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch041_real_clock_n8n_all_nodes_and_result_download"
+    ],
+    "coverage": "full",
+    "rationale": "Actual wall-clock due wait without DB due edits; installed n8n admits one graph, all three node inputs/results and downloaded artifact are checked.",
+    "remaining": []
+  },
+  {
+    "id": "SCH-042",
+    "tests": [],
+    "coverage": "manual",
+    "rationale": "No controlled-clock test proves lock-screen overnight or battery uptime.",
+    "remaining": [
+      "Perform physical plugged-in overnight and battery lock-screen trials with wall time, power source and node timestamps."
+    ]
+  },
+  {
+    "id": "PUB-001",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_pub001_invalid_draft_retains_errors_but_publish_identifies_node"
+    ],
+    "coverage": "partial",
+    "rationale": "HTTP draft persists node-scoped errors; publication rejects and identifies source node.",
+    "remaining": [
+      "Browser publish/error navigation must visibly locate the invalid node."
+    ]
+  },
+  {
+    "id": "PUB-002",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch026_pub002_queued_snapshot_and_latest_pinned_versions"
+    ],
+    "coverage": "full",
+    "rationale": "Executes pre-edit run after v2 publication, proves v1 code, mapping and parameter output together.",
+    "remaining": []
+  },
+  {
+    "id": "PUB-003",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_pub003_draft_and_published_runs_execute_distinct_snapshots"
+    ],
+    "coverage": "full",
+    "rationale": "HTTP draft and formal admissions execute real subprocesses with distinct outputs/test markers/version IDs; draft does not change publication.",
+    "remaining": []
+  },
+  {
+    "id": "PUB-004",
+    "tests": [
+      "tests/test_workflow_execution_complete.py::test_node_only_explicit_inputs_and_frozen_draft",
+      "tests/test_workflow_execution_complete.py::test_node_test_http_and_sample_authorization",
+      "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_real_editor_node_test_uses_explicit_inputs_and_runtime_selection",
+      "tests/test_acceptance_browser.py::test_browser_node_test_explicit_input_and_stale_sample_with_real_n8n",
+      "tests/test_acceptance_schedule_security_closure.py::test_pub004_explicit_node_test_records_source_and_never_replays_sql_write"
+    ],
+    "coverage": "full",
+    "rationale": "Actual upstream SQL UPDATE never executes during explicit downstream test; explicit and historical sample provenance persists publicly, sample fields preserved; real Chromium+n8n selected-node UI runs only consumer.",
+    "remaining": []
+  },
+  {
+    "id": "PUB-005",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_pub005_sample_stale_after_unpublished_upstream_edit",
+      "tests/test_acceptance_browser.py::test_browser_node_test_explicit_input_and_stale_sample_with_real_n8n"
+    ],
+    "coverage": "full",
+    "rationale": "API rejects obsolete sample freshness after unpublished upstream edit and fresh execution consumes actual new data; real Chromium+n8n node-test story visibly marks historical sample stale with run attribution.",
+    "remaining": []
+  },
+  {
+    "id": "PUB-006",
+    "tests": [
+      "tests/test_workflows.py::test_invalid_cycle_and_mapping_block_publication",
+      "tests/test_acceptance_browser.py::test_browser_structure_insert_branch_rewire_rejects_cycle",
+      "tests/test_acceptance_release_edges.py::test_pub006_http_cannot_publish_self_loop_or_cycle"
+    ],
+    "coverage": "full",
+    "rationale": "Unit and actual browser wiring reject cycles; parameterized authenticated publication rejects self-loop/two-node cycles with offending node and no publication/run.",
+    "remaining": []
+  },
+  {
+    "id": "PUB-007",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_pub007_missing_selected_sql_driver_blocks_publication",
+      "tests/test_acceptance_release_edges.py::test_pub007_actual_missing_java_compiler_is_unavailable_and_blocks_publish"
+    ],
+    "coverage": "full",
+    "rationale": "Actual empty-PATH Java absence yields unavailable runtime and node-local HTTP publication error; separate selected missing SQL driver branch also refuses publication.",
+    "remaining": []
+  },
+  {
+    "id": "PUB-008",
+    "tests": [
+      "tests/test_acceptance_release_edges.py::test_pub008_actual_compiler_errors_preserve_old_publication"
+    ],
+    "coverage": "full",
+    "rationale": "Real C and Temurin Java compile valid v1; malformed v2 compilation exposes build error through API, cannot replace v1, and old native publication still executes correct output.",
+    "remaining": []
+  },
+  {
+    "id": "PUB-009",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_pub009_runtime_dependency_update_only_new_publication_uses_new_value"
+    ],
+    "coverage": "full",
+    "rationale": "Builds two immutable Python runtime/shared-module versions; old publication executes 7, new publication executes 9, pinned old remains 7.",
+    "remaining": []
+  },
+  {
+    "id": "PUB-010",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_pub010_pub011_real_process_descendants_stop_before_terminal"
+    ],
+    "coverage": "full",
+    "rationale": "Actual parent spawns child appending counter; cancellation returns terminal after counter stops, downstream has zero attempts.",
+    "remaining": []
+  },
+  {
+    "id": "PUB-011",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_pub010_pub011_real_process_descendants_stop_before_terminal"
+    ],
+    "coverage": "full",
+    "rationale": "Actual two-second node timeout terminates ten-second parent and child counter, with timed_out status and no downstream attempts.",
+    "remaining": []
+  },
+  {
+    "id": "PUB-012",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_pub012_three_attempts_with_backoff_consume_final_output_once"
+    ],
+    "coverage": "full",
+    "rationale": "Exactly failed/failed/succeeded attempts, early retry blocked by real backoff, timestamps retained, consumer executes once.",
+    "remaining": []
+  },
+  {
+    "id": "PUB-013",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch031_committed_sql_lost_result_is_uncertain_never_replayed"
+    ],
+    "coverage": "partial",
+    "rationale": "Committed SQL callback-loss proves uncertain state/no automatic retry, not requested network write and manual warning flow.",
+    "remaining": [
+      "Use loopback HTTP write committed-before-connection-loss fixture; assert manual rerun displays potential side-effect warning."
+    ]
+  },
+  {
+    "id": "PUB-014",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_pub014_concurrent_graph_claim_and_duplicate_execution_only_one_effect",
+      "tests/test_workflows_n8n.py::test_duplicate_callback_never_emits_running_completion_marker"
+    ],
+    "coverage": "full",
+    "rationale": "Concurrent graph claims select one owner/real side effect; concurrent callback endpoint returns same terminal record and one attempt.",
+    "remaining": []
+  },
+  {
+    "id": "PUB-015",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_pub015_late_duplicate_submission_keeps_terminal_attempt_evidence"
+    ],
+    "coverage": "full",
+    "rationale": "Authenticated late node callback returns succeeded and preserves exact terminal state/one ordered attempt record.",
+    "remaining": []
+  },
+  {
+    "id": "PUB-016",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_pub016_only_final_published_failure_notifies_once"
+    ],
+    "coverage": "full",
+    "rationale": "Real loopback receiver observes zero intermediate retry notices, one final formal failure, zero extra draft-test notices.",
+    "remaining": []
+  },
+  {
+    "id": "PUB-017",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_pub017_notification_retry_keeps_business_success_and_is_authorized_idempotent",
+      "tests/test_acceptance_schedule_security.py::test_notification_retry_rejects_uncertain_and_duplicate_old_failure",
+      "tests/test_acceptance_browser.py::test_browser_notification_retry_is_explicit_and_targets_failed_delivery"
+    ],
+    "coverage": "full",
+    "rationale": "Real HTTP500 notification leaves successful business attempt intact; authorized deduplicated retry delivers once; unknown outcomes reject replay.",
+    "remaining": []
+  },
+  {
+    "id": "SEC-001",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sec001_unauthenticated_and_revoked_sessions_cannot_read_run_data"
+    ],
+    "coverage": "full",
+    "rationale": "Anonymous and invalidated session cookies receive 401 on workflow/run/log-containing detail/output/artifact/connections, no path/data leak.",
+    "remaining": []
+  },
+  {
+    "id": "SEC-002",
+    "tests": [
+      "tests/test_workflow_api_contract.py::test_operator_cannot_author_publish_test_or_read_credentials",
+      "tests/test_runtime_packs.py::test_runtime_routes_admin_only_and_structured_errors",
+      "tests/test_acceptance_release_edges.py::test_sec002_operator_can_execute_and_read_only_authorized_publication"
+    ],
+    "coverage": "full",
+    "rationale": "Existing mutation/runtime denial matrix plus actual operator publication execution/result read and exclusion/rejection of unauthorized workflow through list/get/run APIs.",
+    "remaining": []
+  },
+  {
+    "id": "SEC-003",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sec003_mutation_and_run_csrf_fail_without_state_change"
+    ],
+    "coverage": "full",
+    "rationale": "Missing/wrong CSRF and foreign Origin all block edit/run with exact saved state and zero runs.",
+    "remaining": []
+  },
+  {
+    "id": "SEC-004",
+    "tests": [
+      "tests/test_local_integration.py::test_local_bootstrap_rejects_rebinding_and_proxy",
+      "tests/test_local_integration.py::test_local_bootstrap_rejects_nonloopback_peer",
+      "tests/test_acceptance_lifecycle.py::test_mac_au07_exact_origin_authority_rejected_without_state_changes"
+    ],
+    "coverage": "partial",
+    "rationale": "Host/forwarded/foreign origin/nonloopback bootstrap and mutations blocked.",
+    "remaining": [
+      "Explicit internal trigger endpoint matrix under forwarded/external Host/nonloopback peers remains to be asserted."
+    ]
+  },
+  {
+    "id": "SEC-005",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sec005_connection_failure_never_exposes_resolved_secret",
+      "tests/test_workflow_execution_complete.py::test_credentials_encrypted_resolved_at_execution_masked_and_authorized",
+      "tests/test_workflow_transfer.py::test_export_excludes_configured_secrets_paths_ids_and_history"
+    ],
+    "coverage": "full",
+    "rationale": "Random synthetic connection secret remains encrypted/write-only; driver failure is redacted before persisted logs/API responses; exports omit secrets and execution resolves only authorized references.",
+    "remaining": []
+  },
+  {
+    "id": "SEC-006",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sec006_sec007_sql_injection_and_readonly_cte_multistatement"
+    ],
+    "coverage": "full",
+    "rationale": "Exact DROP TABLE attack remains bound literal; read-only managed SQLite table and three original rows survive.",
+    "remaining": []
+  },
+  {
+    "id": "SEC-007",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sec006_sec007_sql_injection_and_readonly_cte_multistatement"
+    ],
+    "coverage": "full",
+    "rationale": "Actual SQLite read-only session rejects DELETE, CTE DELETE, multi-statement with all original rows intact.",
+    "remaining": []
+  },
+  {
+    "id": "SEC-008",
+    "tests": [
+      "tests/test_workflow_external_sql.py::test_external_write_commit_and_failed_second_statement_rollback"
+    ],
+    "coverage": "full",
+    "rationale": "Parameterized real PostgreSQL/MySQL/Oracle DML transaction tests check second-statement failure leaves no first-statement update. Skips remain blocked; no cross-node or DDL rollback claim.",
+    "remaining": []
+  },
+  {
+    "id": "SEC-009",
+    "tests": [
+      "tests/test_workflow_execution_complete.py::test_artifact_tampering_and_outside_run_rejected",
+      "tests/test_runtime.py::test_execute_rejects_symlink_and_excess_outputs"
+    ],
+    "coverage": "partial",
+    "rationale": "Run-local artifact helper rejects outside path; legacy runtime rejects symlink artifacts.",
+    "remaining": [
+      "Exercise v2 artifact producer, preview and HTTP download for traversal and outside symlink with host canary unchanged."
+    ]
+  },
+  {
+    "id": "SEC-010",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sec010_artifacts_enforce_run_membership_with_valid_control"
+    ],
+    "coverage": "full",
+    "rationale": "Same authenticated administrator downloads valid run-A artifact while run-A/run-B-artifact mixed URL is 404.",
+    "remaining": []
+  },
+  {
+    "id": "SEC-011",
+    "tests": [
+      "tests/test_acceptance_browser.py::test_browser_duplicate_delete_cancel_undo_and_xss_literal"
+    ],
+    "coverage": "partial",
+    "rationale": "Real Chromium node-name HTML payload renders literal text with no script/image element.",
+    "remaining": [
+      "Add payload to workflow list and actual run logs and verify no DOM execution on both pages."
+    ]
+  },
+  {
+    "id": "SEC-012",
+    "tests": [
+      "tests/test_acceptance_browser.py::test_browser_password_change_hides_default_card_in_two_sessions",
+      "tests/test_acceptance_lifecycle.py::test_mac_au03_password_change_revokes_both_sessions_and_survives_restart",
+      "tests/test_local_accounts.py::test_existing_or_restored_state_never_gets_extra_account"
+    ],
+    "coverage": "full",
+    "rationale": "Real browser removes initial account card, both old sessions invalidated, restart preserves changed account without resetting existing installations.",
+    "remaining": []
+  },
+  {
+    "id": "SEC-013",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sec013_shell_file_protocol_keeps_metacharacters_literal"
+    ],
+    "coverage": "full",
+    "rationale": "Actual safe shell JSON file echo preserves quotes/spaces/semicolon/dollar command substitution literally; canary touch never executes.",
+    "remaining": []
+  },
+  {
+    "id": "OPS-001",
+    "tests": [
+      "tests/test_workflow_transfer.py::test_export_excludes_configured_secrets_paths_ids_and_history",
+      "tests/test_workflow_transfer.py::test_roundtrip_retains_graph_but_requires_rebinding_and_publication",
+      "tests/test_workflow_transfer.py::test_import_export_http_are_admin_and_csrf_protected",
+      "tests/test_acceptance_release_edges.py::test_ops001_portable_export_import_into_fresh_workspace_requires_rebinding"
+    ],
+    "coverage": "full",
+    "rationale": "Exports to separate empty workspace preserve graph/mappings/parameters; secrets/endpoints/history omitted, no connections/runs imported, schedules off and rebinding required; route auth tested separately.",
+    "remaining": []
+  },
+  {
+    "id": "OPS-002",
+    "tests": [
+      "tests/test_workflow_migration.py::test_migration_disabled_idempotent_preserves_schedule_and_source",
+      "tests/test_workflow_migration.py::test_legacy_wrapper_executes_params_and_collects_artifact"
+    ],
+    "coverage": "partial",
+    "rationale": "Single Python conversion preserves parameters/anchor and executes old source, disables old schedule at handoff.",
+    "remaining": [
+      "Exact daily/timezone/history-association migration plus manual enable must prove no dual admissions."
+    ]
+  },
+  {
+    "id": "OPS-003",
+    "tests": [
+      "tests/test_workflow_migration.py::test_migration_cron_disabled_manual_and_active_handoff_rejected"
+    ],
+    "coverage": "partial",
+    "rationale": "Cron converts to manual and needs_schedule_review; active legacy run blocks handoff.",
+    "remaining": [
+      "Explicitly assert converted workflow/new trigger disabled and preserve original Cron metadata for review."
+    ]
+  },
+  {
+    "id": "OPS-004",
+    "tests": [
+      "tests/test_workflow_operations.py::test_retention_protects_active_and_referenced_artifacts",
+      "tests/test_workflow_operations.py::test_retention_transaction_failure_preserves_files_and_records"
+    ],
+    "coverage": "partial",
+    "rationale": "Only expired unreferenced artifact tree deleted; active/referenced remain; injected transaction failure rolls back files and metadata.",
+    "remaining": [
+      "Assert cleanup audit record/counts and retained retry-dependent logs as well as artifacts."
+    ]
+  },
+  {
+    "id": "OPS-005",
+    "tests": [
+      "tests/test_workflow_backup.py::test_encrypted_backup_restores_secrets_sources_and_disabled_schedules",
+      "tests/test_workflow_backup.py::test_backup_rejects_active_and_restore_refuses_existing_installation"
+    ],
+    "coverage": "partial",
+    "rationale": "Encrypted disaster backup restores to new directory, disables schedules, and protects existing installation. It intentionally restores encrypted secrets, while this historical oracle requests secret re-entry.",
+    "remaining": [
+      "Resolve approved distinction between portable secret-free template and encrypted full recovery; do not relabel encrypted recovery as meeting secret re-entry oracle.",
+      "Assert full graph/publication/runtime/connection-reference integrity on restored installation."
+    ]
+  },
+  {
+    "id": "OPS-006",
+    "tests": [],
+    "coverage": "manual",
+    "rationale": "No measured end-to-end 10/25/50-node performance record from fixed machine configuration exists.",
+    "remaining": [
+      "Run repeated real graph/performance trials recording CPU/OS/memory, editor latency and execution duration/correctness; current unit layout tests do not qualify."
+    ]
+  }
+]

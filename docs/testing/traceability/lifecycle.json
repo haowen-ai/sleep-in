@@ -1,0 +1,602 @@
+[
+  {
+    "id": "MAC-IN-01",
+    "tests": [],
+    "coverage": "manual",
+    "rationale": "Clean supported Mac without developer tools must complete packaged install and synthetic example.",
+    "remaining": [
+      "Clean supported Mac without developer tools must complete packaged install and synthetic example."
+    ]
+  },
+  {
+    "id": "MAC-IN-02",
+    "tests": [
+      "tests/test_acceptance_lifecycle.py::test_mac_in02_unsupported_or_full_disk_never_starts_runtime"
+    ],
+    "coverage": "full",
+    "rationale": "Actual launcher rejects Linux, Intel, pre-13 macOS and low free space through OS-boundary fixtures before networking or service creation.",
+    "remaining": []
+  },
+  {
+    "id": "MAC-IN-03",
+    "tests": [
+      "tests/test_acceptance_lifecycle.py::test_mac_in03_busy_port_is_rejected_before_any_runtime_launch",
+      "tests/test_local_service.py::test_http_readiness_rejects_another_application_generation"
+    ],
+    "coverage": "partial",
+    "rationale": "Real occupied socket remains owned; service stops before runtime invocation; readiness rejects another generation. Browser retry/repair still required.",
+    "remaining": [
+      "Real occupied socket remains owned; service stops before runtime invocation; readiness rejects another generation. Browser retry/repair still required."
+    ]
+  },
+  {
+    "id": "MAC-IN-04",
+    "tests": [
+      "tests/test_local_service.py::test_completed_download_partial_is_verified_and_reused_without_network",
+      "tests/test_local_service.py::test_unresumable_partial_retries_full_download_and_checks_hash"
+    ],
+    "coverage": "partial",
+    "rationale": "Real shell download logic validates hashes/retries a synthetic transport; interrupted mid-download GUI progress and prior-version preservation need full integration.",
+    "remaining": [
+      "Real shell download logic validates hashes/retries a synthetic transport; interrupted mid-download GUI progress and prior-version preservation need full integration."
+    ]
+  },
+  {
+    "id": "MAC-IN-05",
+    "tests": [
+      "tests/test_local_service.py::test_installer_repairs_stale_n8n_marker_without_real_downloads",
+      "tests/test_local_service.py::test_worker_readiness_requires_fresh_heartbeat_and_n8n"
+    ],
+    "coverage": "partial",
+    "rationale": "Stale n8n installation and stale/missing worker heartbeat covered; all four individually missing executables need real repair/start trials.",
+    "remaining": [
+      "Stale n8n installation and stale/missing worker heartbeat covered; all four individually missing executables need real repair/start trials."
+    ]
+  },
+  {
+    "id": "MAC-IN-06",
+    "tests": [
+      "tests/test_local_service.py::test_worker_readiness_requires_fresh_heartbeat_and_n8n",
+      "tests/test_local_service.py::test_fresh_worker_heartbeat_from_previous_generation_is_not_ready"
+    ],
+    "coverage": "partial",
+    "rationale": "Worker capability/generation freshness is checked; deliberately failing each live component and browser repair transition remain.",
+    "remaining": [
+      "Worker capability/generation freshness is checked; deliberately failing each live component and browser repair transition remain."
+    ]
+  },
+  {
+    "id": "MAC-IN-07",
+    "tests": [
+      "tests/test_acceptance_lifecycle.py::test_mac_in07_ten_concurrent_launches_reuse_one_real_service",
+      "tests/test_local_supervisor_integration.py::test_real_supervisor_repeated_launch_stop_and_stopped_login"
+    ],
+    "coverage": "manual",
+    "rationale": "Ten actual concurrent CLI starts share supervisor PID/generation/children and zero admissions; physical repeated app-open behavior remains.",
+    "remaining": [
+      "Ten actual concurrent CLI starts share supervisor PID/generation/children and zero admissions; physical repeated app-open behavior remains."
+    ]
+  },
+  {
+    "id": "MAC-IN-08",
+    "tests": [],
+    "coverage": "manual",
+    "rationale": "Offline physical Mac installation/template execution with network explicitly disabled remains unobserved.",
+    "remaining": [
+      "Offline physical Mac installation/template execution with network explicitly disabled remains unobserved."
+    ]
+  },
+  {
+    "id": "MAC-IN-09",
+    "tests": [
+      "tests/test_mac_complete.py::test_distribution_build_signs_hardened_runtime_and_notarizes"
+    ],
+    "coverage": "manual",
+    "rationale": "Packaging command contract tested with OS boundary mocked; actual Developer ID, notarization, Gatekeeper and clean-account launch not proven.",
+    "remaining": [
+      "Packaging command contract tested with OS boundary mocked; actual Developer ID, notarization, Gatekeeper and clean-account launch not proven."
+    ]
+  },
+  {
+    "id": "MAC-IN-10",
+    "tests": [
+      "tests/test_mac_complete.py::test_update_failed_health_rolls_back_bundle_and_data",
+      "tests/test_mac_complete.py::test_backup_verification_failure_restarts_unchanged_app",
+      "tests/test_mac_complete.py::test_saved_backup_manifest_matches_final_preferences"
+    ],
+    "coverage": "manual",
+    "rationale": "Isolated update preserves backup/data/preferences and rollback; signed app update and real process/UI recovery still required.",
+    "remaining": [
+      "Isolated update preserves backup/data/preferences and rollback; signed app update and real process/UI recovery still required."
+    ]
+  },
+  {
+    "id": "MAC-IN-11",
+    "tests": [],
+    "coverage": "manual",
+    "rationale": "Actual native uninstall/reinstall, helper removal and explicit disposable data-deletion path are not accepted.",
+    "remaining": [
+      "Actual native uninstall/reinstall, helper removal and explicit disposable data-deletion path are not accepted."
+    ]
+  },
+  {
+    "id": "MAC-AU-01",
+    "tests": [
+      "tests/test_local_integration.py::test_local_first_login_changes_hide_hint_and_revoke_session"
+    ],
+    "coverage": "partial",
+    "rationale": "Actual bootstrap/login HTTP and public account tested; English page labels and use-account first journey require current real-browser evidence.",
+    "remaining": [
+      "Actual bootstrap/login HTTP and public account tested; English page labels and use-account first journey require current real-browser evidence."
+    ]
+  },
+  {
+    "id": "MAC-AU-02",
+    "tests": [
+      "tests/test_local_accounts.py::test_existing_or_restored_state_never_gets_extra_account"
+    ],
+    "coverage": "partial",
+    "rationale": "Existing record kinds block extra accounts; full two-start migrated/restored hashes/roles/disabled-user inventory comparison remains.",
+    "remaining": [
+      "Existing record kinds block extra accounts; full two-start migrated/restored hashes/roles/disabled-user inventory comparison remains."
+    ]
+  },
+  {
+    "id": "MAC-AU-03",
+    "tests": [
+      "tests/test_acceptance_lifecycle.py::test_mac_au03_password_change_revokes_both_sessions_and_survives_restart"
+    ],
+    "coverage": "partial",
+    "rationale": "Two actual HTTP sessions revoked, old password refused, new works, hint stays hidden after recreation; both browser reloads and sanitized crash/log scan remain.",
+    "remaining": [
+      "Two actual HTTP sessions revoked, old password refused, new works, hint stays hidden after recreation; both browser reloads and sanitized crash/log scan remain."
+    ]
+  },
+  {
+    "id": "MAC-AU-04",
+    "tests": [
+      "tests/test_local_accounts.py::test_fresh_account_hint_disappears_after_password_changes",
+      "tests/test_local_accounts.py::test_disabled_initial_user_hides_hint_but_still_blocks_external_reuse"
+    ],
+    "coverage": "partial",
+    "rationale": "Changed hash/disabled-account hint guard covered; owner-recovery/delete/restored-metadata permutations remain.",
+    "remaining": [
+      "Changed hash/disabled-account hint guard covered; owner-recovery/delete/restored-metadata permutations remain."
+    ]
+  },
+  {
+    "id": "MAC-AU-05",
+    "tests": [
+      "tests/test_local_accounts.py::test_public_account_requires_explicit_loopback_local_mode",
+      "tests/test_local_integration.py::test_local_mode_refuses_external_bind"
+    ],
+    "coverage": "full",
+    "rationale": "Initialization refuses nonloopback local configuration before listener creation; absent local mode creates no public account.",
+    "remaining": []
+  },
+  {
+    "id": "MAC-AU-06",
+    "tests": [
+      "tests/test_local_integration.py::test_public_initial_account_cannot_reopen_in_server_mode",
+      "tests/test_local_accounts.py::test_rehashing_same_public_password_does_not_remove_default_guard"
+    ],
+    "coverage": "partial",
+    "rationale": "Existing public account prevents server-mode app construction even after hash change; full socket/database unchanged inventory not yet recorded.",
+    "remaining": [
+      "Existing public account prevents server-mode app construction even after hash change; full socket/database unchanged inventory not yet recorded."
+    ]
+  },
+  {
+    "id": "MAC-AU-07",
+    "tests": [
+      "tests/test_acceptance_lifecycle.py::test_mac_au07_exact_origin_authority_rejected_without_state_changes",
+      "tests/test_acceptance_lifecycle.py::test_mac_au07_direct_loopback_authorities_allowed",
+      "tests/test_local_integration.py::test_local_bootstrap_rejects_rebinding_and_proxy",
+      "tests/test_local_integration.py::test_local_bootstrap_rejects_nonloopback_peer"
+    ],
+    "coverage": "full",
+    "rationale": "Exact HTTP Host/Origin matrix includes scheme/port, userinfo, path/query, deceptive suffix, IPv6 and forwarding; accepted loopback aliases and no rejected-request account/session mutation verified.",
+    "remaining": []
+  },
+  {
+    "id": "MAC-AU-08",
+    "tests": [
+      "tests/test_local_integration.py::test_local_bootstrap_rejects_rebinding_and_proxy",
+      "tests/test_local_integration.py::test_local_bootstrap_rejects_nonloopback_peer",
+      "tests/test_acceptance_lifecycle.py::test_mac_au07_exact_origin_authority_rejected_without_state_changes",
+      "tests/test_local_service.py::test_environment_forces_loopback_and_has_consistent_state"
+    ],
+    "coverage": "partial",
+    "rationale": "Forwarded request/peer rejection and enforced child bind configuration checked; real listener inventory remains.",
+    "remaining": [
+      "Forwarded request/peer rejection and enforced child bind configuration checked; real listener inventory remains."
+    ]
+  },
+  {
+    "id": "MAC-AU-09",
+    "tests": [],
+    "coverage": "manual",
+    "rationale": "Real pre-login bilingual switch with alternate timezone confirmation and persisted schedule preview requires browser evidence.",
+    "remaining": [
+      "Real pre-login bilingual switch with alternate timezone confirmation and persisted schedule preview requires browser evidence."
+    ]
+  },
+  {
+    "id": "MAC-AU-10",
+    "tests": [
+      "tests/test_acceptance_lifecycle.py::test_mac_au03_password_change_revokes_both_sessions_and_survives_restart"
+    ],
+    "coverage": "partial",
+    "rationale": "New password absent from bootstrap tested; complete health/status/crash/runtime-log canary scan not yet covered.",
+    "remaining": [
+      "New password absent from bootstrap tested; complete health/status/crash/runtime-log canary scan not yet covered."
+    ]
+  },
+  {
+    "id": "MAC-BG-01",
+    "tests": [
+      "tests/test_local_service.py::test_registration_requires_explicit_consent_without_writing",
+      "tests/test_local_supervisor_integration.py::test_real_supervisor_repeated_launch_stop_and_stopped_login"
+    ],
+    "coverage": "manual",
+    "rationale": "Real isolated service launch and registration-consent guard; actual native approval/status and power assertion remain.",
+    "remaining": [
+      "Real isolated service launch and registration-consent guard; actual native approval/status and power assertion remain."
+    ]
+  },
+  {
+    "id": "MAC-BG-02",
+    "tests": [],
+    "coverage": "manual",
+    "rationale": "Real macOS decline/reopen/enable registration-state transitions require designated test device.",
+    "remaining": [
+      "Real macOS decline/reopen/enable registration-state transitions require designated test device."
+    ]
+  },
+  {
+    "id": "MAC-BG-03",
+    "tests": [],
+    "coverage": "manual",
+    "rationale": "Real requiresApproval/System Settings/enable sequence requires operator action.",
+    "remaining": [
+      "Real requiresApproval/System Settings/enable sequence requires operator action."
+    ]
+  },
+  {
+    "id": "MAC-BG-04",
+    "tests": [
+      "tests/test_acceptance_lifecycle.py::test_mac_in07_ten_concurrent_launches_reuse_one_real_service"
+    ],
+    "coverage": "manual",
+    "rationale": "Real idle singleton with zero admissions tested briefly; mandated ten-/thirty-minute idle and physical CPU/assertion observations remain.",
+    "remaining": [
+      "Real idle singleton with zero admissions tested briefly; mandated ten-/thirty-minute idle and physical CPU/assertion observations remain."
+    ]
+  },
+  {
+    "id": "MAC-BG-05",
+    "tests": [
+      "tests/test_workflow_execution_complete.py::test_disabled_trigger_discards_unadmitted_occurrence"
+    ],
+    "coverage": "manual",
+    "rationale": "Disabled trigger discards pending occurrence; two paused would-be occurrences plus live service/assertion trial remain.",
+    "remaining": [
+      "Disabled trigger discards pending occurrence; two paused would-be occurrences plus live service/assertion trial remain."
+    ]
+  },
+  {
+    "id": "MAC-BG-06",
+    "tests": [],
+    "coverage": "manual",
+    "rationale": "Close actual browser and app windows and observe subsequent scheduled artifact without closing background service.",
+    "remaining": [
+      "Close actual browser and app windows and observe subsequent scheduled artifact without closing background service."
+    ]
+  },
+  {
+    "id": "MAC-BG-07",
+    "tests": [
+      "tests/test_workflow_execution_complete.py::test_disabled_trigger_discards_unadmitted_occurrence"
+    ],
+    "coverage": "partial",
+    "rationale": "Disabled admission covered; two workflow pause-one/pause-all with active run and UI lifecycle remain.",
+    "remaining": [
+      "Disabled admission covered; two workflow pause-one/pause-all with active run and UI lifecycle remain."
+    ]
+  },
+  {
+    "id": "MAC-BG-08",
+    "tests": [
+      "tests/test_local_supervisor_integration.py::test_real_supervisor_repeated_launch_stop_and_stopped_login",
+      "tests/test_local_service.py::test_stop_request_reports_draining_until_lock_is_released"
+    ],
+    "coverage": "manual",
+    "rationale": "Real isolated stop persists preference and ends service; actual UI explanation and assertion release remain.",
+    "remaining": [
+      "Real isolated stop persists preference and ends service; actual UI explanation and assertion release remain."
+    ]
+  },
+  {
+    "id": "MAC-BG-09",
+    "tests": [
+      "tests/test_local_supervisor_integration.py::test_real_supervisor_drains_or_confirms_cancel_before_stop"
+    ],
+    "coverage": "partial",
+    "rationale": "Actual n8n active run finishes and admission is blocked before service stop; native UI and queued-run variants still needed.",
+    "remaining": [
+      "Actual n8n active run finishes and admission is blocked before service stop; native UI and queued-run variants still needed."
+    ]
+  },
+  {
+    "id": "MAC-BG-10",
+    "tests": [
+      "tests/test_local_supervisor_integration.py::test_real_supervisor_drains_or_confirms_cancel_before_stop",
+      "tests/test_workflow_execution_n8n_complete.py::test_actual_n8n_cancel_waiting_process_prevents_downstream"
+    ],
+    "coverage": "partial",
+    "rationale": "Actual n8n cancellation and downstream blocking tested; native UI transition and independent side-effect ledger remain.",
+    "remaining": [
+      "Actual n8n cancellation and downstream blocking tested; native UI transition and independent side-effect ledger remain."
+    ]
+  },
+  {
+    "id": "MAC-BG-11",
+    "tests": [
+      "tests/test_local_service.py::test_native_quit_policy_waits_for_drain_and_retries_after_failure"
+    ],
+    "coverage": "partial",
+    "rationale": "Native quit state-machine self-test checks dismiss/wait/retry; real dialog cancellation while executing and preference ledger remain.",
+    "remaining": [
+      "Native quit state-machine self-test checks dismiss/wait/retry; real dialog cancellation while executing and preference ledger remain."
+    ]
+  },
+  {
+    "id": "MAC-BG-12",
+    "tests": [
+      "tests/test_local_service.py::test_explicit_stop_persists_and_login_does_not_override",
+      "tests/test_local_supervisor_integration.py::test_real_supervisor_repeated_launch_stop_and_stopped_login"
+    ],
+    "coverage": "manual",
+    "rationale": "Stopped preference and login CLI path verified; actual login and explicit start with power assertion still required.",
+    "remaining": [
+      "Stopped preference and login CLI path verified; actual login and explicit start with power assertion still required."
+    ]
+  },
+  {
+    "id": "MAC-BG-13",
+    "tests": [],
+    "coverage": "manual",
+    "rationale": "Real System Settings permission revocation during idle and active run, helper shutdown and honest interruption evidence remain.",
+    "remaining": [
+      "Real System Settings permission revocation during idle and active run, helper shutdown and honest interruption evidence remain."
+    ]
+  },
+  {
+    "id": "MAC-BG-14",
+    "tests": [
+      "tests/test_mac_complete.py::test_native_next_schedule_is_read_only_and_disabled_triggers_are_ignored"
+    ],
+    "coverage": "partial",
+    "rationale": "next_scheduled leaves database bytes unchanged; full health/status endpoint mutation/effect ledger still required.",
+    "remaining": [
+      "next_scheduled leaves database bytes unchanged; full health/status endpoint mutation/effect ledger still required."
+    ]
+  },
+  {
+    "id": "MAC-PW-01",
+    "tests": [],
+    "coverage": "manual",
+    "rationale": "Physical AC display-off/locked run needs assertion ownership, system sleep/wake timeline and three scheduled outputs.",
+    "remaining": [
+      "Physical AC display-off/locked run needs assertion ownership, system sleep/wake timeline and three scheduled outputs."
+    ]
+  },
+  {
+    "id": "MAC-PW-02",
+    "tests": [],
+    "coverage": "manual",
+    "rationale": "Physical battery display-off/lock trial over at least thirty minutes with safe reserve and three outputs remains.",
+    "remaining": [
+      "Physical battery display-off/lock trial over at least thirty minutes with safe reserve and three outputs remains."
+    ]
+  },
+  {
+    "id": "MAC-PW-03",
+    "tests": [
+      "tests/test_mac_complete.py::test_power_parser_handles_ac_battery_low_without_activation_gate"
+    ],
+    "coverage": "manual",
+    "rationale": "Parser recognizes source changes; same active run across actual unplug/replug and continuous assertion ownership not measured.",
+    "remaining": [
+      "Parser recognizes source changes; same active run across actual unplug/replug and continuous assertion ownership not measured."
+    ]
+  },
+  {
+    "id": "MAC-PW-04",
+    "tests": [
+      "tests/test_mac_complete.py::test_power_parser_handles_ac_battery_low_without_activation_gate"
+    ],
+    "coverage": "manual",
+    "rationale": "Parser only; waiting-period physical source transitions, unchanged due time and assertion continuity remain.",
+    "remaining": [
+      "Parser only; waiting-period physical source transitions, unchanged due time and assertion continuity remain."
+    ]
+  },
+  {
+    "id": "MAC-PW-05",
+    "tests": [],
+    "coverage": "manual",
+    "rationale": "At least 48 elapsed hours and two actual daily due times on designated Mac; accelerated clocks cannot pass this case.",
+    "remaining": [
+      "At least 48 elapsed hours and two actual daily due times on designated Mac; accelerated clocks cannot pass this case."
+    ]
+  },
+  {
+    "id": "MAC-PW-06",
+    "tests": [],
+    "coverage": "manual",
+    "rationale": "Measured battery session with elapsed duration/charge, multiple executions and explicit safe stop reason remains.",
+    "remaining": [
+      "Measured battery session with elapsed duration/charge, multiple executions and explicit safe stop reason remains."
+    ]
+  },
+  {
+    "id": "MAC-PW-07",
+    "tests": [
+      "tests/test_mac_complete.py::test_power_parser_handles_ac_battery_low_without_activation_gate"
+    ],
+    "coverage": "partial",
+    "rationale": "Low battery is reported without an activation gate; actual warning/admission, OS critical-power/thermal interruption harness remains.",
+    "remaining": [
+      "Low battery is reported without an activation gate; actual warning/admission, OS critical-power/thermal interruption harness remains."
+    ]
+  },
+  {
+    "id": "MAC-PW-08",
+    "tests": [],
+    "coverage": "manual",
+    "rationale": "Explicit system Sleep/wake trial and missed occurrence history require operator approval.",
+    "remaining": [
+      "Explicit system Sleep/wake trial and missed occurrence history require operator approval."
+    ]
+  },
+  {
+    "id": "MAC-PW-09",
+    "tests": [],
+    "coverage": "manual",
+    "rationale": "Physical lid-close/open trial and missed recovery evidence require operator approval.",
+    "remaining": [
+      "Physical lid-close/open trial and missed recovery evidence require operator approval."
+    ]
+  },
+  {
+    "id": "MAC-PW-10",
+    "tests": [],
+    "coverage": "manual",
+    "rationale": "Before/after power preference comparison and actual assertion ownership/release across full trial remain.",
+    "remaining": [
+      "Before/after power preference comparison and actual assertion ownership/release across full trial remain."
+    ]
+  },
+  {
+    "id": "MAC-RC-01",
+    "tests": [
+      "tests/test_local_supervisor_integration.py::test_crash_restart_changes_generation_and_reclaims_children"
+    ],
+    "coverage": "partial",
+    "rationale": "Actual supervisor SIGKILL/restart changes generation/PID, restores worker and records gap; independent orphan/effect inventory remains.",
+    "remaining": [
+      "Actual supervisor SIGKILL/restart changes generation/PID, restores worker and records gap; independent orphan/effect inventory remains."
+    ]
+  },
+  {
+    "id": "MAC-RC-02",
+    "tests": [
+      "tests/test_workflow_execution_complete.py::test_recovery_terminates_only_verified_detached_worker"
+    ],
+    "coverage": "partial",
+    "rationale": "Verified detached worker cleanup covered; separately kill actual app/worker/n8n during effectful run and inspect health/endstates remains.",
+    "remaining": [
+      "Verified detached worker cleanup covered; separately kill actual app/worker/n8n during effectful run and inspect health/endstates remains."
+    ]
+  },
+  {
+    "id": "MAC-RC-03",
+    "tests": [
+      "tests/test_acceptance_schedule_security.py::test_sch031_committed_sql_lost_result_is_uncertain_never_replayed"
+    ],
+    "coverage": "full",
+    "rationale": "Actual SQLite write commits before injected result loss; persisted uncertain status and independent ledger prove recovery does not replay the same occurrence.",
+    "remaining": []
+  },
+  {
+    "id": "MAC-RC-04",
+    "tests": [],
+    "coverage": "manual",
+    "rationale": "Reboot/FileVault/login and helper recovery trial requires reserved test Mac.",
+    "remaining": [
+      "Reboot/FileVault/login and helper recovery trial requires reserved test Mac."
+    ]
+  },
+  {
+    "id": "MAC-RC-05",
+    "tests": [
+      "tests/test_local_service.py::test_explicit_stop_persists_and_login_does_not_override"
+    ],
+    "coverage": "manual",
+    "rationale": "Persisted stop software policy tested; physical reboot/login must not re-enable helper.",
+    "remaining": [
+      "Persisted stop software policy tested; physical reboot/login must not re-enable helper."
+    ]
+  },
+  {
+    "id": "MAC-RC-06",
+    "tests": [
+      "tests/test_workflow_execution_complete.py::test_latest_missed_once_within_grace_and_disabled_pending",
+      "tests/test_acceptance_schedule_security.py::test_sch027_sch029_missed_and_expired_grace_logged_without_runs"
+    ],
+    "coverage": "partial",
+    "rationale": "Controlled due occurrence handling covered; hand-calculated default skip backlog and complete UI offline reason trace remain.",
+    "remaining": [
+      "Controlled due occurrence handling covered; hand-calculated default skip backlog and complete UI offline reason trace remain."
+    ]
+  },
+  {
+    "id": "MAC-RC-07",
+    "tests": [
+      "tests/test_workflow_execution_complete.py::test_latest_missed_once_within_grace_and_disabled_pending",
+      "tests/test_acceptance_schedule_security.py::test_sch021_sch028_two_processes_admit_once_and_side_effect_once",
+      "tests/test_acceptance_schedule_security.py::test_sch027_sch029_missed_and_expired_grace_logged_without_runs"
+    ],
+    "coverage": "partial",
+    "rationale": "Latest-within-grace and pending disabled behavior covered; repeated restart plus outside-grace effect ledger still required.",
+    "remaining": [
+      "Verify catch-up/restart occurrence ledger against complete latest-only/in-grace/out-of-grace oracle; API UI disclosure remains separately tracked."
+    ]
+  },
+  {
+    "id": "MAC-RC-08",
+    "tests": [
+      "tests/test_workflow_schedule_contract.py::test_fixed_schedule_oracles"
+    ],
+    "coverage": "partial",
+    "rationale": "DST calculator independent UTC oracles covered; pause/offline restart and product timezone-change dispatch comparison remain.",
+    "remaining": [
+      "DST calculator independent UTC oracles covered; pause/offline restart and product timezone-change dispatch comparison remain."
+    ]
+  },
+  {
+    "id": "MAC-RC-09",
+    "tests": [],
+    "coverage": "partial",
+    "rationale": "Controlled unavailable network-source workflow alongside local successful run and supervisor continuity not yet executed.",
+    "remaining": [
+      "Controlled unavailable network-source workflow alongside local successful run and supervisor continuity not yet executed."
+    ]
+  },
+  {
+    "id": "MAC-RC-10",
+    "tests": [
+      "tests/test_local_service.py::test_single_instance_lock_releases_after_owner_exits",
+      "tests/test_local_service.py::test_service_status_never_reports_stale_pid_as_running",
+      "tests/test_local_service.py::test_live_lock_does_not_trust_previous_generations_ready_status",
+      "tests/test_workflow_execution_complete.py::test_recovery_terminates_only_verified_detached_worker"
+    ],
+    "coverage": "partial",
+    "rationale": "Lock generation/stale status and verified worker cleanup covered; combined real reused-PID owner recovery trial remains.",
+    "remaining": [
+      "Lock generation/stale status and verified worker cleanup covered; combined real reused-PID owner recovery trial remains."
+    ]
+  },
+  {
+    "id": "MAC-RC-11",
+    "tests": [
+      "tests/test_acceptance_storage.py::test_failed_admission_is_actionable_atomic_and_retry_keeps_identity"
+    ],
+    "coverage": "partial",
+    "rationale": "Real SQLite write rejection yields safe actionable503, transaction preserves preferences/publication, same-key recovery admits once, integrity_check succeeds. Native status-file failure and prior history fault remain untested.",
+    "remaining": [
+      "Inject native status-file persistence failure while service operates, preserving prior completed history and independent effect ledger; do not infer this from HTTP admission rollback."
+    ]
+  }
+]

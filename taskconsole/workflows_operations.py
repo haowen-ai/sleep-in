@@ -21,6 +21,10 @@ TERMINAL = {'succeeded', 'failed', 'partial', 'timed_out', 'cancelled'}
 DEFAULT_POLICY = {'success_days': 30, 'failure_days': 30, 'metadata_days': 90}
 
 
+class UncertainDelivery(ValueError):
+    """A recipient may have accepted the message; blind retries can duplicate it."""
+
+
 def validate_retention(data,defaults=None):
     if not isinstance(data,dict) or set(data)-set(DEFAULT_POLICY):raise ValueError('Invalid retention policy')
     policy={**(defaults or DEFAULT_POLICY),**data}
@@ -151,11 +155,29 @@ class WorkflowOperations:
             mode=config.get('tls','starttls');factory=smtplib.SMTP_SSL if mode=='ssl' else smtplib.SMTP
             kwargs={'timeout':10}
             if mode=='ssl':kwargs['context']=ssl.create_default_context()
-            with factory(config['host'],int(config.get('port',465 if mode=='ssl' else 587)),**kwargs) as smtp:
-                if mode=='starttls':smtp.starttls(context=ssl.create_default_context())
-                if config.get('username'):smtp.login(config['username'],secret)
-                refused=smtp.send_message(message)
-                if refused:raise ValueError('Partial email delivery: some recipients refused the message; inspect recipients before resending')
+            accepted=False;delivery_error=None
+            try:
+                with factory(config['host'],int(config.get('port',465 if mode=='ssl' else 587)),**kwargs) as smtp:
+                    if mode=='starttls':smtp.starttls(context=ssl.create_default_context())
+                    if config.get('username'):smtp.login(config['username'],secret)
+                    try:
+                        refused=smtp.send_message(message)
+                    except (smtplib.SMTPSenderRefused,smtplib.SMTPRecipientsRefused,smtplib.SMTPDataError) as exc:
+                        delivery_error=exc;raise  # Explicit rejection before acceptance.
+                    except (smtplib.SMTPServerDisconnected,OSError) as exc:
+                        delivery_error=UncertainDelivery('Email acknowledgement was lost; inspect recipients before resending')
+                        raise delivery_error from exc
+                    accepted=True
+                    if refused:
+                        delivery_error=UncertainDelivery('Partial email delivery: some recipients accepted the message; inspect recipients before resending')
+                        raise delivery_error
+            except Exception as exc:
+                # QUIT/context teardown must not replace the actual DATA outcome.
+                if delivery_error is not None:
+                    if exc is delivery_error:raise
+                    raise delivery_error from exc
+                if accepted:raise UncertainDelivery('Email was accepted but session closure failed; inspect recipients before resending') from exc
+                raise
 
     def test_channel(self,cid):
         with self.store.transaction() as tx:channel=tx.get('workflow_channel',cid)
@@ -165,6 +187,20 @@ class WorkflowOperations:
 
     def deliveries(self):
         with self.store.transaction() as tx:return sorted(tx.all('workflow_notification'),key=lambda r:r['created_at'],reverse=True)
+
+    def retry_delivery(self,delivery_id,expected_attempt):
+        """Retry only an explicitly selected failed delivery, never its business run."""
+        if type(expected_attempt) is not int or expected_attempt<1:raise ValueError('Choose the failed delivery attempt to retry')
+        with self.store.transaction() as tx:
+            row=tx.get('workflow_notification',delivery_id)
+            if not row:raise ValueError('Notification delivery not found')
+            if row['status']=='uncertain':raise ValueError('Delivery outcome is uncertain; inspect the recipient before resending')
+            if expected_attempt>row['attempts']:raise ValueError('Notification attempt changed; refresh delivery history')
+            if expected_attempt<row['attempts'] or row['status'] in {'pending','sending','sent'}:return copy.deepcopy(row)
+            if row['status']!='failed':raise ValueError('Only a failed notification can be retried')
+            row.update(status='pending',retry_requested_at=stamp())
+            tx.put('workflow_notification',row)
+        return copy.deepcopy(row)
 
     def tick(self):
         with self.store.transaction() as tx:runs=tx.all('workflow_run')
@@ -180,7 +216,7 @@ class WorkflowOperations:
             try:
                 if not run or not channel:raise ValueError('Run or channel unavailable')
                 self._send(channel,self._payload(run,row['event']));result={'status':'sent','error':None}
-            except Exception as exc:result={'status':'failed','error':self._mask(type(exc).__name__+': '+str(exc))}
+            except Exception as exc:result={'status':'uncertain' if isinstance(exc,UncertainDelivery) else 'failed','error':self._mask(type(exc).__name__+': '+str(exc))}
             with self.store.transaction() as tx:
                 row=tx.get('workflow_notification',row['id']);row.update(**result,finished_at=stamp());tx.put('workflow_notification',row)
         with self.store.transaction() as tx:last=tx.get('meta','workflow_cleanup')
@@ -279,6 +315,9 @@ def register_operations_routes(app,store,require):
         except Exception as exc:raise HTTPException(422,{'message':op._mask(str(exc))}) from exc
     @app.get('/api/workflow-notifications')
     def notifications(request:Request):auth(request);return op.deliveries()
+    @app.post('/api/workflow-notifications/{delivery_id}/retry')
+    def retry_notification(delivery_id:str,request:Request,data:dict):
+        auth(request);return op.retry_delivery(delivery_id,data.get('expected_attempt'))
     @app.get('/api/workflow-maintenance')
     def maintenance(request:Request):
         auth(request)

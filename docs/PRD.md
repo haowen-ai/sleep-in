@@ -6,7 +6,7 @@ English · [简体中文](PRD.zh-CN.md)
 
 ## 1. Product definition
 
-**A visual, drag-and-drop low-code platform for complex scheduled workflows.** Connect SQL receivers and multilingual scripts, map upstream outputs into downstream inputs, coordinate dependencies and branches, then schedule the whole published workflow.
+**A visual low-code platform with fixed downward workflow layout.** Connect SQL receivers and multilingual scripts, map upstream outputs into downstream inputs, coordinate dependencies and branches, then schedule the whole published workflow.
 
 A single script or an AI-scheduled action can cover a single task. Sleep In earns its place when work spans multiple data sources, languages and dependent steps that need a reusable graph, consistent inputs, failure handling and a visible execution history. AI is optional assistance, not the scheduler, workflow definition or runtime dependency.
 
@@ -27,7 +27,7 @@ The supplied screenshots establish functional references, not a visual theme to 
 
 | Reference | Preserve | Redesign |
 |---|---|---|
-| Graph and outline | Connected steps, outline, save, publish | Horizontal canvas, language/runtime labels, separate draft and published states |
+| Graph and outline | Connected steps, outline, save, publish | Fixed downward canvas, language/runtime labels, separate draft and published states |
 | Node menus | Search and insertion | Language and SQL dialect grouping; remove query/transform/service/control top-level tabs |
 | API trigger | External invocation | Authentication, input schema, idempotency and asynchronous run status |
 | Scheduled trigger | Enable/disable and preview | Frequency, calendar controls, timezone, bounds and next five occurrences |
@@ -58,12 +58,12 @@ Triggers follow the current published version by default; administrators may pin
 
 ## 4. First useful journey
 
-Start Compose, create an administrator, choose the Morning report template, and see SQL → Python → JavaScript. The default template uses a bundled SQLite synthetic dataset, without external accounts. Real database connections are optional replacements.
+Install and open the Mac app, start its managed background services, and sign in using the eligible fresh-local account supplied by the server (or an existing account). Choose the Morning report template and see SQL → Python → JavaScript in a fixed downward graph. Docker Compose is the optional developer/server path, with its own setup and acceptance gates. The default template uses a bundled SQLite synthetic dataset, without external accounts. Real database connections are optional replacements.
 
 Select `Order query → rows` as the Python node's `orders` input. Map its `summary` to a JavaScript input. Test the workflow, inspect each node's data/logs and download the resulting file. Publish a version, choose weekdays at 07:30 in Asia/Shanghai, inspect the next five occurrences and enable the schedule.
 
 ```mermaid
-flowchart LR
+flowchart TD
   A[Schedule / Manual / API] --> B[SQL receiver]
   B -->|rows to orders| C[Python script]
   C -->|summary to report| D[JavaScript script]
@@ -253,7 +253,7 @@ Before implementation, verify publication/activation, authenticated starts, wait
 
 A Monday morning meeting should not cost you your Sunday night. Prepare the workflow once, let your Mac collect and process the data, and wake up to the results. **One-click setup. One-click run. Sleep in.** The promise is fewer chores and clearer readiness, never guaranteed execution on a powered-off computer.
 
-The primary user owns a MacBook, not a server. The default journey is **install with background service → drag nodes or open a template → map inputs/outputs → test and publish → pick a schedule**. A working synthetic weekly-report template is available before connecting a real database. The visual graph editor is the primary authoring surface; templates provide ready-made graphs that remain editable. Writing code and configuring runtimes are optional advanced paths. Template fields use ordinary labels, sample values, sensible defaults and inline validation; selecting an upstream field requires no expression syntax. Advanced settings stay collapsed. The schedule is a sentence such as “Every Monday at 7:00 AM, America/Chicago”, not Cron.
+The primary user owns a MacBook, not a server. The default journey is **install with background service → click to add nodes or open a template → map inputs/outputs → test and publish → pick a schedule**. A working synthetic weekly-report template is available before connecting a real database. The visual graph editor is the primary authoring surface; templates provide ready-made graphs that remain editable. Writing code and configuring runtimes are optional advanced paths. Template fields use ordinary labels, sample values, sensible defaults and inline validation; selecting an upstream field requires no expression syntax. Advanced settings stay collapsed. The schedule is a sentence such as “Every Monday at 7:00 AM, America/Chicago”, not Cron.
 
 Product acceptance targets: no Terminal commands for the packaged Mac path; no separate n8n account, server, Docker, Python or Node installation; after installation, complete the sample in at most three product screens (template, time, readiness). Data-source authentication is an explicit extra step when needed. Measure setup completion and user mistakes before making time-saving claims.
 
@@ -340,7 +340,7 @@ Migration creates disabled triggers for review. Stop old dispatch before enablin
 | A19 | On AC and battery separately, a locked/display-off Mac executes scheduled workflows; verify the assertion and power source, not just screenshots; closing either window keeps services alive |
 | A20 | Consecutive daily occurrences run without another click; switching AC/battery during a run causes no interruption or duplicate; login restores default services, explicit stop remains stopped; missed recovery avoids duplicate writes |
 | A21 | Background permission accepted/denied/revoked paths work; post-login restart, signed installation, update rollback and timezone changes are tested on each advertised Mac target |
-| A22 | A novice completes the synthetic template through at most three post-install screens; a separate authoring test drags two SQL sources into Python then JS, maps outputs, previews the run and publishes a form schedule without expression syntax or AI |
+| A22 | A novice completes the synthetic template through at most three post-install screens; a separate authoring test clicks to add two SQL sources, Python and JS in fixed downward layout, connects them, maps outputs, previews the run and publishes a form schedule without expression syntax or AI |
 | A23 | Zero/paused workflows keep services alive; explicit full stop, crash and revocation release assertions correctly; default launch needs no separate protection click; test an AC overnight soak and measured battery sessions spanning multiple occurrences |
 
 Initial design budget: a 50-node workflow, not a measured performance claim. Test 10/25/50-node and branching graphs before defining a supported limit.
@@ -357,13 +357,13 @@ Use the acceptance ledger for current evidence. A configured test or implemented
 
 Apple documents that an idle-system-sleep assertion allows display sleep but does not prevent lid-close, explicit sleep or low-battery sleep. The design therefore supports both AC and battery while limiting its guarantee to an awake, powered system; continuous battery runtime must be measured, not assumed. [Apple power assertion](https://developer.apple.com/documentation/iokit/kiopmassertiontypepreventuseridlesystemsleep). Background registration may require user approval; the Mac helper must check status and guide that action. [Apple service registration](https://developer.apple.com/documentation/servicemanagement/smappservice/register%28%29). Signed packaging, native runtime compatibility, storage concurrency and power-state behavior remain release tests, not completed capabilities.
 
-## Interaction amendment — 2026-09-17
+## Historical interaction amendment — 2026-09-17 (superseded placement)
 
-Position never determines execution order. A user may place downstream nodes above, below, left or right. Each side has distinct filled output and hollow input ports; arrows end outside the target port, preventing overlap. Routes avoid unrelated cards; moving nodes, panning or cursor-centered zoom changes presentation only. Selecting a connection exposes source, target and mappings in a separate panel. Horizontal and vertical auto-layout are optional and undoable. A dependency may carry no data; only explicit input bindings transmit values.
+The earlier free-placement, four-sided ports and horizontal-layout proposal is historical and is superseded by the 2026-09-18 revision below. It is not a current acceptance requirement. The unchanged principles remain: dependencies determine execution order; a dependency may carry no data; only explicit input bindings transmit values. Routes avoid unrelated cards and selecting a connection exposes its endpoints and mappings.
 
 ## Interaction revision — 2026-09-18
 
-Fixed downward layout supersedes earlier free-placement requirements. Existing saved coordinates are reflowed on editor load without changing dependencies, source code, mappings or publication. Node addition, duplication, connection, deletion and undo/redo keep the layout derived from the graph. Panning/zooming only move the view. Adding a node never invents a dependency or input binding.
+Fixed downward layout supersedes earlier free-placement requirements. Existing saved coordinates are reflowed on editor load without changing dependencies, source code, mappings or publication. Node addition, duplication, connection, deletion and undo/redo keep the layout derived from the graph. Free node dragging, arrow-key repositioning and horizontal-layout options are disabled. Parallel branches are side by side, merges are below all predecessors, and each node has only a centered top input and bottom output. Panning/zooming only move the view. Adding a node never invents a dependency or input binding.
 
 ## Flowchart structure editing — 2026-09-18
 

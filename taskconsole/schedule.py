@@ -80,11 +80,36 @@ def next_runs(spec, timezone_name, after, anchor=None, count=5):
     raise ValueError('No matching schedule found within supported range')
 
 
+def normalize_workflow_schedule(spec, timezone_name):
+    """Persist bounds as instants; never infer a local time from the host zone."""
+    import copy
+    if not isinstance(spec,dict):raise ValueError('Schedule must be an object')
+    try:zone=ZoneInfo(timezone_name)
+    except (ZoneInfoNotFoundError,TypeError,ValueError):raise ValueError('Invalid IANA timezone')
+    result=copy.deepcopy(spec)
+    if isinstance(result.get('times'),list) and all(isinstance(value,str) for value in result['times']):
+        result['times']=sorted(set(result['times']))
+    for key in ('start','end','anchor'):
+        value=result.get(key)
+        if not value:continue
+        try:parsed=datetime.fromisoformat(value.replace('Z','+00:00'))
+        except (AttributeError,TypeError,ValueError):raise ValueError(key.title()+' must be an ISO date and time')
+        if parsed.tzinfo is None:
+            local=parsed.replace(tzinfo=zone,fold=0)
+            instant=local.astimezone(UTC)
+            if instant.astimezone(zone).replace(tzinfo=None)!=parsed:
+                raise ValueError(key.title()+' is a nonexistent local time in '+timezone_name+'; choose an existing time')
+            parsed=instant
+        result[key]=parsed.astimezone(UTC).isoformat()
+    return result
+
+
 def workflow_next_runs(spec, timezone_name, after, count=5):
     """Form-only v2 calculator; v1 Cron remains isolated above."""
     import calendar
     try: zone = ZoneInfo(timezone_name)
     except (ZoneInfoNotFoundError,TypeError,ValueError): raise ValueError('Invalid IANA timezone')
+    spec=normalize_workflow_schedule(spec,timezone_name)
     if after.tzinfo is None:
         raise ValueError('after must be timezone aware')
     kind = spec.get('kind', 'manual')

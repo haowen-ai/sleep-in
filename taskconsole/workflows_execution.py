@@ -74,16 +74,18 @@ class ExecutionMixin:
                 snid=body.get('sample_node_id',nid)
                 if snid not in sample['nodes'] or 'inputs' not in sample['nodes'][snid]:raise WorkflowError('Historical sample has no recorded inputs')
                 inputs=copy.deepcopy(sample['nodes'][snid]['inputs'])
+                provenance={'kind':'historical_sample','run_id':sample['id'],'node_id':snid,'version_id':sample['version_id'],'produced_at':sample['nodes'][snid].get('finished_at')}
                 # Artifact paths and secret references must be rebound, never silently replayed.
                 old=next(n for n in sample['snapshot']['nodes'] if n['id']==snid)
                 if any(b.get('source') in {'artifact','credential'} for b in old.get('inputs',{}).values()):raise WorkflowError('Rebind artifact or credential inputs explicitly')
-            else:inputs=copy.deepcopy(body['inputs'])
+            else:
+                inputs=copy.deepcopy(body['inputs']);provenance={'kind':'explicit'}
         if not isinstance(inputs,dict):raise WorkflowError('Test inputs must be an object')
         node=next((n for n in wf['nodes'] if n['id']==nid),None)
         if not node:raise WorkflowError('Node not found','not_found')
         node=copy.deepcopy(node);check_schema(inputs,node.get('input_schema',{}),'inputs');portable(inputs)
         node['inputs']={k:{'source':'constant','value':v} for k,v in inputs.items()}
-        prepared=copy.deepcopy(wf);prepared.update(nodes=[node],edges=[],test_node_id=nid)
+        prepared=copy.deepcopy(wf);prepared.update(nodes=[node],edges=[],test_node_id=nid,test_input_source=provenance)
         return self.admit(wid,{},test=True,prepared_test=prepared)
 
     def node_status(self,rid,nid):

@@ -55,25 +55,32 @@ def create_app(state_dir=None,database_url=None):
     app=FastAPI(title='Sleep In',version=__version__,docs_url=None,redoc_url=None,openapi_url=None)
     app.state.store=store
     instance_id=os.environ.get('SLEEP_IN_INSTANCE_ID')
+    local_port=int(os.environ['APP_PORT']) if local_mode and os.environ.get('APP_PORT') else None
 
     @app.middleware('http')
     async def boundaries(request,call_next):
         if local_mode:
             try:
-                host=urlsplit('//'+request.headers.get('host','')).hostname
+                authority=urlsplit('//'+request.headers.get('host',''))
+                host=authority.hostname
+                expected_port=local_port or (request.scope.get('server') or ('',80))[1]
+                actual_port=authority.port or (443 if request.url.scheme=='https' else 80)
+                valid_authority=(actual_port==expected_port and authority.username is None
+                                 and not authority.path and not authority.query and not authority.fragment
+                                 and len(request.headers.getlist('host'))==1)
                 peer=ipaddress.ip_address(request.client.host).is_loopback if request.client else False
                 origin=request.headers.get('origin')
-                local_origin=not origin or (urlsplit(origin).scheme in {'http','https'} and urlsplit(origin).netloc==request.headers.get('host'))
+                local_origin=not origin or origin==request.url.scheme+'://'+request.headers.get('host','')
             except ValueError:
-                host=None;peer=False;local_origin=False
+                host=None;peer=False;local_origin=False;valid_authority=False
             forwarded=any(key.lower()=='forwarded' or key.lower().startswith('x-forwarded-') for key in request.headers)
-            if host not in {'localhost','127.0.0.1','::1'} or not peer or not local_origin or forwarded:
+            if host not in {'localhost','127.0.0.1','::1'} or not valid_authority or not peer or not local_origin or forwarded:
                 return JSONResponse({'detail':{'code':'local_only','message':'The local edition accepts direct loopback requests only'}},status_code=403)
         length=request.headers.get('content-length','0')
         if length.isdigit() and int(length)>26*1048576:
             return JSONResponse({'detail':{'code':'too_large','message':'Request exceeds 26 MiB'}},status_code=413)
         if request.method not in {'GET','HEAD','OPTIONS'} and request.headers.get('origin'):
-            if urlsplit(request.headers['origin']).netloc!=request.headers.get('host'):
+            if request.headers['origin']!=request.url.scheme+'://'+request.headers.get('host',''):
                 return JSONResponse({'detail':{'code':'csrf','message':'Cross-origin request rejected'}},status_code=403)
         response=await call_next(request)
         response.headers['X-Content-Type-Options']='nosniff'
@@ -86,6 +93,14 @@ def create_app(state_dir=None,database_url=None):
     @app.exception_handler(ValueError)
     async def value_error(request,exc):
         return JSONResponse({'detail':{'code':'invalid','message':str(exc)}},status_code=400)
+
+    # Database exceptions can contain SQL parameters and private connection data.
+    # Never acknowledge an admission whose transaction did not commit.
+    from sqlalchemy.exc import DBAPIError
+    @app.exception_handler(DBAPIError)
+    async def storage_error(request,exc):
+        return JSONResponse({'detail':{'code':'storage_unavailable','message':
+            'Storage is unavailable. Check free disk space and database access, then retry the same request.'}},status_code=503)
 
     @app.exception_handler(RequestValidationError)
     async def request_validation_error(request,exc):

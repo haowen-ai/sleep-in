@@ -41,6 +41,10 @@ def test_retry_explicit_bounded_attempts(tmp_path):
     while not svc.node_status(run['id'],'a')['terminal'] and time.monotonic()<until:time.sleep(.02)
     result=svc.finish(run['id']);assert result['status']=='succeeded'
     assert [a['status'] for a in result['nodes']['a']['attempts']]==['failed','succeeded']
+    assert result['nodes']['a']['attempts'][0]['error']
+    assert result['nodes']['a']['attempts'][1]['error'] is None
+    assert not result['nodes']['a'].get('error')
+    assert not result['nodes']['a'].get('error_detail')
 
 
 def test_retry_without_safe_declaration_blocks_publication(tmp_path):

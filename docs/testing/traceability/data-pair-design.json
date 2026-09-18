@@ -1,0 +1,2482 @@
+[
+  {
+    "id": "PAIR-S-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (sql\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-S-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (sql\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-S-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (sql\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-S-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (sql\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-S-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (sql\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-S-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (sql\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-S-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (sql\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-P-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (python\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-P-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (python\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-P-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (python\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-P-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (python\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-P-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (python\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-P-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (python\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-P-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (python\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-J-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (javascript\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-J-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (javascript\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-J-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (javascript\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-J-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (javascript\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-J-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (javascript\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-J-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (javascript\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-J-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (javascript\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-H-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (shell\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-H-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (shell\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-H-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (shell\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-H-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (shell\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-H-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (shell\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-H-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (shell\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-H-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (shell\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-V-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (java\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-V-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (java\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-V-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (java\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-V-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (java\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-V-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (java\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-V-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (java\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-V-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (java\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-C-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (c\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-C-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (c\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-C-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (c\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-C-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (c\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-C-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (c\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-C-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (c\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-C-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (c\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-X-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (cpp\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-X-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (cpp\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-X-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (cpp\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-X-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (cpp\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-X-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (cpp\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-X-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (cpp\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-X-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-ORDERS native source to exact decimal summary or three driver-bound SQL receiver (cpp\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-S-S-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (sql\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-S-P-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (sql\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-S-J-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (sql\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-S-H-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (sql\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-S-V-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (sql\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-S-C-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (sql\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-S-X-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (sql\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-P-S-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (python\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-P-P-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (python\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-P-J-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (python\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-P-H-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (python\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-P-V-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (python\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-P-C-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (python\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-P-X-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (python\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-J-S-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (javascript\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-J-P-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (javascript\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-J-J-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (javascript\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-J-H-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (javascript\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-J-V-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (javascript\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-J-C-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (javascript\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-J-X-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (javascript\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-H-S-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (shell\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-H-P-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (shell\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-H-J-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (shell\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-H-H-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (shell\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-H-V-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (shell\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-H-C-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (shell\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-H-X-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (shell\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-V-S-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (java\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-V-P-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (java\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-V-J-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (java\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-V-H-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (java\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-V-V-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (java\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-V-C-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (java\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-V-X-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (java\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-C-S-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (c\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-C-P-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (c\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-C-J-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (c\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-C-H-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (c\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-C-V-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (c\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-C-C-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (c\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-C-X-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (c\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-X-S-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (cpp\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-X-P-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (cpp\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-X-J-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (cpp\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-X-H-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (cpp\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-X-V-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (cpp\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-X-C-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (cpp\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-X-X-O",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty mappings and fixed independent ignored sentinel after successful source (cpp\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-S-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (sql\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-EMPTY-S-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (sql\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-EMPTY-S-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (sql\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-EMPTY-S-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (sql\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-EMPTY-S-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (sql\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-S-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (sql\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-S-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (sql\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-P-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (python\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-EMPTY-P-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (python\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-EMPTY-P-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (python\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-EMPTY-P-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (python\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-EMPTY-P-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (python\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-P-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (python\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-P-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (python\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-J-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (javascript\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-EMPTY-J-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (javascript\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-EMPTY-J-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (javascript\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-EMPTY-J-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (javascript\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-EMPTY-J-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (javascript\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-J-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (javascript\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-J-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (javascript\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-H-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (shell\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-EMPTY-H-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (shell\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-EMPTY-H-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (shell\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-EMPTY-H-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (shell\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-EMPTY-H-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (shell\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-H-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (shell\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-H-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (shell\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-V-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (java\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-V-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (java\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-V-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (java\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-V-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (java\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-V-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (java\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-V-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (java\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-V-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (java\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-C-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (c\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-C-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (c\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-C-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (c\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-C-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (c\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-C-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (c\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-C-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (c\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-C-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (c\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-X-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (cpp\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-X-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (cpp\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-X-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (cpp\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-X-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (cpp\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-X-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (cpp\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-X-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (cpp\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-EMPTY-X-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Empty rows remain successful; exact zero summary or zero-row SQL (cpp\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-P-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (python\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-TYPES-P-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (python\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-TYPES-P-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (python\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-TYPES-P-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (python\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-P-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (python\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-P-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (python\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-J-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (javascript\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-TYPES-J-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (javascript\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-TYPES-J-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (javascript\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-TYPES-J-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (javascript\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-J-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (javascript\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-J-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (javascript\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-H-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (shell\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-TYPES-H-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (shell\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-TYPES-H-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (shell\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-TYPES-H-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (shell\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-H-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (shell\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-H-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (shell\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-V-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (java\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-V-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (java\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-V-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (java\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-V-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (java\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-V-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (java\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-V-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (java\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-C-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (c\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-C-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (c\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-C-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (c\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-C-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (c\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-C-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (c\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-C-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (c\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-X-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (cpp\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-X-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (cpp\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-X-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (cpp\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-X-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (cpp\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-X-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (cpp\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-TYPES-X-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Entire F-TYPES deep equality through actual native runtimes (cpp\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-S-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (sql\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-FAIL-S-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (sql\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-FAIL-S-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (sql\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-FAIL-S-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (sql\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-FAIL-S-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (sql\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-S-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (sql\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-S-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (sql\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-P-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (python\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-FAIL-P-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (python\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-FAIL-P-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (python\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-FAIL-P-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (python\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-FAIL-P-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (python\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-P-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (python\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-P-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (python\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-J-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (javascript\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-FAIL-J-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (javascript\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-FAIL-J-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (javascript\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-FAIL-J-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (javascript\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-FAIL-J-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (javascript\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-J-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (javascript\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-J-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (javascript\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-H-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (shell\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-FAIL-H-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (shell\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-FAIL-H-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (shell\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-FAIL-H-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (shell\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P0"
+  },
+  {
+    "id": "PAIR-FAIL-H-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (shell\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-H-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (shell\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-H-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (shell\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-V-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (java\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-V-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (java\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-V-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (java\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-V-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (java\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-V-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (java\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-V-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (java\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-V-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (java\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-C-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (c\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-C-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (c\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-C-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (c\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-C-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (c\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-C-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (c\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-C-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (c\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-C-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (c\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-X-S",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (cpp\u2192sql)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-X-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (cpp\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-X-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (cpp\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-X-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (cpp\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-X-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (cpp\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-X-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (cpp\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-FAIL-X-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Source failure blocks target; target effect sentinel is never invoked (cpp\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-P-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (python\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-P-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (python\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-P-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (python\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-P-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (python\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-P-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (python\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-P-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (python\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-J-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (javascript\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-J-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (javascript\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-J-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (javascript\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-J-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (javascript\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-J-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (javascript\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-J-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (javascript\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-H-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (shell\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-H-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (shell\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-H-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (shell\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-H-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (shell\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-H-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (shell\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-H-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (shell\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-V-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (java\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-V-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (java\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-V-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (java\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-V-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (java\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-V-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (java\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-V-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (java\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-C-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (c\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-C-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (c\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-C-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (c\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-C-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (c\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-C-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (c\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-C-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (c\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-X-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (cpp\u2192python)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-X-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (cpp\u2192javascript)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-X-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (cpp\u2192shell)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-X-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (cpp\u2192java)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-X-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (cpp\u2192c)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-ART-X-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary 00 ff 0a 41 authorized local materialization, exact size/hex/checksum (cpp\u2192cpp)",
+    "status": "DESIGNED",
+    "level": "N+W+A",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-PG-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction PG\u2192P; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-P-PG",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction P\u2192PG; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-PG-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction PG\u2192J; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-J-PG",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction J\u2192PG; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-PG-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction PG\u2192H; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-H-PG",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction H\u2192PG; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-PG-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction PG\u2192V; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-V-PG",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction V\u2192PG; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-PG-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction PG\u2192C; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-C-PG",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction C\u2192PG; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-PG-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction PG\u2192X; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-X-PG",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction X\u2192PG; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-MY-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction MY\u2192P; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-P-MY",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction P\u2192MY; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-MY-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction MY\u2192J; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-J-MY",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction J\u2192MY; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-MY-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction MY\u2192H; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-H-MY",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction H\u2192MY; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-MY-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction MY\u2192V; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-V-MY",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction V\u2192MY; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-MY-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction MY\u2192C; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-C-MY",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction C\u2192MY; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-MY-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction MY\u2192X; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-X-MY",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction X\u2192MY; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-OR-P",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction OR\u2192P; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-P-OR",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction P\u2192OR; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-OR-J",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction OR\u2192J; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-J-OR",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction J\u2192OR; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-OR-H",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction OR\u2192H; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-H-OR",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction H\u2192OR; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-OR-V",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction OR\u2192V; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-V-OR",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction V\u2192OR; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-OR-C",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction OR\u2192C; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-C-OR",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction C\u2192OR; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-OR-X",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction OR\u2192X; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-X-OR",
+    "suite": "workflow-data-cases.md",
+    "summary": "External native F-PAIR direction X\u2192OR; complete F-ORDERS receiver/summary",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-PG-MY",
+    "suite": "workflow-data-cases.md",
+    "summary": "Cross-database F-PAIR PG\u2192MY using separate connections",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-PG-OR",
+    "suite": "workflow-data-cases.md",
+    "summary": "Cross-database F-PAIR PG\u2192OR using separate connections",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-MY-PG",
+    "suite": "workflow-data-cases.md",
+    "summary": "Cross-database F-PAIR MY\u2192PG using separate connections",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-MY-OR",
+    "suite": "workflow-data-cases.md",
+    "summary": "Cross-database F-PAIR MY\u2192OR using separate connections",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-OR-PG",
+    "suite": "workflow-data-cases.md",
+    "summary": "Cross-database F-PAIR OR\u2192PG using separate connections",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  },
+  {
+    "id": "PAIR-OR-MY",
+    "suite": "workflow-data-cases.md",
+    "summary": "Cross-database F-PAIR OR\u2192MY using separate connections",
+    "status": "DESIGNED",
+    "level": "D+N+W",
+    "priority": "P1"
+  }
+]

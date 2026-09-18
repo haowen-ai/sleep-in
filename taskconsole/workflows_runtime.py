@@ -16,6 +16,13 @@ from .workflows_build_lock import subprocess_lock_options
 LANGUAGES = ('python','javascript','shell','sql','java','c','cpp','custom')
 
 
+class WorkerOutputError(ValueError):
+    """Output collection failed after the worker produced diagnostic logs."""
+    def __init__(self,message,logs):
+        super().__init__(message)
+        self.logs=logs
+
+
 def executable(language):
     names = {'python':os.environ.get('SLEEP_IN_PYTHON',sys.executable), 'javascript':os.environ.get('SLEEP_IN_NODE','node'), 'shell':'bash', 'java':'javac','c':'cc','cpp':'c++'}
     return shutil.which(names.get(language,''))
@@ -218,21 +225,24 @@ def run_script(node,inputs,directory,root,cancelled=lambda:False):
             if callable(node.get('_on_process_exit')):node['_on_process_exit']()
     logs={name:(directory/(name+'.txt')).read_text(errors='replace')[-100000:] for name in ('stdout','stderr')}
     if reason or proc.returncode: return {**logs,'status':reason if reason in {'cancelled','timed_out'} else 'failed','error':reason or f'Process exited {proc.returncode}'}
-    if not out.exists():
-        if node.get('outputs',{}).get('required'): raise ValueError('Missing required output file')
-        output={'schemaVersion':1,'data':{},'artifacts':[]}
-    else:
-        if out.stat().st_size>100*1024*1024: raise ValueError('Structured output exceeds 100 MiB worker quota')
-        output=json.loads(out.read_text(),parse_constant=lambda x:(_ for _ in ()).throw(ValueError('Non-finite JSON')))
-    if not isinstance(output,dict) or output.get('schemaVersion')!=1 or not isinstance(output.get('data'),dict) or not isinstance(output.get('artifacts'),list): raise ValueError('Output must be a version 1 envelope with data object and artifacts array')
-    portable(output['data'])
-    check_schema(output['data'],node.get('outputs'))
-    files=[];total=0
-    for item in output.get('artifacts',[]):
-        path=(artifacts/item.get('path',item.get('name',''))).resolve()
-        if not path.is_relative_to(artifacts.resolve()) or not path.is_file() or path.is_symlink(): raise ValueError('Artifact must be a node-local file')
-        total+=path.stat().st_size
-        if total>100*1024*1024 or len(files)>=100: raise ValueError('Artifact quota exceeded')
-        files.append({'name':item.get('name',path.name),'path':str(path),'size':path.stat().st_size,'mediaType':item.get('mediaType','application/octet-stream'),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
-    output['artifacts']=files
+    try:
+        if not out.exists():
+            if node.get('outputs',{}).get('required'): raise ValueError('Missing required output file')
+            output={'schemaVersion':1,'data':{},'artifacts':[]}
+        else:
+            if out.stat().st_size>100*1024*1024: raise ValueError('Structured output exceeds 100 MiB worker quota')
+            output=json.loads(out.read_text(),parse_constant=lambda x:(_ for _ in ()).throw(ValueError('Non-finite JSON')))
+        if not isinstance(output,dict) or output.get('schemaVersion')!=1 or not isinstance(output.get('data'),dict) or not isinstance(output.get('artifacts'),list): raise ValueError('Output must be a version 1 envelope with data object and artifacts array')
+        portable(output['data'])
+        check_schema(output['data'],node.get('outputs'))
+        files=[];total=0
+        for item in output.get('artifacts',[]):
+            path=(artifacts/item.get('path',item.get('name',''))).resolve()
+            if not path.is_relative_to(artifacts.resolve()) or not path.is_file() or path.is_symlink(): raise ValueError('Artifact must be a node-local file')
+            total+=path.stat().st_size
+            if total>100*1024*1024 or len(files)>=100: raise ValueError('Artifact quota exceeded')
+            files.append({'name':item.get('name',path.name),'path':str(path),'size':path.stat().st_size,'mediaType':item.get('mediaType','application/octet-stream'),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()})
+        output['artifacts']=files
+    except Exception as exc:
+        raise WorkerOutputError(str(exc),logs) from exc
     return {**logs,'status':'succeeded','output':output}
