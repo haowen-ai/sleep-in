@@ -109,6 +109,8 @@ Empty workflows offer a first node or template. Missing environments show readin
 
 ## 7. Data mapping and contract
 
+Edges establish execution dependencies independently of input mappings. A connected node may use constants/parameters or no inputs at all; no upstream output is injected automatically. Required predecessor failure still blocks it. Optional missing data and an explicitly optional dependency are different policies. See the [test contract](testing/contract-decisions.md).
+
 Inputs use a **Target field / Source / Example value** table. Sources: constant, workflow parameter, upstream output, credential reference or execution context. Users choose from a field tree; arbitrary expression code is not required or executed by the initial mapper. Only reachable upstream outputs are allowed. Choosing another source first establishes a valid dependency.
 
 Show which test run produced an example and mark stale samples. Display names do not affect bindings. Historical samples must not silently become production inputs.

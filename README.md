@@ -12,6 +12,8 @@ Sleep In is being redesigned around a visual workflow canvas: connect SQL receiv
 
 > **Current status:** the repository still implements the v1 Python task console. The drag-and-drop workflow platform and always-on Mac installer below are v2 requirements, not released features. See the [PRD](docs/PRD.md), [中文 PRD](docs/PRD.zh-CN.md) and [verification status](docs/VERIFICATION.md). Run only trusted scripts; the current worker is not a hostile-code sandbox.
 
+[Test design and acceptance cases](docs/TEST-PLAN.md)
+
 ## Why Sleep In?
 
 Monday's meeting should not mean an early alarm just to pull data. Sunday night should still be yours. Prepare the workflow once, let it collect and process the data on schedule, and wake up to the results.

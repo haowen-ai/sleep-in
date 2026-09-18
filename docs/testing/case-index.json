@@ -1,0 +1,2186 @@
+[
+  {
+    "id": "GOLD01",
+    "suite": "workflow-data-cases.md",
+    "summary": "Managed SQLite F-ORDERS, real Python/Node/n8n ready; immutable three-node graph and mappings above",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "GOLD02",
+    "suite": "workflow-data-cases.md",
+    "summary": "Same graph; SQL `WHERE 1=0`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "GOLD03",
+    "suite": "workflow-data-cases.md",
+    "summary": "GOLD01; SQL returns 3 rows but Python expects one object containing `orders`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "GOLD04",
+    "suite": "workflow-data-cases.md",
+    "summary": "GOLD01; rename node display names and reorder draft node array",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "GOLD05",
+    "suite": "workflow-data-cases.md",
+    "summary": "GOLD01; report maps constant `{count:99,total:\"1.00\"}` and retains Python→JS ordering edge",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "GOLD06",
+    "suite": "workflow-data-cases.md",
+    "summary": "GOLD01; SQL same; Python has `inputs:{}` and returns `{summary:{count:42,total:\"2.00\"}}`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "GOLD07",
+    "suite": "workflow-data-cases.md",
+    "summary": "GOLD01; mapped source path `summary.missing` required",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "GOLD08",
+    "suite": "workflow-data-cases.md",
+    "summary": "GOLD01; Python prints `NOT JSON` and debug table to stdout",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "GOLD09",
+    "suite": "workflow-data-cases.md",
+    "summary": "GOLD01; change draft SQL to zero rows after admission but before SQL callback",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "GOLD10",
+    "suite": "workflow-data-cases.md",
+    "summary": "GOLD01 plus scheduled form occurrence with stable operation key",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "CHAIN01",
+    "suite": "workflow-data-cases.md",
+    "summary": "SQLite→Python→JS→Shell→Java→C→C++ with F-TYPES in script segment",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP01",
+    "suite": "workflow-data-cases.md",
+    "summary": "A→B, A returns `{x:7}`, B inputs `{}`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP02",
+    "suite": "workflow-data-cases.md",
+    "summary": "A→B, B binds `v` to A.x",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP03",
+    "suite": "workflow-data-cases.md",
+    "summary": "A,B disconnected; B binds A.x",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP04",
+    "suite": "workflow-data-cases.md",
+    "summary": "A→B→C, C binds A.x",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP05",
+    "suite": "workflow-data-cases.md",
+    "summary": "A→B, A binds future B.x",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP06",
+    "suite": "workflow-data-cases.md",
+    "summary": "A→B→A",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP07",
+    "suite": "workflow-data-cases.md",
+    "summary": "A renamed, ID unchanged",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP08",
+    "suite": "workflow-data-cases.md",
+    "summary": "Delete A without removing B's input binding",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP09",
+    "suite": "workflow-data-cases.md",
+    "summary": "A output `{x:null}`; B v optional default 9",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP10",
+    "suite": "workflow-data-cases.md",
+    "summary": "A output `{}`; B v optional default 9",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP11",
+    "suite": "workflow-data-cases.md",
+    "summary": "A output `{}`; B v required",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP12",
+    "suite": "workflow-data-cases.md",
+    "summary": "Optional binding omits `default` property",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP13",
+    "suite": "workflow-data-cases.md",
+    "summary": "A data `{rows:[{id:1},{id:2}]}`; canonical path `[\"rows\",1,\"id\"]` and shorthand `rows.1.id`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP14",
+    "suite": "workflow-data-cases.md",
+    "summary": "Same; paths `rows.-1.id`, `rows.2.id`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP15",
+    "suite": "workflow-data-cases.md",
+    "summary": "A data `{\"a.b\":7,\"a\":{\"b\":8},\"0\":9}`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP16",
+    "suite": "workflow-data-cases.md",
+    "summary": "Path contains `__proto__`, `constructor`, or code text",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP17",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binding `source:parameter,path:customer.name`; run params `{customer:{name:\"Ada\"}}`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP18",
+    "suite": "workflow-data-cases.md",
+    "summary": "Constant `{a:[1,2]}` fan-out to B,C; B mutates local a[0]",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP19",
+    "suite": "workflow-data-cases.md",
+    "summary": "B input schema requires number; A output string `\"7\"`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP20",
+    "suite": "workflow-data-cases.md",
+    "summary": "Duplicate node A",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP21",
+    "suite": "workflow-data-cases.md",
+    "summary": "Graph saved with duplicate IDs or edge to nonexistent node",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP22",
+    "suite": "workflow-data-cases.md",
+    "summary": "Two bindings attempt same target name",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAP23",
+    "suite": "workflow-data-cases.md",
+    "summary": "Input source type credential/context",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "DATA01",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-TYPES full payload",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "DATA02",
+    "suite": "workflow-data-cases.md",
+    "summary": "`{rows:[]}` with schema array",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "DATA03",
+    "suite": "workflow-data-cases.md",
+    "summary": "`{nil:null}` schema `type:[\"string\",\"null\"]`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "DATA04",
+    "suite": "workflow-data-cases.md",
+    "summary": "`{}` schema requires `nil`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "DATA05",
+    "suite": "workflow-data-cases.md",
+    "summary": "`0`, `false`, `\"\"`, `[]`, `{}`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "DATA06",
+    "suite": "workflow-data-cases.md",
+    "summary": "true for schema integer, false for number",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "DATA07",
+    "suite": "workflow-data-cases.md",
+    "summary": "Nested array items schema integer, input `[1,\"2\"]`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "DATA08",
+    "suite": "workflow-data-cases.md",
+    "summary": "Object with undeclared `extra`, `additionalProperties:false`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "DATA09",
+    "suite": "workflow-data-cases.md",
+    "summary": "Enum `[\"a\",\"b\"]`, input `\"c\"`; min/max 0/10 input 11",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "DATA10",
+    "suite": "workflow-data-cases.md",
+    "summary": "Decimal `\"9007199254740993.01\"` as marked string",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "DATA11",
+    "suite": "workflow-data-cases.md",
+    "summary": "Large integer `\"9007199254740993\"` as marked string",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "DATA12",
+    "suite": "workflow-data-cases.md",
+    "summary": "Unmarked JSON numeric 9007199254740993 destined for JS",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "DATA13",
+    "suite": "workflow-data-cases.md",
+    "summary": "Output JSON NaN/Infinity/-Infinity",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "DATA14",
+    "suite": "workflow-data-cases.md",
+    "summary": "Timestamp `2026-09-17T07:30:00+08:00`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "DATA15",
+    "suite": "workflow-data-cases.md",
+    "summary": "Timestamp `2026-09-17T07:30:00` missing zone",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "DATA16",
+    "suite": "workflow-data-cases.md",
+    "summary": "Dedicated dialect fixture has SQL NULL and empty string in separate text rows",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "DATA17",
+    "suite": "workflow-data-cases.md",
+    "summary": "Binary buffer/DataFrame/native Java object output",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "DATA18",
+    "suite": "workflow-data-cases.md",
+    "summary": "Unicode combining form and emoji from F-TYPES",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "DATA19",
+    "suite": "workflow-data-cases.md",
+    "summary": "100-level nested object and huge property count within size limit",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OUT01",
+    "suite": "workflow-data-cases.md",
+    "summary": "Worker writes `{schemaVersion:1,data:{x:7},artifacts:[]}`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OUT02",
+    "suite": "workflow-data-cases.md",
+    "summary": "Python/JS main returns `{x:7}`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OUT03",
+    "suite": "workflow-data-cases.md",
+    "summary": "Business data `{schemaVersion:42,label:\"business\"}` returned from main",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OUT04",
+    "suite": "workflow-data-cases.md",
+    "summary": "Exit 0, no output file, required output x",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OUT05",
+    "suite": "workflow-data-cases.md",
+    "summary": "Exit 0, no file, no required outputs",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OUT06",
+    "suite": "workflow-data-cases.md",
+    "summary": "Output file partial JSON `{` or invalid UTF-8",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OUT07",
+    "suite": "workflow-data-cases.md",
+    "summary": "Envelope data array/string/null",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OUT08",
+    "suite": "workflow-data-cases.md",
+    "summary": "Envelope missing version or unsupported version 2",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OUT09",
+    "suite": "workflow-data-cases.md",
+    "summary": "Artifacts is object instead of array",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OUT10",
+    "suite": "workflow-data-cases.md",
+    "summary": "Worker emits valid output then exits 1",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OUT11",
+    "suite": "workflow-data-cases.md",
+    "summary": "Worker logs JSON unrelated to output file",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OUT12",
+    "suite": "workflow-data-cases.md",
+    "summary": "Concurrent runs/attempts use same source and filenames",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OUT13",
+    "suite": "workflow-data-cases.md",
+    "summary": "Python and JS explicit file-protocol entrypoints each write `{schemaVersion:1,data:{x:7},artifacts:[]}` to SLEEP_IN_OUTPUT_FILE",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OUT14",
+    "suite": "workflow-data-cases.md",
+    "summary": "Helper main returns `{data:{x:7},artifacts:[\"business\"],schemaVersion:2}`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "ART01",
+    "suite": "workflow-data-cases.md",
+    "summary": "Report artifact from GOLD01",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "ART02",
+    "suite": "workflow-data-cases.md",
+    "summary": "Structured payload serialized to exactly 1 MiB and 1 MiB+1 bytes (measure UTF-8 file bytes)",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "ART03",
+    "suite": "workflow-data-cases.md",
+    "summary": "2 MiB complete dataset in node-local file, preview limited to first 100 rows",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "ART04",
+    "suite": "workflow-data-cases.md",
+    "summary": "Output artifact path `../../outside.txt`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "ART05",
+    "suite": "workflow-data-cases.md",
+    "summary": "Artifact symlink inside directory points outside",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "ART06",
+    "suite": "workflow-data-cases.md",
+    "summary": "Symlink points to another node's artifact under same run",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "ART07",
+    "suite": "workflow-data-cases.md",
+    "summary": "Artifact declared but missing; worker exit 0",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "ART08",
+    "suite": "workflow-data-cases.md",
+    "summary": "Two files same display name in different nodes",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "ART09",
+    "suite": "workflow-data-cases.md",
+    "summary": "Actor lacks workflow access; knows artifact/run ID",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "ART10",
+    "suite": "workflow-data-cases.md",
+    "summary": "100 artifacts vs 101; total exactly 100 MiB vs +1 byte",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "ART11",
+    "suite": "workflow-data-cases.md",
+    "summary": "File modified after collection",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "ART12",
+    "suite": "workflow-data-cases.md",
+    "summary": "Artifact expired/deleted before rerun/resume",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "ART13",
+    "suite": "workflow-data-cases.md",
+    "summary": "Artifact name includes newline, quote, Unicode, path separators",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL01",
+    "suite": "workflow-data-cases.md",
+    "summary": "SQLite F-ORDERS",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL02",
+    "suite": "workflow-data-cases.md",
+    "summary": "Query bound order_id `A002`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL03",
+    "suite": "workflow-data-cases.md",
+    "summary": "Bound order_id `A001' OR 1=1 --`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL04",
+    "suite": "workflow-data-cases.md",
+    "summary": "Bound null with `WHERE region IS NULL`/dialect-appropriate null predicate",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL05",
+    "suite": "workflow-data-cases.md",
+    "summary": "Missing named binding `order_id`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL06",
+    "suite": "workflow-data-cases.md",
+    "summary": "Identifier supplied as a value placeholder",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL07",
+    "suite": "workflow-data-cases.md",
+    "summary": "Query mode; attempt INSERT/UPDATE/DELETE including CTE/tricky comment form",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL08",
+    "suite": "workflow-data-cases.md",
+    "summary": "SQLite query mode; PRAGMA/ATTACH/extension escape attempts",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL09",
+    "suite": "workflow-data-cases.md",
+    "summary": "Write-capable connection and explicit write node inserts `effect-001`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL10",
+    "suite": "workflow-data-cases.md",
+    "summary": "Explicit write mode; statements list has parameterized INSERT effect-001 followed by a deliberately failing statement",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL11",
+    "suite": "workflow-data-cases.md",
+    "summary": "Node A commits; node B write fails",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL12",
+    "suite": "workflow-data-cases.md",
+    "summary": "Write mode with read-only credentials",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL13",
+    "suite": "workflow-data-cases.md",
+    "summary": "Slow cancellable query and timeout1s",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL14",
+    "suite": "workflow-data-cases.md",
+    "summary": "Read 20,000 rows, exceeds preview limit but within dataset policy",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL15",
+    "suite": "workflow-data-cases.md",
+    "summary": "Decimal column `9007199254740993.01`, BIGINT beyond JS safe range",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL16",
+    "suite": "workflow-data-cases.md",
+    "summary": "Nulls, Unicode, date/time and timezone-aware columns",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL17",
+    "suite": "workflow-data-cases.md",
+    "summary": "Connection password changed between publish and execution",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL18",
+    "suite": "workflow-data-cases.md",
+    "summary": "Connection allowed only for workflow A; B references it",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL19",
+    "suite": "workflow-data-cases.md",
+    "summary": "PostgreSQL/MySQL/Oracle driver absent",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL20",
+    "suite": "workflow-data-cases.md",
+    "summary": "TLS certificate invalid/wrong host",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL21",
+    "suite": "workflow-data-cases.md",
+    "summary": "Database disconnect before statement vs after uncertain commit",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL22",
+    "suite": "workflow-data-cases.md",
+    "summary": "Oracle Thin query, bind, null, insert/update rollback/commit",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL23",
+    "suite": "workflow-data-cases.md",
+    "summary": "Oracle DDL followed by intentional failure",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL24",
+    "suite": "workflow-data-cases.md",
+    "summary": "Managed SQLite path config attempts absolute user file/relative traversal",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SQL25",
+    "suite": "workflow-data-cases.md",
+    "summary": "Explicit write mode, raw SQL contains two semicolon-separated INSERT statements instead of statements list; separate valid single statement has literal text `a;b`",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR01",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-BRANCH flag true",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR02",
+    "suite": "workflow-data-cases.md",
+    "summary": "F-BRANCH flag false",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR03",
+    "suite": "workflow-data-cases.md",
+    "summary": "Both outgoing conditions false; workflow has no separate required final-output contract",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR04",
+    "suite": "workflow-data-cases.md",
+    "summary": "Both branches activated and succeeded; explicit named merge",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR05",
+    "suite": "workflow-data-cases.md",
+    "summary": "Append merge configured on B.values and C.values",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR06",
+    "suite": "workflow-data-cases.md",
+    "summary": "Two incoming edges but config.join omitted",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR07",
+    "suite": "workflow-data-cases.md",
+    "summary": "A→B required; A fails; B has only constants",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR08",
+    "suite": "workflow-data-cases.md",
+    "summary": "Two activated required sources, B fails and C succeeds",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR09",
+    "suite": "workflow-data-cases.md",
+    "summary": "B→J edge.required=false; B fails; J B-field optional default[]; C→J required and succeeds; join all",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR10",
+    "suite": "workflow-data-cases.md",
+    "summary": "B unselected/skipped; B→J required=false; J B-field optional default0; C succeeds and activates J",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR11",
+    "suite": "workflow-data-cases.md",
+    "summary": "join any; B fails, C succeeds; test B.required=true then false; B-field optional default[]",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR12",
+    "suite": "workflow-data-cases.md",
+    "summary": "join:any, B and C both fail",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR13",
+    "suite": "workflow-data-cases.md",
+    "summary": "Condition x gt 7 and x values 6/7/8",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR14",
+    "suite": "workflow-data-cases.md",
+    "summary": "Condition operator unknown or compare number7 to string\"7\"",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR15",
+    "suite": "workflow-data-cases.md",
+    "summary": "Condition path absent",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR16",
+    "suite": "workflow-data-cases.md",
+    "summary": "Condition truthy with booleans true/false",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR17",
+    "suite": "workflow-data-cases.md",
+    "summary": "Nested conditions needed AND/OR but only single predicate supported",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR18",
+    "suite": "workflow-data-cases.md",
+    "summary": "Nested diamond A→B/C→J→D/E→K with different selected paths",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR19",
+    "suite": "workflow-data-cases.md",
+    "summary": "Disconnected roots A/B both feed J",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "BR20",
+    "suite": "workflow-data-cases.md",
+    "summary": "One branch cancelled while another finishes",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "FAIL01",
+    "suite": "workflow-data-cases.md",
+    "summary": "Worker exit1 before output",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "FAIL02",
+    "suite": "workflow-data-cases.md",
+    "summary": "Worker exit0 but invalid required output",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "FAIL03",
+    "suite": "workflow-data-cases.md",
+    "summary": "Python exception/JS rejected async Promise",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "FAIL04",
+    "suite": "workflow-data-cases.md",
+    "summary": "C/Java compile error at publication",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "FAIL05",
+    "suite": "workflow-data-cases.md",
+    "summary": "Node timeout1s, process sleeps10s and spawns child",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "FAIL06",
+    "suite": "workflow-data-cases.md",
+    "summary": "Workflow timeout2s across individually long-allowed nodes",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "FAIL07",
+    "suite": "workflow-data-cases.md",
+    "summary": "Worker output file unwritable/disk full injection",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "FAIL08",
+    "suite": "workflow-data-cases.md",
+    "summary": "Output/log growth beyond quota",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "RET01",
+    "suite": "workflow-data-cases.md",
+    "summary": "Failure default policy, F-EFFECT counter",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "RET02",
+    "suite": "workflow-data-cases.md",
+    "summary": "Explicit maxAttempts3, retry-safe transient failure twice then success",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "RET03",
+    "suite": "workflow-data-cases.md",
+    "summary": "maxAttempts3 but permanent schema error",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "RET04",
+    "suite": "workflow-data-cases.md",
+    "summary": "HTTP callback response lost after node successfully completes",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "RET05",
+    "suite": "workflow-data-cases.md",
+    "summary": "Side effect commits; worker dies before success record",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "RET06",
+    "suite": "workflow-data-cases.md",
+    "summary": "Retry allowed, first attempt leaves stale output file",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "RET07",
+    "suite": "workflow-data-cases.md",
+    "summary": "User full rerun of failed run",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "RET08",
+    "suite": "workflow-data-cases.md",
+    "summary": "API requests unsupported resume-from-node",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "CAN01",
+    "suite": "workflow-data-cases.md",
+    "summary": "Queued run no nodes started",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "CAN02",
+    "suite": "workflow-data-cases.md",
+    "summary": "Long-running node with child process",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "CAN03",
+    "suite": "workflow-data-cases.md",
+    "summary": "Node writes valid output just as cancel requested",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "CAN04",
+    "suite": "workflow-data-cases.md",
+    "summary": "Noncancellable external query already committed",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "CON01",
+    "suite": "workflow-data-cases.md",
+    "summary": "Two independent branches read same A.rows; B mutates its local input",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "CON02",
+    "suite": "workflow-data-cases.md",
+    "summary": "Independent B/C each sleep2s with monotonic start/end evidence",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "CON03",
+    "suite": "workflow-data-cases.md",
+    "summary": "20 simultaneous admission requests same idempotency key",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "CON04",
+    "suite": "workflow-data-cases.md",
+    "summary": "20 duplicate callbacks for same node",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "CON05",
+    "suite": "workflow-data-cases.md",
+    "summary": "Two scheduler processes dispatch same queued record",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "CON06",
+    "suite": "workflow-data-cases.md",
+    "summary": "Parallel runs same workflow allowed only explicit bounded queue",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "CON07",
+    "suite": "workflow-data-cases.md",
+    "summary": "Different runs artifact same filename",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "CON08",
+    "suite": "workflow-data-cases.md",
+    "summary": "10,25,50-node chain/diamond graph",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "N01",
+    "suite": "workflow-data-cases.md",
+    "summary": "Pinned n8n installed, GOLD01 publication",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "N02",
+    "suite": "workflow-data-cases.md",
+    "summary": "Remove n8n command/config",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "N03",
+    "suite": "workflow-data-cases.md",
+    "summary": "n8n CLI returns exit0 but final callback absent",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "N04",
+    "suite": "workflow-data-cases.md",
+    "summary": "Multi-input J compiled graph",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "N05",
+    "suite": "workflow-data-cases.md",
+    "summary": "Condition false/skipped node",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "N06",
+    "suite": "workflow-data-cases.md",
+    "summary": "Missing/wrong dispatch authentication",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "N07",
+    "suite": "workflow-data-cases.md",
+    "summary": "Valid token but wrong run/node/version or expired execution capability",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "N08",
+    "suite": "workflow-data-cases.md",
+    "summary": "Finish callback before required nodes terminal",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "N09",
+    "suite": "workflow-data-cases.md",
+    "summary": "Duplicate finish callback after terminal success",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "N10",
+    "suite": "workflow-data-cases.md",
+    "summary": "Two runs plus an unrelated preexisting n8n installation",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "N11",
+    "suite": "workflow-data-cases.md",
+    "summary": "Adapter import fails due invalid graph/schema",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "N12",
+    "suite": "workflow-data-cases.md",
+    "summary": "Worker unavailable before HTTP node callback",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "N13",
+    "suite": "workflow-data-cases.md",
+    "summary": "Kill adapter/n8n after worker effect committed, before finish",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "N14",
+    "suite": "workflow-data-cases.md",
+    "summary": "Kill web process while n8n is running",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "N15",
+    "suite": "workflow-data-cases.md",
+    "summary": "n8n callback network timeout before worker starts",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "N16",
+    "suite": "workflow-data-cases.md",
+    "summary": "Change run ID or source through user-supplied callback payload",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "VER01",
+    "suite": "workflow-data-cases.md",
+    "summary": "Published V1 then edit source draft",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "VER02",
+    "suite": "workflow-data-cases.md",
+    "summary": "Admit V1, publish V2 before first callback",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "VER03",
+    "suite": "workflow-data-cases.md",
+    "summary": "Runtime/compiler/dependency update after publication",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "VER04",
+    "suite": "workflow-data-cases.md",
+    "summary": "Same source, compiler upgraded in same executable path",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "VER05",
+    "suite": "workflow-data-cases.md",
+    "summary": "Test unsaved/incomplete draft with explicit input",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "VER06",
+    "suite": "workflow-data-cases.md",
+    "summary": "Node test with historical sample",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "VER07",
+    "suite": "workflow-data-cases.md",
+    "summary": "Operator attempts edit/publish or unavailable runtime override",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "VER08",
+    "suite": "workflow-data-cases.md",
+    "summary": "Export/import workflow with connections/secret refs",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "API01",
+    "suite": "workflow-data-cases.md",
+    "summary": "Invalid mapping publication",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "API02",
+    "suite": "workflow-data-cases.md",
+    "summary": "Valid async admission",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "API03",
+    "suite": "workflow-data-cases.md",
+    "summary": "Unauthenticated or missing-CSRF mutation",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-001",
+    "suite": "schedule-cases.md",
+    "summary": "预览未来时间；等待调度 tick；再手动运行",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-002",
+    "suite": "schedule-cases.md",
+    "summary": "请求未来 5 次",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-003",
+    "suite": "schedule-cases.md",
+    "summary": "请求未来时间，再把调度时钟推进到下一 due",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-004",
+    "suite": "schedule-cases.md",
+    "summary": "预览并tick至10:00Z",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-005",
+    "suite": "schedule-cases.md",
+    "summary": "预览、跨到21日和22日07:00",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-006",
+    "suite": "schedule-cases.md",
+    "summary": "预览并跨越两个时间点",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-007",
+    "suite": "schedule-cases.md",
+    "summary": "保存及预览",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-008",
+    "suite": "schedule-cases.md",
+    "summary": "预览下一次",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-009",
+    "suite": "schedule-cases.md",
+    "summary": "预览09-20之后时间",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-010",
+    "suite": "schedule-cases.md",
+    "summary": "预览下一次",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-011",
+    "suite": "schedule-cases.md",
+    "summary": "预览两次",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-012",
+    "suite": "schedule-cases.md",
+    "summary": "预览",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-013",
+    "suite": "schedule-cases.md",
+    "summary": "连续两个tick跨过到期时刻",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-014",
+    "suite": "schedule-cases.md",
+    "summary": "保存启用，随后tick",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-015",
+    "suite": "schedule-cases.md",
+    "summary": "预览并运行至09-23",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-016",
+    "suite": "schedule-cases.md",
+    "summary": "保存计划/发布启用",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-017",
+    "suite": "schedule-cases.md",
+    "summary": "以2026-09-20T00:00Z请求预览",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-018",
+    "suite": "schedule-cases.md",
+    "summary": "预览跨DST春季跳时",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-019",
+    "suite": "schedule-cases.md",
+    "summary": "预览并tick跨回拨两次01:30",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-020",
+    "suite": "schedule-cases.md",
+    "summary": "切中文、刷新页面、再切英文",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-021",
+    "suite": "schedule-cases.md",
+    "summary": "同时提交调度请求",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-022",
+    "suite": "schedule-cases.md",
+    "summary": "分别tick，重复调用",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-023",
+    "suite": "schedule-cases.md",
+    "summary": "跨过第二次触发",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-024",
+    "suite": "schedule-cases.md",
+    "summary": "再来一个触发，随后释放前序",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-025",
+    "suite": "schedule-cases.md",
+    "summary": "跨due，再恢复并查看下一次",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-026",
+    "suite": "schedule-cases.md",
+    "summary": "执行队列、等下个触发",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-027",
+    "suite": "schedule-cases.md",
+    "summary": "恢复调度",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-028",
+    "suite": "schedule-cases.md",
+    "summary": "两个进程同时恢复",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-029",
+    "suite": "schedule-cases.md",
+    "summary": "请求自动补跑",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-030",
+    "suite": "schedule-cases.md",
+    "summary": "重启服务并重复tick",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-031",
+    "suite": "schedule-cases.md",
+    "summary": "重启，重试恢复",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-032",
+    "suite": "schedule-cases.md",
+    "summary": "启用/到期执行",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-033",
+    "suite": "schedule-cases.md",
+    "summary": "尝试启用每日计划",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-034",
+    "suite": "schedule-cases.md",
+    "summary": "等待当前执行结束并再次tick",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-035",
+    "suite": "schedule-cases.md",
+    "summary": "连续tick与去重检查",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-036",
+    "suite": "schedule-cases.md",
+    "summary": "查看预览/执行",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-037",
+    "suite": "schedule-cases.md",
+    "summary": "每项单独发API再通过UI复测",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-038",
+    "suite": "schedule-cases.md",
+    "summary": "保存/预览/发布",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-039",
+    "suite": "schedule-cases.md",
+    "summary": "从表单提交并检查转换",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-040",
+    "suite": "schedule-cases.md",
+    "summary": "两者依次到期，检查run",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-041",
+    "suite": "schedule-cases.md",
+    "summary": "开始前记录run数，真实等待到due，查看各节点及下载结果",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SCH-042",
+    "suite": "schedule-cases.md",
+    "summary": "实际锁屏并等两次触发，记录墙上时间、电源与节点时间",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-G01",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Add a language node by drag and drop",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-G02",
+    "suite": "workflow-ui-cases.md",
+    "summary": "SQL subtype remains inside SQL receiver",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-G03",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Move nodes without changing execution semantics",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-G04",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Connect output port to input port",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-G05",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Reject self-loops and cycles atomically",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-G06",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Source selection is unrelated to preceding canvas position",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-G07",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Duplicate gets independent identity",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-G08",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Undo/redo covers complete graph edits",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-G09",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Layout, zoom and fit preserve data",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-G10",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Disconnected edge reveals affected mappings",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-M01",
+    "suite": "workflow-ui-cases.md",
+    "summary": "SQL rows map intact through the visual field picker",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-M01B",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Large SQL result preview never truncates Python input",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-M02",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Choose not to use previous-node output",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-M03",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Independent downstream-looking node has no implicit dependency",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-M04",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Optional mapping uses explicit fallback for a missing field",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-M05",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Existing empty, null, zero and false values are not missing",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-M06",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Required missing output blocks dependent execution",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-M07",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Optional mapping from skipped or failed predecessor",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-M08",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Constant, parameter and upstream inputs coexist",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-M09",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Duplicate/blank target fields and invalid values",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-M10",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Renaming nodes preserves references",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-M11",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Deleting a source exposes broken references",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-M12",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Samples and declared output schema stay distinct",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-M13",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Type-incompatible mapping",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-L01",
+    "suite": "workflow-ui-cases.md",
+    "summary": "English first, explicit Chinese switch",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-L02",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Locale switch preserves unsaved graph and editor buffers",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-L03",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Locale switch preserves schedule/time semantics",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-L04",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Keyboard-only graph authoring",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-L05",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Inspector/modal focus and shortcut boundaries",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-L06",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Responsive and bilingual layout",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-S01",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Weekdays first-use journey",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-S02",
+    "suite": "workflow-ui-cases.md",
+    "summary": "All supported schedule form variants",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-S03",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Invalid form values and unpublished enablement",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-S04",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Month boundaries, leap years and schedule bounds",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-S05",
+    "suite": "workflow-ui-cases.md",
+    "summary": "DST gap and fold",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-S06",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Paused schedules and version changes",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-R01",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Save incomplete draft versus publish valid snapshot",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-R02",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Draft test executes real frozen snapshot",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-R03",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Published run ignores unsaved draft changes",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-R04",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Actual n8n execution and missing-engine failure",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-R05",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Logs, outputs, artifacts and refresh",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-R06",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Failure, timeout and downstream blocking",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-R07",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Duplicate clicks and network uncertainty",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-R08",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Cancel request versus actual cancellation",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-R09",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Operator authorization and unavailable runtime",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-R10",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Runtime selection is per language/node",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-R11",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Templates and connection replacement",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-R12",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Connection test is not publication/runtime guarantee",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-A01",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Default local account display and fill",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "UI-A02",
+    "suite": "workflow-ui-cases.md",
+    "summary": "Password change removes public-default affordance",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-IN-01",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F0 on supported Apple silicon Mac; downloadable packaged artifact",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-IN-02",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "Isolated install with one unsupported OS/architecture fixture at a time",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-IN-03",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "Another controlled process owns chosen port",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-IN-04",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "Intercepted runtime download in temporary installation",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-IN-05",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1; each required executable or dependency deliberately unavailable in isolated copy",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-IN-06",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "App HTTP endpoint answers but worker or n8n self-test fails",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-IN-07",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1; no active jobs",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-IN-08",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 installed; network disabled only on designated test Mac after authorization",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-IN-09",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "Candidate signed/notarized release; fresh standard macOS security configuration",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-IN-10",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 with saved workflows and inactive update fixture",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-IN-11",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 stopped, data snapshot retained",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-AU-01",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F0; explicit local edition on loopback",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-AU-02",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F2 each existing/migrated/restored fixture",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-AU-03",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1; two independently authenticated browser sessions",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-AU-04",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 with initial-password marker",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-AU-05",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F0; local mode absent or APP_HOST external/wildcard",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-AU-06",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 still using public initial account",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-AU-07",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 loopback instance",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-AU-08",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 loopback instance",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-AU-09",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "Fresh login; explicit browser timezone fixture",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-AU-10",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 with secret/new password canaries in private temporary fixtures",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-BG-01",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F0; explicit permission trial authorized for M",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-BG-02",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "Clean native app registration fixture",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-BG-03",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "Native registration reports requiresApproval",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-BG-04",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 running with zero workflows",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-BG-05",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 with all triggers paused",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-BG-06",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 with next scheduled occurrence due soon",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-BG-07",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "Two scheduled workflows due; one has an active run",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-BG-08",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 idle, background running",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-BG-09",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F3 active long run and another future occurrence",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-BG-10",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F3 active script; cancellation-aware synthetic side-effect ledger",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-BG-11",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "Active run; stop dialog open",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-BG-12",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "Prior explicit stop persisted",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-BG-13",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "Authorized native background registration enabled",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-BG-14",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1; synthetic DB can count mutations",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-PW-01",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 on AC, F3 occurrences due",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-PW-02",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 on battery at operator-approved safe charge; same F3",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-PW-03",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F3 long run on AC, recorded midway marker",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-PW-04",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 waiting on battery; next event future",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-PW-05",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 on AC; actual daily schedule; test device reserved ≥48h",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-PW-06",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 on battery; operator sets safe duration/reserve; multiple occurrences",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-PW-07",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "Injected low-battery event, then critical-power/thermal event in controlled harness",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-PW-08",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1; authorized explicit Sleep trial with pending occurrences",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-PW-09",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "Authorized lid-close trial, safe test location; pending occurrence",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-PW-10",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 plus read-only before-state of power preferences",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-RC-01",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 temporary supervisor; no real power assertion in automated test",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-RC-02",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F3 active synthetic graph",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-RC-03",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F3 with side effect recorded, output acknowledgement intentionally delayed",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-RC-04",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "Enabled native startup; F1 running preference; authorized restart",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-RC-05",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "Same as RC-04 but explicit stop preference persisted",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-RC-06",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F3 several due occurrences elapsed while instance offline; default skip policy",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-RC-07",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "Optional latest-only catch-up enabled, 2h grace; multiple missed occurrences",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-RC-08",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "Scheduler fixture around DST gaps/repeats and timezone change; paused/offline intervals",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-RC-09",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1 local synthetic and controlled unavailable network-source workflow",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-RC-10",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "Lock held by live isolated owner, then stale status/PID record; unrelated process reuses stored PID fixture",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "MAC-RC-11",
+    "suite": "local-lifecycle-cases.md",
+    "summary": "F1; temporary state disk made unavailable/full in controlled fixture",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "PUB-001",
+    "suite": "publication-security-cases.md",
+    "summary": "保存草稿，再发布",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "PUB-002",
+    "suite": "publication-security-cases.md",
+    "summary": "保存并发布v2，执行原run",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "PUB-003",
+    "suite": "publication-security-cases.md",
+    "summary": "点击“试运行草稿”再正式运行",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "PUB-004",
+    "suite": "publication-security-cases.md",
+    "summary": "输入显式样例后测试下游",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "PUB-005",
+    "suite": "publication-security-cases.md",
+    "summary": "编辑上游后打开映射",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "PUB-006",
+    "suite": "publication-security-cases.md",
+    "summary": "尝试连线/发布",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "PUB-007",
+    "suite": "publication-security-cases.md",
+    "summary": "发布对应节点",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "PUB-008",
+    "suite": "publication-security-cases.md",
+    "summary": "发布再尝试运行",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "PUB-009",
+    "suite": "publication-security-cases.md",
+    "summary": "更新环境，运行旧版本，再重新发布",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "PUB-010",
+    "suite": "publication-security-cases.md",
+    "summary": "取消并等最终状态",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "PUB-011",
+    "suite": "publication-security-cases.md",
+    "summary": "运行",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "PUB-012",
+    "suite": "publication-security-cases.md",
+    "summary": "使前两次失败第三次成功",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "PUB-013",
+    "suite": "publication-security-cases.md",
+    "summary": "让请求提交后失去确认",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "PUB-014",
+    "suite": "publication-security-cases.md",
+    "summary": "同时请求同run/node/attempt",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "PUB-015",
+    "suite": "publication-security-cases.md",
+    "summary": "依次提交终态后旧事件",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "PUB-016",
+    "suite": "publication-security-cases.md",
+    "summary": "正式run最终失败；中间重试失败；草稿测试失败",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "PUB-017",
+    "suite": "publication-security-cases.md",
+    "summary": "运行及重试通知",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SEC-001",
+    "suite": "publication-security-cases.md",
+    "summary": "请求流程、日志、结果下载与连接API",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SEC-002",
+    "suite": "publication-security-cases.md",
+    "summary": "尝试改源码、连接、环境、发布或执行草稿",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SEC-003",
+    "suite": "publication-security-cases.md",
+    "summary": "修改流程、触发运行",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SEC-004",
+    "suite": "publication-security-cases.md",
+    "summary": "请求bootstrap/内部触发",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SEC-005",
+    "suite": "publication-security-cases.md",
+    "summary": "列表、详情、导出、日志、失败栈、前端网络响应",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SEC-006",
+    "suite": "publication-security-cases.md",
+    "summary": "使用绑定查询",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SEC-007",
+    "suite": "publication-security-cases.md",
+    "summary": "执行每种操作",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SEC-008",
+    "suite": "publication-security-cases.md",
+    "summary": "执行事务再读取数据",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SEC-009",
+    "suite": "publication-security-cases.md",
+    "summary": "产出、预览、下载",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SEC-010",
+    "suite": "publication-security-cases.md",
+    "summary": "登录同一有权限用户，访问错误组合与合法组合",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SEC-011",
+    "suite": "publication-security-cases.md",
+    "summary": "打开画布、列表、日志",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SEC-012",
+    "suite": "publication-security-cases.md",
+    "summary": "改密，刷新登录页，以旧会话访问",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "SEC-013",
+    "suite": "publication-security-cases.md",
+    "summary": "参数含空格、引号、分号、$()",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OPS-001",
+    "suite": "publication-security-cases.md",
+    "summary": "导出后在空工作区导入",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OPS-002",
+    "suite": "publication-security-cases.md",
+    "summary": "执行迁移后检查并手动启用",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OPS-003",
+    "suite": "publication-security-cases.md",
+    "summary": "迁移",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OPS-004",
+    "suite": "publication-security-cases.md",
+    "summary": "执行清理",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OPS-005",
+    "suite": "publication-security-cases.md",
+    "summary": "备份、恢复到独立目录",
+    "status": "DESIGNED"
+  },
+  {
+    "id": "OPS-006",
+    "suite": "publication-security-cases.md",
+    "summary": "重复运行和测量编辑响应、内存、耗时",
+    "status": "DESIGNED"
+  }
+]
