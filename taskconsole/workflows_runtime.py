@@ -12,7 +12,7 @@ import subprocess
 import sys
 import time
 
-LANGUAGES = ('python','javascript','shell','sql','java','c','cpp')
+LANGUAGES = ('python','javascript','shell','sql','java','c','cpp','custom')
 
 
 def executable(language):
@@ -130,7 +130,21 @@ def portable(value):
         for child in value: portable(child)
 
 
+def verify_frozen_node(node):
+    from .workflows_projects import file_hash,manifest_tree
+    for key,label in [('_runtime','runtime'),('_project','source project'),('_build','compiled project')]:
+        record=node.get(key,{})
+        if not record.get('manifest') or not record.get('directory'):continue
+        actual=manifest_tree(record['directory'])
+        if key=='_build':actual.pop('build-result.json',None)
+        if actual!=record['manifest']:raise ValueError('Immutable '+label+' content changed')
+    runtime=node.get('_runtime',{})
+    for key in ('executable','java'):
+        if runtime.get(key+'_sha256') and file_hash(runtime[key])!=runtime[key+'_sha256']:raise ValueError('Immutable runtime executable changed')
+
+
 def run_script(node,inputs,directory,root,cancelled=lambda:False):
+    verify_frozen_node(node)
     directory=Path(directory);directory.mkdir(parents=True,exist_ok=True)
     artifacts=directory/'artifacts';artifacts.mkdir(exist_ok=True)
     inp=directory/'input.json';out=directory/'output.json'
@@ -138,40 +152,76 @@ def run_script(node,inputs,directory,root,cancelled=lambda:False):
     env={key:value for key,value in os.environ.items() if key in {'PATH','HOME','TMPDIR','LANG','SYSTEMROOT'}}
     env.update(SLEEP_IN_INPUT_FILE=str(inp),SLEEP_IN_OUTPUT_FILE=str(out),SLEEP_IN_ARTIFACT_DIR=str(artifacts),SLEEP_IN_RUN_ID=node.get('_execution',{}).get('run_id',directory.parent.parent.name),SLEEP_IN_NODE_ID=node['id'])
     lang=node['kind'];source=node.get('source','')
+    profile=node.get('_runtime',{});project=node.get('_project')
+    project_dir=directory/'project';project_dir.mkdir(exist_ok=True)
+    shared=Path(profile['directory'])/'shared' if profile.get('directory') else None
+    if shared and shared.exists():shutil.copytree(shared,project_dir,dirs_exist_ok=True)
+    if project:
+        shutil.copytree(project['directory'],project_dir,dirs_exist_ok=True)
+        source=(project_dir/project['entrypoint']).read_text() if lang in {'python','javascript','shell'} else source
+    if profile.get('directory') and (Path(profile['directory'])/'node_modules').exists():
+        link=project_dir/'node_modules'
+        if not link.exists():link.symlink_to(Path(profile['directory'])/'node_modules',target_is_directory=True)
+    env['PYTHONDONTWRITEBYTECODE']='1'
+    env['PYTHONPATH']=str(project_dir)+(os.pathsep+str((project_dir/project['entrypoint']).parent) if project else '')
+    if profile.get('java'):env['JAVA_HOME']=str(Path(profile['java']).parent.parent)
+    if profile.get('executable'):env['PATH']=str(Path(profile['executable']).parent)+os.pathsep+env.get('PATH','')
     if lang=='python':
-        script=directory/'main.py'
+        script=project_dir/'__sleepin_main.py'
+        if project and node.get('config',{}).get('entry_mode')!='file':
+            module='.'.join(Path(project['entrypoint']).with_suffix('').parts)
+            source='import importlib\nmain=importlib.import_module('+repr(module)+').main'
+        elif project:
+            script=project_dir/project['entrypoint']
         script.write_text(source if node.get("config",{}).get("entry_mode")=="file" else source+'\n\nif __name__ == "__main__":\n import json,os,inspect,asyncio\n _result=main(json.load(open(os.environ["SLEEP_IN_INPUT_FILE"])))\n if inspect.isawaitable(_result): _result=asyncio.run(_result)\n if not isinstance(_result,dict): raise ValueError("main must return an object")\n _result={"schemaVersion":1,"data":_result,"artifacts":[]}\n with open(os.environ["SLEEP_IN_OUTPUT_FILE"],"w") as _f: json.dump(_result,_f,allow_nan=False)\n')
         argv=[node.get('_runtime',{}).get('executable') or executable(lang),str(script)]
     elif lang=='javascript':
-        script=directory/'main.cjs'
-        script.write_text(source if node.get('config',{}).get('entry_mode')=='file' else source+'\n;(async()=>{const fs=require("fs");const result=await main(JSON.parse(fs.readFileSync(process.env.SLEEP_IN_INPUT_FILE,"utf8")));if(!result || typeof result!=="object" || Array.isArray(result))throw Error("main must return an object");fs.writeFileSync(process.env.SLEEP_IN_OUTPUT_FILE,JSON.stringify({schemaVersion:1,data:result,artifacts:[]}));})().catch(e=>{console.error(e);process.exit(1)});')
-        argv=[node.get('_runtime',{}).get('executable') or executable(lang),str(script)]
+        esm=node.get('config',{}).get('module_format',profile.get('module_format','cjs'))=='esm' or bool(project and project['entrypoint'].endswith('.mjs'))
+        script=(project_dir/project['entrypoint']).parent/('__sleepin_main.mjs' if esm else '__sleepin_main.cjs') if project else project_dir/('__sleepin_main.mjs' if esm else '__sleepin_main.cjs')
+        helpers='import * as __sleepin_fs from "node:fs";\n' if esm else ''
+        trailer='\n;(async()=>{'+('' if esm else 'const __sleepin_fs=require("fs");')+'const result=await (typeof main==="function"?main:module.exports.main)(JSON.parse(__sleepin_fs.readFileSync(process.env.SLEEP_IN_INPUT_FILE,"utf8")));if(!result || typeof result!=="object" || Array.isArray(result))throw Error("main must return an object");__sleepin_fs.writeFileSync(process.env.SLEEP_IN_OUTPUT_FILE,JSON.stringify({schemaVersion:1,data:result,artifacts:[]},(key,value)=>{if(typeof value==="number"&&!Number.isFinite(value))throw Error("Non-finite JSON number");if(typeof value==="undefined")throw Error("Undefined is not JSON data");return value}));})().catch(e=>{console.error(e);process.exit(1)});'
+        if node.get('config',{}).get('entry_mode')=='file':script.write_text(source)
+        elif esm:script.write_text(helpers+source+trailer)
+        else:script.write_text(source+trailer)
+        argv=[profile.get('executable') or executable(lang),str(script)]
     elif lang=='shell':
-        script=directory/'main.sh';script.write_text(source);argv=[node.get('_runtime',{}).get('executable') or executable(lang),str(script)]
+        script=project_dir/'main.sh';script.write_text(source);argv=[node.get('_runtime',{}).get('executable') or executable(lang),str(script)]
     else: argv=(node.get('_build') or build(node,root))['argv']
     if not argv[0]: raise ValueError(f'{lang} runtime unavailable')
     timeout=min(max(int(node.get('config',{}).get('timeout',300)),1),3600)
     started=time.monotonic()
     with (directory/'stdout.txt').open('w') as stdout, (directory/'stderr.txt').open('w') as stderr:
-        proc=subprocess.Popen(argv,cwd=directory,env=env,stdout=stdout,stderr=stderr,start_new_session=True)
+        proc=subprocess.Popen(argv,cwd=project_dir,env=env,stdout=stdout,stderr=stderr,start_new_session=True)
         reason=None
-        while proc.poll() is None:
-            if cancelled(): reason='cancelled'
-            elif time.monotonic()-started>timeout: reason='timed_out'
-            elif sum(p.stat().st_size for p in directory.rglob('*') if p.is_file())>110*1024*1024: reason='output quota exceeded'
-            if reason:
-                os.killpg(proc.pid,signal.SIGTERM)
-                try: proc.wait(timeout=2)
-                except subprocess.TimeoutExpired: os.killpg(proc.pid,signal.SIGKILL);proc.wait()
-                break
-            time.sleep(.05)
+        try:
+            if callable(node.get('_on_process')):node['_on_process'](proc.pid)
+            while proc.poll() is None:
+                if cancelled():reason='cancelled'
+                elif time.monotonic()-started>timeout:reason='timed_out'
+                elif sum(p.stat().st_size for p in directory.rglob('*') if p.is_file())>110*1024*1024:reason='output quota exceeded'
+                if reason:
+                    try:os.killpg(proc.pid,signal.SIGTERM)
+                    except ProcessLookupError:pass
+                    try:proc.wait(timeout=2)
+                    except subprocess.TimeoutExpired:
+                        try:os.killpg(proc.pid,signal.SIGKILL)
+                        except ProcessLookupError:pass
+                        proc.wait()
+                    break
+                time.sleep(.05)
+        finally:
+            if proc.poll() is None:
+                try:os.killpg(proc.pid,signal.SIGKILL)
+                except ProcessLookupError:pass
+                proc.wait()
+            if callable(node.get('_on_process_exit')):node['_on_process_exit']()
     logs={name:(directory/(name+'.txt')).read_text(errors='replace')[-100000:] for name in ('stdout','stderr')}
     if reason or proc.returncode: return {**logs,'status':reason if reason in {'cancelled','timed_out'} else 'failed','error':reason or f'Process exited {proc.returncode}'}
     if not out.exists():
         if node.get('outputs',{}).get('required'): raise ValueError('Missing required output file')
         output={'schemaVersion':1,'data':{},'artifacts':[]}
     else:
-        if out.stat().st_size>1024*1024: raise ValueError('Inline output exceeds 1 MiB; use a complete artifact')
+        if out.stat().st_size>100*1024*1024: raise ValueError('Structured output exceeds 100 MiB worker quota')
         output=json.loads(out.read_text(),parse_constant=lambda x:(_ for _ in ()).throw(ValueError('Non-finite JSON')))
     if not isinstance(output,dict) or output.get('schemaVersion')!=1 or not isinstance(output.get('data'),dict) or not isinstance(output.get('artifacts'),list): raise ValueError('Output must be a version 1 envelope with data object and artifacts array')
     portable(output['data'])

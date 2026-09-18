@@ -13,7 +13,7 @@ cookies = http.cookiejar.CookieJar()
 client = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cookies))
 
 
-def request(path, body=None, csrf=None):
+def request(path, body=None, csrf=None, method=None):
     headers = {"Accept": "application/json"}
     data = None
     if body is not None:
@@ -21,7 +21,7 @@ def request(path, body=None, csrf=None):
         headers["Content-Type"] = "application/json"
     if csrf:
         headers["X-CSRF-Token"] = csrf
-    with client.open(urllib.request.Request(base + path, data=data, headers=headers), timeout=5) as response:
+    with client.open(urllib.request.Request(base + path, data=data, headers=headers,method=method), timeout=120) as response:
         return json.load(response)
 
 
@@ -72,6 +72,32 @@ with client.open(base + f'/api/executions/{run["id"]}/artifacts/hello.txt', time
 if "Hello from your scheduled Python task!" not in output:
     raise SystemExit("scheduled sample output had unexpected contents")
 print("heartbeat and scheduled sample output observed")
+
+# The workflow profile must execute an actual n8n graph, not just a v1 heartbeat.
+from datetime import datetime, timedelta, timezone
+template=request('/api/workflow-templates')[0]
+workflow=request('/api/workflows',{**template,'name':'Compose real workflow'},csrf)
+request('/api/workflows/'+workflow['id']+'/publish',{},csrf)
+workflow=request('/api/workflows/'+workflow['id'])
+workflow.update(enabled=True,timezone='UTC',schedule={'kind':'interval','every':1,'unit':'minutes','anchor':(datetime.now(timezone.utc)+timedelta(seconds=8)).isoformat()})
+request('/api/workflows/'+workflow['id'],workflow,csrf,'PUT')
+deadline=time.time()+120
+while time.time()<deadline:
+    runs=request('/api/workflow-runs?workflow_id='+workflow['id'])
+    successful=[r for r in runs if r['status']=='succeeded']
+    if successful:
+        actual=request('/api/workflow-runs/'+successful[0]['id'])
+        if actual.get('adapter_finished_at') and actual.get('n8n_execution_id'):break
+    if any(r['status'] in {'failed','timed_out'} for r in runs):raise SystemExit('Actual workflow failed: '+json.dumps(runs))
+    time.sleep(2)
+else:raise SystemExit('Real n8n scheduled graph did not finish')
+assert actual['engine']=='n8n' and actual['version_id'] and actual['n8n_execution_id']
+assert actual['nodes']['summary']['output']['data']['summary']=={'count':3,'total':'30.75'}
+assert all(n['status']=='succeeded' and len(n['attempts'])==1 for n in actual['nodes'].values())
+artifact=next(a for a in actual['artifacts'] if a['name']=='report.txt')
+with client.open(base+'/api/workflow-runs/'+actual['id']+'/artifacts/'+artifact['id'],timeout=10) as response:
+    assert response.read().decode()=='3 orders • 30.75\n'
+print('actual n8n scheduled SQL -> Python -> JavaScript graph and exact artifact observed')
 PY
 
 before="$(docker compose exec -T postgres psql -U taskconsole -d taskconsole -Atc "select count(*) from n8n.workflow_entity where id='task-console-heartbeat'")"

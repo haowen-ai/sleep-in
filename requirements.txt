@@ -5,3 +5,5 @@ psycopg[binary]==3.3.3
 croniter==6.0.0
 cryptography==46.0.5
 python-multipart==0.0.22
+pymysql==1.2.3
+oracledb==26.0.0

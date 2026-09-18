@@ -46,3 +46,20 @@ The builder refuses to overwrite an existing app, copies only application resour
 Automated isolated supervisor tests use `disable_power_assertion: true` in their private local configuration. That is a test-only deployment choice, explicitly reported as `disabled-for-test`; it cannot establish real power behavior. Never disable assertions in a release configuration to make a failed power test look successful.
 
 See [local test design](testing/local-lifecycle-cases.md) and [results](testing/local-results.md). Clean-Mac installation, native registration accepted/denied/revoked paths, signed distribution, physical AC/battery/lock trials, daily soak, update rollback, recovery across login/reboot and battery alerts require their own recorded evidence. A successful build or short subprocess test does not close those release gates.
+
+
+## Update and native status
+
+The native menu is English-first with an explicit Chinese switch. Installation has a progress window; status includes the power source, battery percentage and next scheduled workflow. Low battery is reported without silently disabling daily jobs.
+
+The update picker requires an existing downloaded Sleep In.app with Developer ID, hardened runtime, the same signing team and a successful Gatekeeper assessment. It stages and verifies the candidate before stopping anything, holds an update lock against competing starts, backs up installation/application state, switches, checks readiness and rolls back both data and application on failure. Backups remain available to the owner. An explicit stopped preference stays stopped.
+
+For a distribution build, an authorized maintainer supplies existing signing resources:
+
+```sh
+python packaging/build_mac.py '/path/to/new/Sleep In.app' \
+  --identity 'Developer ID Application: Your Name (TEAMID)' \
+  --notary-profile your-existing-keychain-profile
+```
+
+No signing credentials are committed. Local ad-hoc builds cannot be used to claim a notarized release. Update rollback has isolated fixture evidence; real signed upgrades and system permission transitions remain separate release tests.

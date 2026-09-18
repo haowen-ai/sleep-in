@@ -1,5 +1,6 @@
 # Verification record
 
+Current completion work is tracked in [full verification ledger](testing/COMPLETE-RESULTS.md). The earlier counts below are historical, not the latest full-suite result.
 This document reports evidence, not release aspirations.
 
 The sections below preserve the **v1** verification history. Current visual-workflow and native Mac preview evidence is maintained in [Workflow preview verification](testing/RESULTS.md); v1 passing results do not establish v2 behavior.

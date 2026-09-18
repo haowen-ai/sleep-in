@@ -16,7 +16,7 @@ from fastapi.responses import JSONResponse, FileResponse
 from .store import Store, uid, stamp, now
 from .schedule import workflow_next_runs
 from .workflows_runtime import LANGUAGES, runtimes, build, run_script, resolve_path, path_tokens, check_schema, validate_schema, portable
-from .workflows_sql import create_connection, public_connection, execute_sql, connect
+from .workflows_sql import create_connection, update_connection, public_connection, execute_sql, connect
 
 ACTIVE={'queued','running','cancelling'}
 NODE_TERMINAL={'succeeded','failed','skipped','not_run','cancelled','timed_out'}
@@ -64,7 +64,10 @@ def condition_matches(data,condition):
     return operators[op]()
 
 
-class WorkflowService:
+from .workflows_execution import ExecutionMixin, retry_policy, output_data, materialize_artifact, spill_output, mask_secrets, run_name, validate_operating_policies, process_identity, sanitize_result
+
+
+class WorkflowService(ExecutionMixin):
     def __init__(self,store):
         self.store=store
         self._threads={}
@@ -112,13 +115,16 @@ class WorkflowService:
                     except ValueError as exc:error(str(exc),edge['source'])
         for node in nodes:
             nid=node['id'];kind=node.get('kind');config=node.get('config',{})
-            if kind not in LANGUAGES:error('Choose a supported language',nid)
+            if kind not in LANGUAGES and not (kind=='custom' and config.get('runtime_version_id')):error('Choose a supported language',nid)
             if not isinstance(config,dict):error('Node configuration must be an object',nid);continue
+            if config.get('migration_requires_runtime') and not (config.get('runtime_version_id') or wf.get('settings',{}).get('runtime_defaults',{}).get(kind)):error('Migrated dependencies require an explicit runtime version',nid)
             incoming=[e for e in edges if e['target']==nid]
             if len(incoming)>1 and config.get('join') not in {'all','any'}:error('Multiple predecessors require an explicit join',nid)
+            try:retry_policy(node)
+            except ValueError as exc:error(str(exc),nid)
             if config.get('join','all') not in {'all','any'}:error('Unknown join policy',nid)
             if config.get('merge','named') not in {'named','append'}:error('Unknown merge mode',nid)
-            if not isinstance(node.get('source',''),str) or not node.get('source','').strip():error('Source is required',nid)
+            if not config.get('project_id') and (not isinstance(node.get('source',''),str) or not node.get('source','').strip()):error('Source is required',nid)
             try:validate_schema(node.get('outputs',{}));validate_schema(node.get('input_schema',{}))
             except ValueError as exc:error(str(exc),nid)
             mappings=node.get('inputs',{})
@@ -126,8 +132,13 @@ class WorkflowService:
             for field,binding in mappings.items():
                 if not isinstance(binding,dict):error('Input binding must be an object',nid,field);continue
                 source=binding.get('source')
-                if source not in {'constant','parameter','node','none','context'}:error('Unsupported input source',nid,field)
-                if source=='node' and binding.get('node_id') not in upstream[nid]:error('Input source must be a reachable upstream node',nid,field)
+                if source not in {'constant','parameter','node','none','context','artifact','credential'}:error('Unsupported input source',nid,field)
+                if source=='credential':
+                    with self.store.transaction() as tx:credential=tx.get('workflow_credential',binding.get('credential_id',''))
+                    if not credential:error('Choose a credential reference',nid,field)
+                    elif credential.get('allowed_workflows') and wf.get('id') not in credential['allowed_workflows']:error('Credential not authorized for workflow',nid,field)
+                if source=='artifact' and not isinstance(binding.get('name'),str):error('Choose an artifact name',nid,field)
+                if source in {'node','artifact'} and binding.get('node_id') not in upstream[nid]:error('Input source must be a reachable upstream node',nid,field)
                 if binding.get('optional') and 'default' not in binding:error('Optional input requires an explicit default',nid,field)
                 if source=='node' and 'type' in binding:
                     parent=next((n for n in nodes if n['id']==binding.get('node_id')),None)
@@ -144,7 +155,7 @@ class WorkflowService:
                     if 'type' in binding:validate_schema({'type':binding['type']})
                     if 'default' in binding and 'type' in binding:check_schema(binding['default'],{'type':binding['type']},field)
                 except ValueError as exc:error(str(exc),nid,field)
-            if publication and kind in profiles and profiles[kind]['status']!='ready':error(profiles[kind]['reason'],nid)
+            if publication and not (config.get('runtime_version_id') or wf.get('settings',{}).get('runtime_defaults',{}).get(kind)) and kind in profiles and profiles[kind]['status']!='ready':error(profiles[kind]['reason'],nid)
             if kind=='sql':
                 with self.store.transaction() as tx:connection=tx.get('connection',config.get('connection_id',''))
                 if not connection:error('Choose a database connection',nid)
@@ -158,16 +169,22 @@ class WorkflowService:
     def save(self,data,wid=None):
         if not isinstance(data,dict):raise WorkflowError('Workflow must be an object')
         with self.store.transaction() as tx:old=need(tx,'workflow',wid) if wid else {}
-        wf={**old,**{k:copy.deepcopy(v) for k,v in data.items() if k in {'name','description','nodes','edges','params','parameter_schema','schedule','timezone','enabled','timeout','triggers','allowed_user_ids','settings'}}}
+        wf={**old,**{k:copy.deepcopy(v) for k,v in data.items() if k in {'name','description','nodes','edges','params','parameter_schema','schedule','timezone','enabled','timeout','triggers','allowed_user_ids','settings','notifications','retention','run_name_template'}}}
         wf.update(id=wid or uid(),updated_at=stamp())
         for key,value in {'name':'Untitled workflow','description':'','nodes':[],'edges':[],'params':{},'schedule':{'kind':'manual'},'timezone':'UTC','enabled':False,'timeout':600,'created_at':stamp(),'published_version_id':None}.items():wf.setdefault(key,value)
         if not wf.get('name'):raise WorkflowError('Workflow name is required')
+        validate_operating_policies(self.store,wf)
         triggers=wf.get('triggers',[])
         if not isinstance(triggers,list):raise WorkflowError('Triggers must be an array')
         ids=set()
         for trigger in triggers:
             if not isinstance(trigger,dict) or not isinstance(trigger.get('id'),str) or not IDENTIFIER.fullmatch(trigger['id']) or trigger['id'] in ids:raise WorkflowError('Triggers require unique stable IDs')
             ids.add(trigger['id'])
+            if trigger.get('overlap','skip') not in {'skip','queue'}:raise WorkflowError('Unknown overlap policy')
+            if type(trigger.get('queue_limit',10)) is not int or not 1<=trigger.get('queue_limit',10)<=100:raise WorkflowError('Queue limit must be 1..100')
+            if trigger.get('missed_policy','skip') not in {'skip','latest_once'}:raise WorkflowError('Unknown missed occurrence policy')
+            if type(trigger.get('grace_seconds',7200)) is not int or not 1<=trigger.get('grace_seconds',7200)<=86400:raise WorkflowError('Grace seconds must be 1..86400')
+            validate_schema(trigger.get('parameter_schema',{}))
             if trigger.get('kind') not in {'manual','api','scheduled'}:raise WorkflowError('Unknown trigger kind')
             if not isinstance(trigger.get('params',{}),dict):raise WorkflowError('Trigger parameters must be an object')
             if trigger.get('enabled') and not wf.get('published_version_id'):raise WorkflowError('Publish before enabling triggers')
@@ -175,6 +192,7 @@ class WorkflowService:
             if trigger.get('version_id'):
                 with self.store.transaction() as tx:version=need(tx,'workflow_version',trigger['version_id'])
                 if version['workflow_id']!=wf['id']:raise WorkflowError('Pinned publication belongs to another workflow')
+        if wf.get('migration') and not wf['migration'].get('handoff_complete') and (wf.get('enabled') or any(t.get('enabled') for t in triggers)):raise WorkflowError('Migration handoff required before enabling triggers')
         if wf.get('enabled') and not wf.get('published_version_id'):raise WorkflowError('Publish before enabling schedules')
         if wf.get('enabled'):workflow_next_runs(wf['schedule'],wf['timezone'],now(),count=1)
         wf['validation_errors']=self.validate(wf)
@@ -183,14 +201,15 @@ class WorkflowService:
 
     def publish(self,wid):
         with self.store.transaction() as tx:wf=need(tx,'workflow',wid)
+        validate_operating_policies(self.store,wf)
         errors=self.validate(wf,True)
         if errors:raise WorkflowError(errors[0]['message'],node_id=errors[0].get('node_id'),field=errors[0].get('field'))
-        snapshot=copy.deepcopy(wf);profiles={r['language']:r for r in runtimes()}
-        for node in snapshot['nodes']:
-            node['_runtime']=profiles[node['kind']]
-            try:
-                compiled=build(node,self.store.path)
-                if compiled:node['_build']=compiled
+        from .workflows_packs import prepare_node
+        snapshot=copy.deepcopy(wf)
+        for index,node in enumerate(snapshot['nodes']):
+            default=snapshot.get('settings',{}).get('runtime_defaults',{}).get(node['kind'])
+            if default:node.setdefault('config',{}).setdefault('runtime_version_id',default)
+            try:snapshot['nodes'][index]=prepare_node(self.store,node)
             except (ValueError,TimeoutError) as exc:raise WorkflowError(str(exc),node_id=node['id'])
         with self.store.transaction() as tx:
             current=need(tx,'workflow',wid)
@@ -200,22 +219,28 @@ class WorkflowService:
             tx.put('workflow_version',version);current['published_version_id']=version['id'];current['published_version']=number;tx.put('workflow',current)
         return {'version_id':version['id'],'version':number,'workflow':current}
 
-    def admit(self,wid,params=None,key=None,test=False,trigger_id='manual',version_id=None):
+    def admit(self,wid,params=None,key=None,test=False,trigger_id='manual',version_id=None,prepared_test=None,overlap='skip',queue_limit=10):
         if (self.store.path/'local-stop-request.json').exists():raise WorkflowError('Background service is draining; new admission is paused','service_stopping')
         prepared=None
         if test:
-            with self.store.transaction() as tx:prepared=need(tx,'workflow',wid)
+            with self.store.transaction() as tx:prepared=copy.deepcopy(prepared_test) if prepared_test is not None else need(tx,'workflow',wid)
             errors=self.validate(prepared,True)
             if errors:raise WorkflowError(errors[0]['message'])
+            from .workflows_packs import prepare_node
             for node in prepared['nodes']:
-                compiled=build(node,self.store.path)
-                if compiled:node['_build']=compiled
+                default=prepared.get('settings',{}).get('runtime_defaults',{}).get(node['kind'])
+                if default:node.setdefault('config',{}).setdefault('runtime_version_id',default)
+            prepared['nodes']=[prepare_node(self.store,node) for node in prepared['nodes']]
         with self.store.transaction() as tx:
             wf=need(tx,'workflow',wid)
+            maintenance=tx.get('meta','workflow_maintenance') or {}
+            if wf.get('migration') and not wf['migration'].get('handoff_complete') and not test:raise WorkflowError('Migration handoff required before production admission')
+            if maintenance.get('paused') and not test:raise WorkflowError('Workflow admission paused for maintenance','service_stopping')
             if key:
                 previous=next((r for r in tx.all('workflow_run') if r['workflow_id']==wid and r.get('idempotency_key')==key and r.get('trigger_id')==trigger_id),None)
                 if previous:return previous
-            if any(r['workflow_id']==wid and r['status'] in ACTIVE for r in tx.all('workflow_run')):raise WorkflowError('Workflow already has an active run','workflow_active')
+            active=[r for r in tx.all('workflow_run') if r['workflow_id']==wid and r['status'] in ACTIVE]
+            if active and (overlap!='queue' or len(active)>=queue_limit+1):raise WorkflowError('Workflow already has an active run or queue is full','workflow_active')
             if test:
                 if prepared['updated_at']!=wf['updated_at']:raise WorkflowError('Draft changed during test admission; retry')
                 snapshot=prepared
@@ -225,10 +250,12 @@ class WorkflowService:
                 if not vid:raise WorkflowError('Publish the workflow before running')
                 version=need(tx,'workflow_version',vid)
                 if version['workflow_id']!=wid:raise WorkflowError('Publication belongs to another workflow')
+                if version.get('restore_requires_rebuild'):raise WorkflowError('Restored publication requires runtime rebuild and republish')
                 snapshot=version['snapshot']
             values=copy.deepcopy(snapshot.get('params',{}));values.update(copy.deepcopy(params or {}))
             check_schema(values,snapshot.get('parameter_schema',{}),'params');portable(values)
-            run={'id':uid(),'workflow_id':wid,'workflow_name':wf['name'],'version_id':vid,'snapshot':copy.deepcopy(snapshot),'status':'queued','params':values,'test':test,'trigger_id':trigger_id,'idempotency_key':key,'created_at':stamp(),'started_at':None,'finished_at':None,'nodes':{n['id']:{'status':'queued','attempts':[]} for n in snapshot['nodes']},'artifacts':[],'error':None,'engine':'n8n','callback_token':secrets.token_urlsafe(32),'timeout':min(max(int(snapshot.get('timeout',600)),1),86400)}
+            run={'id':uid(),'workflow_id':wid,'workflow_name':wf['name'],'version_id':vid,'snapshot':copy.deepcopy(snapshot),'status':'queued','params':values,'test':test,'test_node_id':snapshot.get('test_node_id'),'trigger_id':trigger_id,'idempotency_key':key,'created_at':stamp(),'started_at':None,'finished_at':None,'nodes':{n['id']:{'status':'queued','attempts':[]} for n in snapshot['nodes']},'artifacts':[],'error':None,'engine':'n8n','callback_token':secrets.token_urlsafe(32),'timeout':min(max(int(snapshot.get('timeout',600)),1),86400)}
+            run['name']=run_name(snapshot,values)
             tx.put('workflow_run',run)
         return run
 
@@ -241,7 +268,7 @@ class WorkflowService:
             if run['status']=='running' and run.get('started_at') and (now()-datetime.fromisoformat(run['started_at'])).total_seconds()>run['timeout']:
                 run.update(status='timed_out',error='Workflow deadline exceeded',finished_at=stamp())
                 for state in run['nodes'].values():
-                    if state['status']=='queued':state.update(status='not_run',reason='workflow_timed_out',finished_at=stamp())
+                    if state['status'] in {'queued','dispatching'}:state.update(status='not_run',reason='workflow_timed_out',finished_at=stamp())
                 tx.put('workflow_run',run)
             return run['status'] in {'cancelling','cancelled','timed_out','failed'}
 
@@ -254,6 +281,8 @@ class WorkflowService:
             if run['status'] in {'cancelled','cancelling','timed_out','failed','succeeded','partial'}:
                 state.update(status='cancelled' if run['status'] in {'cancelled','cancelling'} else 'not_run',finished_at=stamp());tx.put('workflow_run',run);return state
             snapshot=run['snapshot'];node=copy.deepcopy(next(n for n in snapshot['nodes'] if n['id']==nid))
+            attempt=len(state['attempts'])+1
+            directory=self.store.path/'workflow-runs'/rid/nid/('attempt-'+str(attempt))
             incoming=[e for e in snapshot['edges'] if e['target']==nid]
             if any(run['nodes'][e['source']]['status'] not in NODE_TERMINAL for e in incoming):raise WorkflowError('Predecessors are not terminal','dependencies_pending',nid)
             state.update(started_at=stamp(),inputs={},stdout='',stderr='')
@@ -262,7 +291,7 @@ class WorkflowService:
                 for edge in incoming:
                     upstream=run['nodes'][edge['source']]
                     if upstream['status']=='succeeded':
-                        try:active=not edge.get('condition') or condition_matches(upstream['output']['data'],edge['condition'])
+                        try:active=not edge.get('condition') or condition_matches(output_data(self.store,run,upstream),edge['condition'])
                         except (ValueError,KeyError,IndexError,TypeError) as exc:raise WorkflowError('Condition: '+str(exc),node_id=nid)
                         if active:successful.append(edge['source'])
                     elif upstream['status'] not in {'skipped'} and edge.get('required',True):required_failure=True
@@ -271,21 +300,25 @@ class WorkflowService:
                 if incoming and not successful:
                     all_skipped=all(run['nodes'][e['source']]['status'] in {'succeeded','skipped'} for e in incoming)
                     state.update(status='skipped' if all_skipped else 'not_run',reason='unselected_branch' if all_skipped else 'no_successful_dependency',finished_at=stamp());tx.put('workflow_run',run);return copy.deepcopy(state)
-                inputs={}
+                inputs={};secret_values=[];credential_revisions={}
                 for field,binding in node.get('inputs',{}).items():
                     source=binding.get('source')
                     if source=='none':continue
                     try:
                         if source=='constant':value=copy.deepcopy(binding.get('value'))
                         elif source=='parameter':value=resolve_path(run['params'],binding.get('path'))
+                        elif source=='credential':
+                            credential=need(tx,'workflow_credential',binding.get('credential_id',''))
+                            if credential.get('allowed_workflows') and run['workflow_id'] not in credential['allowed_workflows']:raise WorkflowError('Credential not authorized for workflow',node_id=nid,field=field)
+                            value=self.store.fernet.decrypt(credential['encrypted'].encode()).decode();secret_values.append(value);credential_revisions[credential['id']]=credential['revision']
                         elif source=='context':value=resolve_path({'run_id':rid,'workflow_id':run['workflow_id'],'version_id':run['version_id']},binding.get('path'))
-                        elif source=='node':
+                        elif source in {'node','artifact'}:
                             parent=run['nodes'][binding['node_id']]
                             if parent['status']!='succeeded':raise KeyError('source unavailable')
                             # A direct condition-false edge must not expose an unselected output.
                             direct=[e for e in incoming if e['source']==binding['node_id']]
                             if direct and binding['node_id'] not in successful:raise KeyError('source unselected')
-                            value=resolve_path(parent['output']['data'],binding.get('path'))
+                            value=materialize_artifact(self.store,run,binding,directory) if source=='artifact' else resolve_path(output_data(self.store,run,parent),binding.get('path'))
                         else:raise ValueError('Unsupported input source')
                     except (KeyError,IndexError):
                         if binding.get('optional') and 'default' in binding:value=copy.deepcopy(binding['default'])
@@ -296,23 +329,35 @@ class WorkflowService:
                     if any(not isinstance(v,list) for v in inputs.values()):raise WorkflowError('Append merge requires array inputs',node_id=nid)
                     inputs={node['config'].get('merge_target','items'):[item for values in inputs.values() for item in values]}
                 check_schema(inputs,node.get('input_schema',{}),'inputs');portable(inputs)
-                state.update(status='running',inputs=inputs,process_started=False)
+                state.update(status='running',inputs=mask_secrets(inputs,secret_values),credential_revisions=credential_revisions,process_started=False)
                 run['status']='running';run['started_at']=run['started_at'] or stamp()
-                state['attempts'].append({'number':1,'status':'running','started_at':stamp()})
+                state['attempts'].append({'number':attempt,'status':'running','started_at':stamp()})
                 tx.put('workflow_run',run)
             except (ValueError,KeyError,TypeError) as exc:
                 state.update(status='failed',error=str(exc),finished_at=stamp());tx.put('workflow_run',run);return copy.deepcopy(state)
         node['_execution']={'run_id':rid,'node_id':nid}
-        directory=self.store.path/'workflow-runs'/rid/nid/'attempt-1'
+        def worker_started(pid):
+            identity=process_identity(pid)
+            with self.store.transaction() as tx:
+                current=need(tx,'workflow_run',rid);current['nodes'][nid].update(worker_pid=pid,worker_identity=identity);tx.put('workflow_run',current)
+        def worker_exited():
+            with self.store.transaction() as tx:
+                current=need(tx,'workflow_run',rid);current['nodes'][nid].update(worker_pid=None,worker_identity=None);tx.put('workflow_run',current)
+        node['_on_process']=worker_started;node['_on_process_exit']=worker_exited
         try:
             with self.store.transaction() as tx:
                 current=need(tx,'workflow_run',rid);current['nodes'][nid]['process_started']=True;tx.put('workflow_run',current)
             if node['kind']=='sql':result=execute_sql(self.store,node,inputs,run['workflow_id'],lambda:self._cancelled(rid))
             else:result=run_script(node,inputs,directory,self.store.path,lambda:self._cancelled(rid))
-            if result['status']=='succeeded':check_schema(result['output']['data'],node.get('outputs',{}))
+            if result['status']=='succeeded':
+                check_schema(result['output']['data'],node.get('outputs',{}))
+                result=sanitize_result(result,secret_values)
+                spill_output(result,directory)
         except Exception as exc:result={'status':'failed','error':str(exc),'stdout':'','stderr':''}
+        if result['status']!='succeeded':result=sanitize_result(result,secret_values)
         with self.store.transaction() as tx:
             current=need(tx,'workflow_run',rid);state=current['nodes'][nid]
+            if current['status'] in {'cancelling','cancelled'}:result.update(status='cancelled',error='Cancelled')
             if current['status']=='timed_out':result.update(status='timed_out',error='Workflow deadline exceeded')
             state.update(result,finished_at=stamp())
             state['attempts'][-1].update(status=result['status'],finished_at=state['finished_at'],error=result.get('error'),stdout=result.get('stdout',''),stderr=result.get('stderr',''))
@@ -325,7 +370,7 @@ class WorkflowService:
         with self.store.transaction() as tx:
             run=need(tx,'workflow_run',rid)
             if run['status'] not in ACTIVE:return run
-            if any(n['status']=='running' for n in run['nodes'].values()):raise WorkflowError('Nodes still running','dependencies_pending')
+            if any(n['status'] in {'running','dispatching'} for n in run['nodes'].values()):raise WorkflowError('Nodes still running','dependencies_pending')
             if run['status']=='cancelling':
                 for n in run['nodes'].values():
                     if n['status']=='queued':n.update(status='cancelled',finished_at=stamp())
@@ -338,20 +383,28 @@ class WorkflowService:
                 elif failed:run['status']='partial' if tolerated and any(n['status']=='succeeded' for n in states.values()) else 'failed'
                 else:run['status']='succeeded'
             run['finished_at']=stamp();tx.put('workflow_run',run)
+        self.on_terminal(rid)
         return run
 
     def cancel(self,rid):
         with self.store.transaction() as tx:
             run=need(tx,'workflow_run',rid)
             if run['status'] not in ACTIVE:return run
-            running=any(n['status']=='running' for n in run['nodes'].values())
+            running=any(n['status'] in {'running','dispatching'} for n in run['nodes'].values())
             run['status']='cancelling' if running else 'cancelled'
             if not running:
                 for n in run['nodes'].values():
                     if n['status']=='queued':n.update(status='cancelled',finished_at=stamp())
                 run['finished_at']=stamp()
             tx.put('workflow_run',run)
+        self.on_terminal(rid)
         return run
+
+    def on_terminal(self,rid):
+        from .workflows_operations import WorkflowOperations
+        try:WorkflowOperations(self.store).on_run_terminal(rid)
+        except Exception as exc:
+            with self.store.transaction() as tx:tx.put('workflow_event',{'id':uid(),'run_id':rid,'reason':'terminal_notification_enqueue_failed','created_at':stamp()})
 
     def tick(self,moment=None):
         moment=moment or now()
@@ -368,11 +421,11 @@ class WorkflowService:
                 with self.store.transaction() as tx:
                     cursor=tx.get('workflow_cursor',cursor_id)
                     previous=datetime.fromisoformat(cursor['last_tick']) if cursor else moment
-                    since=max(previous,moment-timedelta(seconds=30))
-                    if previous<since:
-                        tx.put('workflow_event',{'id':uid(),'workflow_id':wf['id'],'trigger_id':tid,'reason':'offline_gap_skipped','from':previous.isoformat(),'until':since.isoformat(),'created_at':stamp()})
-                    occurrences=workflow_next_runs(trigger['schedule'],trigger.get('timezone',wf['timezone']),since,count=1)
-                    due=occurrences[0] if occurrences and occurrences[0]<=moment else None
+                    since=max(previous,moment-timedelta(seconds=trigger.get('grace_seconds',7200) if trigger.get('missed_policy')=='latest_once' else 30))
+                    if previous<moment-timedelta(seconds=30):
+                        tx.put('workflow_event',{'id':uid(),'workflow_id':wf['id'],'trigger_id':tid,'reason':'offline_gap_latest_once' if trigger.get('missed_policy')=='latest_once' else 'offline_gap_skipped','from':previous.isoformat(),'until':since.isoformat(),'created_at':stamp()})
+                    occurrences=workflow_next_runs(trigger['schedule'],trigger.get('timezone',wf['timezone']),since,count=1441 if trigger.get('missed_policy')=='latest_once' else 1)
+                    due=next((d for d in reversed(occurrences) if d<=moment),None)
                     # Cursor and pending intent commit together. Admission may be retried by key.
                     if due:
                         oid=hashlib.sha256((cursor_id+':'+due.isoformat()).encode()).hexdigest()
@@ -384,11 +437,18 @@ class WorkflowService:
             claim=uid()
             with self.store.transaction() as tx:
                 item=need(tx,'workflow_occurrence',item['id'])
+                wf=need(tx,'workflow',item['workflow_id'])
+                trigger=next((t for t in wf.get('triggers',[]) if t['id']==item['trigger_id']),None)
+                if item['trigger_id']=='default':trigger={'enabled':wf.get('enabled',False)}
+                if not trigger or not trigger.get('enabled'):
+                    if item['status'] in {'pending','admitting'}:
+                        item.update(status='skipped',reason='trigger_disabled');tx.put('workflow_occurrence',item)
+                    continue
                 recoverable=item['status']=='admitting' and datetime.fromisoformat(item['claimed_at'])<moment-timedelta(seconds=30)
                 if item['status']!='pending' and not recoverable:continue
                 item.update(status='admitting',claim=claim,claimed_at=moment.isoformat(),attempts=item.get('attempts',0)+1);tx.put('workflow_occurrence',item)
             try:
-                run=self.admit(item['workflow_id'],item['params'],key='schedule:'+item['occurrence'],trigger_id=item['trigger_id'],version_id=item['version_id'])
+                run=self.admit(item['workflow_id'],item['params'],key='schedule:'+item['occurrence'],trigger_id=item['trigger_id'],version_id=item['version_id'],overlap=trigger.get('overlap','skip'),queue_limit=trigger.get('queue_limit',10))
                 result={'status':'admitted','run_id':run['id'],'error':None}
                 admitted.append(run)
             except Exception as exc:
@@ -410,9 +470,10 @@ def public_run(run):
     value=copy.deepcopy(run)
     for node in run.get('snapshot',{}).get('nodes',[]):
         if node['id'] in value.get('nodes',{}):value['nodes'][node['id']].update(name=node.get('name',node['id']),kind=node['kind'])
-    for key in ('snapshot','callback_token','adapter_lease','adapter_pid'):value.pop(key,None)
+    for key in ('snapshot','callback_token','adapter_lease','adapter_pid','adapter_execution_owner'):value.pop(key,None)
     for artifact in value.get('artifacts',[]):artifact.pop('path',None)
     for node in value.get('nodes',{}).values():
+        if node.get('output',{}).get('data_ref'):node['output']['data_ref'].pop('path',None)
         for artifact in node.get('output',{}).get('artifacts',[]):artifact.pop('path',None)
     return value
 
@@ -467,6 +528,17 @@ def register_workflow_routes(app,store,require):
         auth(request,wid,admin=bool(body.get('test')))
         return public_run(service.admit(wid,body.get('params',{}),key=body.get('idempotency_key') or request.headers.get('idempotency-key'),test=bool(body.get('test')),version_id=body.get('version_id')))
 
+    @app.post('/api/workflows/{wid}/nodes/{nid}/test',status_code=202)
+    def test_node(wid:str,nid:str,request:Request,body:dict):
+        auth(request,wid,admin=True)
+        return public_run(service.test_node(wid,nid,body))
+
+    @app.post('/api/workflows/{wid}/triggers/{tid}/run',status_code=202)
+    def trigger_run(wid:str,tid:str,request:Request,body:dict):
+        auth(request,wid)
+        body=dict(body);body.setdefault('idempotency_key',request.headers.get('idempotency-key'))
+        return public_run(service.trigger_run(wid,tid,body))
+
     @app.post('/api/workflows/{wid}/preview')
     def preview_workflow(wid:str,request:Request,body:dict):
         auth(request,wid)
@@ -490,6 +562,25 @@ def register_workflow_routes(app,store,require):
     def get_run(rid:str,request:Request):
         run=service.get_run(rid);auth(request,run['workflow_id']);return public_run(run)
 
+    @app.get('/api/workflow-runs/{rid}/nodes/{nid}/sample')
+    def node_sample(rid:str,nid:str,request:Request):
+        run=service.get_run(rid);auth(request,run['workflow_id'])
+        state=run['nodes'].get(nid)
+        if not state or 'inputs' not in state:raise WorkflowError('Sample unavailable','not_found')
+        with store.transaction() as tx:wf=need(tx,'workflow',run['workflow_id'])
+        return {'inputs':copy.deepcopy(state['inputs']),'run_id':rid,'version_id':run['version_id'],'produced_at':state.get('finished_at'),'stale':run['version_id']!=wf.get('published_version_id') or run['test']}
+
+    @app.get('/api/workflow-runs/{rid}/nodes/{nid}/output')
+    def node_output(rid:str,nid:str,request:Request,path:str='',offset:int=0,limit:int=100):
+        run=service.get_run(rid);auth(request,run['workflow_id'])
+        if nid not in run['nodes'] or 'output' not in run['nodes'][nid]:raise WorkflowError('Output unavailable','not_found')
+        if offset<0 or not 1<=limit<=1000:raise WorkflowError('Invalid pagination bounds')
+        value=resolve_path(output_data(store,run,run['nodes'][nid]),path)
+        total=len(value) if isinstance(value,list) else 1
+        page=value[offset:offset+limit] if isinstance(value,list) else value
+        if len(json.dumps(page).encode())>1024*1024:raise WorkflowError('Preview too large; select a field or download the complete artifact')
+        return {'data':page,'total':total,'offset':offset,'limit':limit,'has_more':isinstance(value,list) and offset+limit<total}
+
     @app.post('/api/workflow-runs/{rid}/cancel')
     def cancel_run(rid:str,request:Request):
         run=service.get_run(rid);auth(request,run['workflow_id']);return public_run(service.cancel(rid))
@@ -504,6 +595,19 @@ def register_workflow_routes(app,store,require):
         if hashlib.sha256(file.read_bytes()).hexdigest()!=item['sha256']:raise WorkflowError('Artifact checksum changed')
         return FileResponse(file,filename=Path(item['name']).name,media_type=item['mediaType'])
 
+    @app.get('/api/workflow-credentials')
+    def credentials(request:Request):
+        auth(request,admin=True)
+        with store.transaction() as tx:return [{k:v for k,v in c.items() if k!='encrypted'} for c in tx.all('workflow_credential')]
+
+    @app.post('/api/workflow-credentials')
+    def add_credential(request:Request,body:dict):
+        auth(request,admin=True);return service.save_credential(body)
+
+    @app.put('/api/workflow-credentials/{cid}')
+    def update_credential(cid:str,request:Request,body:dict):
+        auth(request,admin=True);return service.save_credential(body,cid)
+
     @app.get('/api/connections')
     def connections(request:Request):
         auth(request)
@@ -512,6 +616,10 @@ def register_workflow_routes(app,store,require):
     @app.post('/api/connections')
     def add_connection(request:Request,body:dict):
         auth(request,admin=True);return create_connection(store,body)
+
+    @app.put('/api/connections/{cid}')
+    def rotate_connection(cid:str,request:Request,body:dict):
+        auth(request,admin=True);return update_connection(store,cid,body)
 
     @app.post('/api/connections/{cid}/test')
     def test_connection(cid:str,request:Request):
@@ -542,6 +650,18 @@ def register_workflow_routes(app,store,require):
         run=service.get_run(rid)
         if not hmac.compare_digest(request.headers.get('x-workflow-token',''),run['callback_token']):raise HTTPException(403,detail={'code':'forbidden','message':'Invalid execution capability'})
         return run
+
+    @app.post('/internal/workflows/{rid}/claim')
+    def callback_claim(rid:str,request:Request,body:dict):
+        callback_auth(request,rid);return service.claim_graph(rid,body.get('execution_id'))
+
+    @app.post('/internal/workflows/{rid}/nodes/{nid}/submit',status_code=202)
+    def callback_submit(rid:str,nid:str,request:Request,body:dict):
+        callback_auth(request,rid);return service.submit_node(rid,nid,retry=body.get('retry') is True)
+
+    @app.get('/internal/workflows/{rid}/nodes/{nid}/status')
+    def callback_status(rid:str,nid:str,request:Request):
+        callback_auth(request,rid);service._cancelled(rid);return service.node_status(rid,nid)
 
     @app.post('/internal/workflows/{rid}/nodes/{nid}')
     def callback_node(rid:str,nid:str,request:Request):

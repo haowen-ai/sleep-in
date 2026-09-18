@@ -38,7 +38,41 @@ def create_connection(store,data):
     return public_connection(connection)
 
 
-def connect(store,connection,write=False):
+def update_connection(store,cid,data):
+    """Rotate authorized driver configuration without exposing or resetting secrets."""
+    import copy
+    from .workflows import WorkflowError
+    if not isinstance(data,dict):raise ValueError('Connection update must be an object')
+    patch=data.get('config',{})
+    if not isinstance(patch,dict):raise ValueError('Connection config must be an object')
+    def merge(old,new):
+        result=copy.deepcopy(old)
+        for key,value in new.items():
+            if value is None or value=='':continue
+            result[key]=merge(result.get(key,{}) if isinstance(result.get(key),dict) else {},value) if isinstance(value,dict) else copy.deepcopy(value)
+        return result
+    with store.transaction() as tx:
+        record=tx.get('connection',cid)
+        if not record:raise WorkflowError('Connection not found','not_found')
+        if data.get('dialect',record['dialect'])!=record['dialect']:raise ValueError('Connection dialect is immutable; create another connection')
+        if record['dialect']=='sqlite' and any(k in patch for k in ('path','file','database','url')):raise ValueError('SQLite uses managed storage, not host paths')
+        config=merge(json.loads(store.fernet.decrypt(record['encrypted_config'].encode())),patch)
+        if 'name' in data:
+            if not isinstance(data['name'],str) or not data['name'].strip():raise ValueError('Connection name is required')
+            record['name']=data['name'].strip()[:200]
+        if 'write_enabled' in data:
+            if type(data['write_enabled']) is not bool:raise ValueError('write_enabled must be boolean')
+            record['write_enabled']=data['write_enabled']
+        if 'allowed_workflows' in data:
+            allowed=data['allowed_workflows']
+            if not isinstance(allowed,list) or any(not isinstance(w,str) or not w for w in allowed):raise ValueError('Allowed workflows must be an ID array')
+            record['allowed_workflows']=list(dict.fromkeys(allowed))
+        record.update(encrypted_config=store.fernet.encrypt(json.dumps(config,allow_nan=False).encode()).decode(),revision=uid(),status='untested',updated_at=stamp())
+        record.pop('last_test_at',None);tx.put('connection',record)
+    return public_connection(record)
+
+
+def connect(store,connection,write=False,timeout=None):
     config=json.loads(store.fernet.decrypt(connection['encrypted_config'].encode()))
     dialect=connection['dialect']
     if write and not connection.get('write_enabled'): raise ValueError('Connection does not permit writes')
@@ -52,17 +86,26 @@ def connect(store,connection,write=False):
         return db
     if dialect=='postgresql':
         import psycopg
+        if timeout is not None:config['connect_timeout']=min(config.get('connect_timeout',timeout),timeout)
         db=psycopg.connect(**config)
         if not write:db.execute('SET TRANSACTION READ ONLY')
+        if timeout is not None:db.execute("SELECT set_config('statement_timeout', %s, true)",(str(timeout*1000),))
         return db
     if dialect=='mysql':
         import pymysql
+        if timeout is not None:
+            for key in ('connect_timeout','read_timeout','write_timeout'):config[key]=min(config.get(key) or timeout,timeout)
         db=pymysql.connect(**config)
         if not write:
             with db.cursor() as cur:cur.execute('SET TRANSACTION READ ONLY')
         db.begin();return db
     import oracledb
     db=oracledb.connect(**config)
+    if timeout is not None:db.call_timeout=timeout*1000
+    def number_handler(cursor,metadata):
+        if metadata.type_code==oracledb.DB_TYPE_NUMBER:
+            return cursor.var(oracledb.DB_TYPE_VARCHAR,arraysize=cursor.arraysize,outconverter=Decimal)
+    db.outputtypehandler=number_handler
     if not write:
         with db.cursor() as cur:cur.execute('SET TRANSACTION READ ONLY')
     return db
@@ -125,7 +168,11 @@ def execute_sql(store,node,inputs,workflow_id,cancelled=lambda:False):
     statements=config.get('statements') if write else None
     if statements is not None and (not isinstance(statements,list) or not statements):raise ValueError('statements must be a nonempty list')
     statements=statements or [{'sql':node.get('source',''),'bindings':inputs}]
-    db=connect(store,connection,write)
+    quota=config.get('max_output_bytes',100*1024*1024)
+    if type(quota) is not int or not 1<=quota<=100*1024*1024:raise ValueError('SQL dataset quota must be 1..104857600 bytes')
+    timeout=config.get('timeout',30)
+    if type(timeout) is not int or not 1<=timeout<=3600:raise ValueError('SQL timeout must be 1..3600 seconds')
+    db=connect(store,connection,write,timeout=timeout)
     try:
         if connection['dialect']=='sqlite':
             import time
@@ -150,19 +197,21 @@ def execute_sql(store,node,inputs,workflow_id,cancelled=lambda:False):
                         for row in batch:
                             item=dict(zip(names,[value_json(v) for v in row]))
                             result_bytes+=len(json.dumps(item,ensure_ascii=False,allow_nan=False).encode())+1
-                            if result_bytes>1024*1024:raise ValueError('SQL output exceeds inline quota; narrow query or export an explicit dataset')
+                            if result_bytes>quota:raise ValueError('SQL output exceeds dataset quota')
                             rows.append(item)
                     columns=[{'name':name,'type':next(('boolean' if isinstance(r[name],bool) else 'integer' if isinstance(r[name],int) else 'number' if isinstance(r[name],float) else 'string' for r in rows if r[name] is not None),'string'),'nullable':any(r[name] is None for r in rows)} for name in names]
                 if write:affected=None if affected is None or cur.rowcount<0 else affected+cur.rowcount
             finally:cur.close()
         data={'rows':rows,'columns':columns,'rowCount':len(rows)}
         if write:data['affectedRows']=affected
-        if len(json.dumps(data,ensure_ascii=False,allow_nan=False).encode())>1024*1024:raise ValueError('SQL output exceeds inline quota; narrow query or export an explicit dataset')
+        if len(json.dumps(data,ensure_ascii=False,allow_nan=False).encode())>quota:raise ValueError('SQL output exceeds dataset quota')
         portable(data);check_schema(data,node.get('outputs'))
         if cancelled():raise ValueError('cancelled')
         if write:db.commit()
         else:db.rollback()
         return {'status':'succeeded','output':{'schemaVersion':1,'data':data,'artifacts':[]},'stdout':'','stderr':'','credential_revision':connection['revision']}
     except BaseException:
-        db.rollback();raise
+        try:db.rollback()
+        except Exception:pass
+        raise
     finally:db.close()

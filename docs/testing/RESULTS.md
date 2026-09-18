@@ -1,5 +1,6 @@
 # Workflow preview verification
 
+Current completion work is tracked in [full verification ledger](COMPLETE-RESULTS.md). The earlier counts below are historical, not the latest full-suite result.
 English · [中文测试总纲](../TEST-PLAN.zh-CN.md)
 
 The acceptance design was committed before implementation on 2026-09-17 (`ee97bbc`). It contains **364 concrete case rows**, plus the **49 ordered language-pair matrix**. These are design coverage, not a claim that 364 acceptance cases or all 49 pairs passed. `case-index.json` remains the design inventory; the evidence below records what was actually executed.

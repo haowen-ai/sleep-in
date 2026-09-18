@@ -13,6 +13,8 @@ def main():
     reset=sub.add_parser('reset-password');reset.add_argument('username')
     back=sub.add_parser('backup');back.add_argument('destination');back.add_argument('--include-runs',action='store_true')
     rest=sub.add_parser('restore');rest.add_argument('archive')
+    workflow_back=sub.add_parser('workflow-backup');workflow_back.add_argument('destination')
+    workflow_rest=sub.add_parser('workflow-restore');workflow_rest.add_argument('archive')
     args=parser.parse_args()
     path=Path(os.environ.get('APP_STATE_DIR','state')).resolve()
     url=os.environ.get('DATABASE_URL',f'sqlite:///{path}/console.db')
@@ -43,6 +45,19 @@ def main():
             if not user:parser.error('User not found')
             user.update(password=hashed,enabled=True,role='admin');tx.put('user',user);revoke(tx,user['id'])
         print('Password reset; old sessions revoked.')
+    elif args.command=='workflow-backup':
+        from .workflows_backup import create_backup
+        password=getpass.getpass('Backup encryption password (at least 12 characters): ')
+        if password!=getpass.getpass('Confirm backup password: '):parser.error('Passwords do not match')
+        blob=create_backup(store,password)
+        fd=os.open(args.destination,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+        with os.fdopen(fd,'wb') as handle:handle.write(blob)
+        print('Encrypted backup created. Keep its password separately.')
+    elif args.command=='workflow-restore':
+        from .workflows_backup import restore_backup
+        password=getpass.getpass('Backup password: ')
+        restore_backup(store,Path(args.archive).read_bytes(),password)
+        print('Restored into a fresh instance. Accounts preserved; sessions expired and schedules paused. Rebuild runtimes and review before enabling.')
     elif args.command=='backup':
         from .backup import backup
         backup(store,args.destination,args.include_runs);print('Backup created without user credentials, sessions or variable values.')

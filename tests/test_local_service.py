@@ -215,8 +215,8 @@ def test_unresumable_partial_retries_full_download_and_checks_hash(tmp_path):
     destination=tmp_path/'runtime.tar.gz';destination.with_suffix('.gz.partial').write_bytes(b'corrupt full-length prior partial')
     calls=tmp_path/'curl-count';fakebin=tmp_path/'bin';fakebin.mkdir()
     curl=fakebin/'curl'
-    curl.write_text('#!/bin/bash\nresume=false; output=""\nwhile [ "$#" -gt 0 ]; do case "$1" in --continue-at) resume=true; shift ;; --output) output="$2"; shift ;; esac; shift; done\necho call >> '+quote(str(calls))+'\nif [ "$resume" = true ]; then exit 22; fi\ncp '+quote(str(fixture))+' "$output"\n');curl.chmod(0o700)
-    script='set -euo pipefail\n'+_launcher_function('download_verified')+'\ndownload_verified "$1" "$2" "$3"\n'
+    curl.write_text('#!/bin/bash\ncase \" $* \" in *\" --head \"*) echo \"Content-Length: 27\"; exit 0 ;; esac\nresume=false; output=""\nwhile [ "$#" -gt 0 ]; do case "$1" in --continue-at) resume=true; shift ;; --output) output="$2"; shift ;; esac; shift; done\necho call >> '+quote(str(calls))+'\nif [ "$resume" = true ]; then exit 22; fi\ncp '+quote(str(fixture))+' "$output"\n');curl.chmod(0o700)
+    script='set -euo pipefail\nINSTALL_ROOT='+quote(str(tmp_path))+'\n'+_launcher_function('progress')+'\n'+_launcher_function('download_verified')+'\ndownload_verified "$1" "$2" "$3"\n'
     result=subprocess.run(['/bin/bash','-c',script,'download-test','https://invalid.example/synthetic',str(destination),hashlib.sha256(payload).hexdigest()],env={**os.environ,'PATH':str(fakebin)+os.pathsep+os.environ.get('PATH','/usr/bin:/bin')},capture_output=True,text=True,timeout=10)
     assert result.returncode==0,result.stderr
     assert destination.read_bytes()==payload

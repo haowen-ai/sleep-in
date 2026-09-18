@@ -88,6 +88,22 @@ services:
         condition: service_completed_successfully
     restart: unless-stopped
 
+  workflow-worker:
+    image: n8n-task-console:${TASK_CONSOLE_IMAGE_TAG:-local}
+    user: "1000:1000"
+    command: ["python", "-m", "taskconsole.workflows", "worker"]
+    environment:
+      <<: *app-environment
+      SLEEP_IN_BASE_URL: http://web:8080
+      SLEEP_IN_NODE: /usr/local/bin/node
+      SLEEP_IN_N8N_COMMAND: '["/usr/local/bin/node","/opt/n8n/node_modules/n8n/bin/n8n"]'
+    volumes:
+      - app_state:/state
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+
   n8n-init:
     image: n8nio/n8n:2.39.7
     user: "1000:1000"

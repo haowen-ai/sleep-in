@@ -9,7 +9,7 @@ export async function api(path, options = {}) {
   try { response = await fetch(path, {...options, headers, credentials: 'same-origin'}); }
   catch { throw {status: 0, code: 'network', message: ''}; }
   const type = response.headers.get('content-type') || '';
-  const data = type.includes('json') ? await response.json() : await response.text();
+  const data = options.responseType === 'blob' && response.ok ? await response.blob() : type.includes('json') ? await response.json() : await response.text();
   if (!response.ok) {
     const detail = data?.detail || {};
     throw {status: response.status, code: detail.code || 'generic', message: detail.message || ''};

@@ -3,6 +3,8 @@
 This exports explicit user-authored text/literals. It cannot identify arbitrary
 credentials or hostnames an author has deliberately embedded inside those values.
 """
+import base64
+from pathlib import Path
 import copy
 import json
 import math
@@ -13,9 +15,9 @@ from .workflows_sql import DIALECTS
 
 LIMIT=1024*1024
 WORKFLOW_FIELDS={'name','description','nodes','edges','params','parameter_schema','timezone','timeout'}
-NODE_FIELDS={'id','name','kind','source','config','inputs','outputs','input_schema','position'}
-CONFIG_FIELDS={'dialect','mode','entry_mode','main_class','join','merge','merge_target','timeout','statements','connection_requirement'}
-BINDING_FIELDS={'source','path','node_id','value','optional','default','type'}
+NODE_FIELDS={'id','name','kind','source','config','inputs','outputs','input_schema','position','project'}
+CONFIG_FIELDS={'dialect','mode','entry_mode','main_class','join','merge','merge_target','timeout','statements','connection_requirement','retry','module_format','project_type','sources','include_dirs','compile_args','artifact','max_output_bytes'}
+BINDING_FIELDS={'source','path','node_id','value','optional','default','type','name'}
 EDGE_FIELDS={'source','target','required','condition'}
 NOTICE={'user_source_and_literals_included':True,'message':'Review before sharing: source code, names, descriptions, schemas, parameters, constant/default values, SQL statement bindings and conditions are included verbatim. Remove any private literals you authored. Configured connections, runtime bindings and execution history are excluded.'}
 
@@ -54,6 +56,15 @@ def export_template(store,workflow_id):
         clean_node={k:copy.deepcopy(v) for k,v in node.items() if k in NODE_FIELDS and k not in {'config','inputs','position'}}
         config=node.get('config',{})
         clean_node['config']=sanitize_config(config)
+        if config.get('project_id'):
+            from .workflows_projects import SourceProjects,file_hash
+            project=SourceProjects(store).get(config['project_id'],private=True)
+            files={}
+            for name,digest in project['manifest'].items():
+                path=Path(project['directory'])/name
+                if file_hash(path)!=digest:invalid('Source project integrity changed')
+                files[name]=base64.b64encode(path.read_bytes()).decode()
+            clean_node['project']={'name':project['name'],'language':project['language'],'entrypoint':project['entrypoint'],'files':files,'config':sanitize_config(project.get('config',{}))}
         clean_node['inputs']={name:{key:copy.deepcopy(value) for key,value in binding.items() if key in BINDING_FIELDS} for name,binding in node.get('inputs',{}).items()}
         if 'position' in node:clean_node['position']={k:copy.deepcopy(v) for k,v in node['position'].items() if k in {'x','y'}}
         if node.get('kind')=='sql':
@@ -99,11 +110,29 @@ def validate_template(template):
         if node.get('kind') not in LANGUAGES:invalid('Unsupported node language')
         if not isinstance(node.get('source',''),str) or not isinstance(node.get('name',''),str):invalid('Node name/source must be text')
         config=node.get('config',{});object_fields(config,CONFIG_FIELDS,'Node config')
+        if 'project' in node:
+            from .workflows_projects import relative_path
+            project=node['project'];object_fields(project,{'name','language','entrypoint','files','config'},'Source project')
+            if project.get('language')!=node['kind'] or not isinstance(project.get('name'),str):invalid('Project language/name invalid')
+            object_fields(project.get('config',{}),CONFIG_FIELDS,'Project config')
+            if not isinstance(project.get('files'),dict) or not project['files'] or len(project['files'])>2000:invalid('Project files must be bounded object')
+            try:
+                entry=relative_path(project.get('entrypoint'))
+                if entry not in project['files']:invalid('Project entrypoint missing')
+                for name,value in project['files'].items():
+                    relative_path(name)
+                    if not isinstance(value,str):invalid('Project files must be base64 text')
+                    base64.b64decode(value,validate=True)
+            except (ValueError,TypeError) as exc:invalid(str(exc))
         for field,allowed in {'dialect':DIALECTS,'mode':{'query','write'},'entry_mode':{'function','file'},'join':{'all','any'},'merge':{'named','append'}}.items():
             if field in config and (not isinstance(config[field],str) or config[field] not in allowed):invalid('Unsupported '+field)
         for field in ('main_class','merge_target','connection_requirement'):
             if field in config and (not isinstance(config[field],str) or not IDENTIFIER.fullmatch(config[field])):invalid('Invalid '+field)
         if 'timeout' in config and (type(config['timeout']) is not int or not 1<=config['timeout']<=3600):invalid('Invalid node timeout')
+        if 'retry' in config:
+            from .workflows_execution import retry_policy
+            try:retry_policy(node)
+            except ValueError as exc:invalid(str(exc))
         if 'statements' in config:
             if not isinstance(config['statements'],list) or not config['statements']:invalid('Statements must be a nonempty array')
             for statement in config['statements']:
@@ -116,7 +145,7 @@ def validate_template(template):
         if not isinstance(inputs,dict):invalid('Inputs must be a named object')
         for binding in inputs.values():
             object_fields(binding,BINDING_FIELDS,'Binding')
-            if not member(binding.get('source'),{'constant','node','parameter','context','none'}):invalid('Unsupported binding source; rebind private credentials explicitly')
+            if not member(binding.get('source'),{'constant','node','parameter','context','none','artifact','credential'}):invalid('Unsupported binding source; rebind private credentials explicitly')
             try:path_tokens(binding.get('path'))
             except ValueError as exc:invalid(str(exc))
         for field in ('outputs','input_schema'):
@@ -159,6 +188,11 @@ def import_template(store,template):
     workflow=copy.deepcopy(validate_template(template))
     for node in workflow['nodes']:
         node.setdefault('config',{}).pop('connection_requirement',None)
+        if 'project' in node:
+            from .workflows_projects import SourceProjects
+            project=node.pop('project')
+            saved=SourceProjects(store)._save(project,{name:base64.b64decode(value,validate=True) for name,value in project['files'].items()})
+            node['config']['project_id']=saved['id']
     workflow.update(enabled=False,schedule={'kind':'manual'},triggers=[])
     result=WorkflowService(store).save(workflow)
     with store.transaction() as tx:

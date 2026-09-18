@@ -18,7 +18,7 @@ def test_compile_real_connections_and_join_barriers(tmp_path):
     service=svc(tmp_path);wf=service.save({'name':'graph','nodes':[{'id':i,'name':i,'kind':'python','source':'def main(inputs): return {}','inputs':{},'config':{'join':'all'}} for i in ['a','b','c']],'edges':[{'source':'a','target':'c'},{'source':'b','target':'c'}]})
     service.publish(wf['id']);run=service.admit(wf['id'],{})
     graph=compile_graph(run,'http://127.0.0.1:8080')
-    assert len([n for n in graph['nodes'] if n['type']=='n8n-nodes-base.httpRequest'])==4
+    assert len([n for n in graph['nodes'] if n['type']=='n8n-nodes-base.httpRequest'])==10
     assert any(n['type']=='n8n-nodes-base.merge' for n in graph['nodes'])
     assert all(n.get('executeOnce') for n in graph['nodes'] if n['type']=='n8n-nodes-base.httpRequest')
     assert graph['connections']['node_a']['main'][0][0]['node'].startswith('barrier_')

@@ -27,30 +27,55 @@ def command():
 
 def compile_graph(run,base_url):
     rid=run['id'];nodes=[];connections={}
-    def add_connection(source,target,index=0):
-        connections.setdefault(source,{'main':[[]]})['main'][0].append({'node':target,'type':'main','index':index})
-    def http_node(name,endpoint,position):
-        nodes.append({'id':name,'name':name,'type':'n8n-nodes-base.httpRequest','typeVersion':4.2,'position':position,'executeOnce':True,'parameters':{'method':'POST','url':base_url.rstrip('/')+f'/internal/workflows/{rid}/'+endpoint,'sendHeaders':True,'headerParameters':{'parameters':[{'name':'x-workflow-token','value':run['callback_token']}]},'options':{'timeout':min((run['timeout']+30)*1000,2147483647)}}})
+    def link(source,target,index=0,output=0):
+        outputs=connections.setdefault(source,{'main':[]})['main']
+        while len(outputs)<=output:outputs.append([])
+        outputs[output].append({'node':target,'type':'main','index':index})
+    def http(name,endpoint,position,method='POST',body=None):
+        parameters={'method':method,'url':base_url.rstrip('/')+f'/internal/workflows/{rid}/'+endpoint,'sendHeaders':True,'headerParameters':{'parameters':[{'name':'x-workflow-token','value':run['callback_token']}]},'options':{'timeout':10000}}
+        if body is not None:parameters.update(sendBody=True,specifyBody='json',jsonBody=body)
+        nodes.append({'id':name,'name':name,'type':'n8n-nodes-base.httpRequest','typeVersion':4.2,'position':position,'executeOnce':True,'parameters':parameters})
+    def condition(name,field,position):
+        nodes.append({'id':name,'name':name,'type':'n8n-nodes-base.if','typeVersion':2.2,'position':position,'parameters':{'conditions':{'options':{'caseSensitive':True,'leftValue':'','typeValidation':'strict','version':2},'conditions':[{'id':name,'leftValue':'={{ $json.'+field+' }}','rightValue':True,'operator':{'type':'boolean','operation':'true','singleValue':True}}],'combinator':'and'},'options':{}}})
     def barrier(parents,target):
         previous=parents[0]
         for index,parent in enumerate(parents[1:],1):
             name=f'barrier_{target}_{index}'
             nodes.append({'id':name,'name':name,'type':'n8n-nodes-base.merge','typeVersion':3,'position':[700,index*100],'parameters':{'mode':'append','numberInputs':2}})
-            add_connection(previous,name,0);add_connection(parent,name,1);previous=name
-        add_connection(previous,target)
+            link(previous,name,0);link(parent,name,1);previous=name
+        link(previous,target)
     nodes.append({'id':'start','name':'start','type':'n8n-nodes-base.manualTrigger','typeVersion':1,'position':[0,200],'parameters':{}})
-    graph=run['snapshot']
+    http('claim','claim',[100,200],body='={{ {execution_id: String($execution.id)} }}');link('start','claim')
+    graph=run['snapshot'];groups={}
     for index,node in enumerate(graph['nodes']):
-        name='node_'+node['id'];http_node(name,'nodes/'+node['id'],[300,index*140])
-        parents=['node_'+e['source'] for e in graph['edges'] if e['target']==node['id']]
-        if not parents:add_connection('start',name)
-        elif len(parents)==1:add_connection(parents[0],name)
-        else:barrier(parents,name)
-    http_node('finish','finish',[1000,200])
+        nid=node['id'];submit='submit_'+nid;poll='status_'+nid;wait='wait_'+nid;done='done_'+nid;retry='retry_'+nid;name='node_'+nid
+        http(submit,'nodes/'+nid+'/submit',[300,index*160],body='{"retry":true}')
+        http(poll,'nodes/'+nid+'/status',[500,index*160],method='GET')
+        nodes.append({'id':wait,'name':wait,'type':'n8n-nodes-base.wait','typeVersion':1.1,'position':[450,index*160+60],'parameters':{'resume':'timeInterval','amount':0.2,'unit':'seconds'}})
+        condition(done,'terminal',[650,index*160]);condition(retry,'retry_ready',[650,index*160+60])
+        nodes.append({'id':name,'name':name,'type':'n8n-nodes-base.noOp','typeVersion':1,'position':[850,index*160],'parameters':{}})
+        link(submit,wait);link(wait,poll);link(poll,done);link(done,name,output=0);link(done,retry,output=1);link(retry,submit,output=0);link(retry,wait,output=1)
+        parents=tuple(sorted({'node_'+e['source'] for e in graph['edges'] if e['target']==nid}))
+        groups.setdefault(parents,[]).append(nid)
+    for parents,children in groups.items():
+        if len(children)==1:entry='submit_'+children[0]
+        else:
+            # Submit siblings before polling any one of them. n8n v1 otherwise visits
+            # an entire polling branch depth-first and serializes independent workers.
+            entry='initial_'+children[0]
+            for index,nid in enumerate(children):
+                initial='initial_'+nid
+                http(initial,'nodes/'+nid+'/submit',[250,index*160],body='{"retry":false}')
+                if index:link('initial_'+children[index-1],initial)
+            for nid in children:link('initial_'+children[-1],'wait_'+nid)
+        if not parents:link('claim',entry)
+        elif len(parents)==1:link(parents[0],entry)
+        else:barrier(list(parents),entry)
+    http('finish','finish',[1000,200])
     leaves=['node_'+n['id'] for n in graph['nodes'] if not any(e['source']==n['id'] for e in graph['edges'])]
-    if len(leaves)==1:add_connection(leaves[0],'finish')
+    if len(leaves)==1:link(leaves[0],'finish')
     elif leaves:barrier(leaves,'finish')
-    else:add_connection('start','finish')
+    else:link('claim','finish')
     return {'id':rid,'name':'Sleep In '+rid,'active':False,'nodes':nodes,'connections':connections,'settings':{'executionOrder':'v1'},'pinData':{},'versionId':rid}
 
 
@@ -58,7 +83,8 @@ def execute_graph(service,rid):
     store=service.store
     with store.transaction() as tx:
         run=tx.get('workflow_run',rid)
-        if not run or run['status'] not in {'queued','running'}:return
+        if not run or run['status'] not in {'queued','running'} or run.get('adapter_execution_owner'):return
+        run['adapter_execution_owner']=uid()
         run['status']='running';run['started_at']=run['started_at'] or stamp();tx.put('workflow_run',run)
     directory=store.path/'workflow-runs'/rid;directory.mkdir(parents=True,exist_ok=True,mode=0o700)
     logfile=directory/'n8n.log';proc=None;started=time.monotonic()
@@ -126,16 +152,18 @@ def execute_graph(service,rid):
                                 if record:current['n8n_execution_id']=str(record[0])
                         except sqlite3.Error:pass
                 current['adapter_finished_at']=stamp();tx.put('workflow_run',current)
+        service.on_terminal(rid)
 
 
 def dispatch_pending(service):
     launched=[]
     with service.store.transaction() as tx:
         active=sum(1 for r in tx.all('workflow_run') if r.get('adapter_lease') and not r.get('adapter_finished_at'))
+        occupied={r['workflow_id'] for r in tx.all('workflow_run') if r['status'] in {'running','cancelling'} or (r.get('adapter_lease') and not r.get('adapter_finished_at'))}
         for run in sorted(tx.all('workflow_run'),key=lambda r:r['created_at']):
             if active>=2:break
-            if run['status']!='queued' or run.get('adapter_lease'):continue
-            run.update(adapter_lease=uid(),adapter_claimed_at=stamp());tx.put('workflow_run',run);launched.append(run['id']);active+=1
+            if run['status']!='queued' or run.get('adapter_lease') or run['workflow_id'] in occupied:continue
+            run.update(adapter_lease=uid(),adapter_claimed_at=stamp());tx.put('workflow_run',run);launched.append(run['id']);active+=1;occupied.add(run['workflow_id'])
     for rid in launched:
         thread=threading.Thread(target=execute_graph,args=(service,rid),daemon=True,name='workflow-'+rid)
         service._threads[rid]=thread;thread.start()
@@ -153,13 +181,23 @@ def worker_lock(directory):
 
 
 def recover_interrupted(service):
+    from .workflows_execution import terminate_orphan
+    with service.store.transaction() as tx:candidates=tx.all('workflow_run')
+    for candidate in candidates:
+        if candidate['status'] not in {'queued','running','cancelling'}:continue
+        for state in candidate['nodes'].values():
+            if state.get('worker_pid'):
+                termination=terminate_orphan(state['worker_pid'],state.get('worker_identity'),service.store.path/'workflow-runs'/candidate['id'])
+                with service.store.transaction() as tx:
+                    current=tx.get('workflow_run',candidate['id'])
+                    if current:current['recovery_worker_termination']=termination;tx.put('workflow_run',current)
     # Runs left by an earlier worker cannot be replayed safely after an uncertain write.
     with service.store.transaction() as tx:
         for run in tx.all('workflow_run'):
             if run['status'] in {'running','cancelling'} or run['status']=='queued' and run.get('adapter_lease') and not run.get('adapter_finished_at'):
                 run.update(status='failed',error='Worker interrupted; external effects may be uncertain. Explicit rerun required.',finished_at=stamp(),adapter_finished_at=stamp())
                 for node in run['nodes'].values():
-                    if node['status'] in {'running','queued'}:node.update(status='not_run',reason='interrupted_unknown_effect',finished_at=stamp())
+                    if node['status'] in {'running','queued','dispatching'}:node.update(status='not_run',reason='interrupted_unknown_effect',finished_at=stamp())
                 tx.put('workflow_run',run)
             elif run.get('adapter_lease') and not run.get('adapter_finished_at'):
                 run['adapter_finished_at']=stamp();tx.put('workflow_run',run)
@@ -178,13 +216,15 @@ def worker_loop(service):
         with service.store.transaction() as tx:tx.put('meta',{'id':'workflow_worker','status':'ready' if ready else 'unavailable','instance_id':instance_id,'pid':os.getpid(),'last_seen':stamp(),'engine':'n8n','n8n_available':ready,'reason':reason})
         try:
             service.tick()
+            from .workflows_operations import WorkflowOperations
+            WorkflowOperations(service.store).tick()
             if ready:service.dispatch_pending()
         except Exception as exc:
             with service.store.transaction() as tx:tx.put('workflow_event',{'id':uid(),'reason':'worker_tick_failed','message':str(exc),'created_at':stamp()})
         stopping.wait(2)
     # Explicit worker termination cancels owned graph/process groups, never leaves a new scheduler.
     for rid,thread in service._threads.items():
-        if thread.is_alive():service.cancel(rid)
+        if thread.is_alive():service.cancel(rid.split(':')[0])
     for thread in service._threads.values():thread.join(timeout=10)
     with service.store.transaction() as tx:tx.put('meta',{'id':'workflow_worker','status':'stopped','instance_id':instance_id,'pid':os.getpid(),'last_seen':stamp(),'engine':'n8n'})
     ownership.close()

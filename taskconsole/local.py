@@ -10,6 +10,9 @@ import os
 from pathlib import Path
 import signal
 import secrets
+import re
+import hmac
+from contextlib import contextmanager
 import socket
 import subprocess
 import sys
@@ -78,7 +81,73 @@ def status(directory):
     if result.get('state')=='running' and (Path(directory)/'local-stop-request.json').exists():
         result['state']='draining'
     result['running_preference']=should_start(directory)
+    result['power']=power_status()
+    result['next_scheduled']=next_scheduled(directory)
     return result
+
+
+def parse_power(text):
+    source='battery' if "'Battery Power'" in text else 'ac' if "'AC Power'" in text else 'unknown'
+    percent=re.search(r'(\d{1,3})%',text);percent=int(percent.group(1)) if percent else None
+    return {'source':source,'percent':percent,'low':source=='battery' and percent is not None and percent<=15}
+
+
+def power_status():
+    if sys.platform!='darwin':return parse_power('')
+    try:return parse_power(subprocess.run(['/usr/bin/pmset','-g','batt'],capture_output=True,text=True,timeout=3).stdout)
+    except (OSError,subprocess.TimeoutExpired):return parse_power('')
+
+
+def next_scheduled(directory):
+    # Read-only SQL avoids Store initialization / business writes in health checks.
+    import sqlite3
+    database=Path(directory)/'console.db'
+    if not database.exists():return None
+    try:
+        with sqlite3.connect('file:'+str(database)+'?mode=ro',uri=True,timeout=1) as connection:
+            rows=connection.execute("SELECT payload FROM console_records WHERE kind='workflow'").fetchall()
+        candidates=[]
+        from .schedule import workflow_next_runs
+        from datetime import datetime,timezone
+        current=datetime.now(timezone.utc)
+        for row in rows:
+            workflow=json.loads(row[0]);triggers=list(workflow.get('triggers',[]))
+            if workflow.get('enabled'):triggers.append({'enabled':True,'kind':'scheduled','schedule':workflow.get('schedule',{}),'timezone':workflow.get('timezone','UTC')})
+            for trigger in triggers:
+                if not trigger.get('enabled') or trigger.get('kind')!='scheduled':continue
+                dates=workflow_next_runs(trigger.get('schedule',{}),trigger.get('timezone',workflow.get('timezone','UTC')),current,1)
+                if dates:candidates.append({'workflow':workflow.get('name',''),'at':dates[0].isoformat(),'timezone':trigger.get('timezone',workflow.get('timezone','UTC'))})
+        return min(candidates,key=lambda value:value['at']) if candidates else None
+    except (OSError,ValueError,sqlite3.Error):return None
+
+
+@contextmanager
+def update_start_guard(directory):
+    install=Path(directory).resolve().parent
+    lock_path=install.parent/('.'+install.name+'-update.lock')
+    token_path=install.parent/('.'+install.name+'-update-token')
+    supplied=os.environ.get('SLEEP_IN_UPDATE_TOKEN','')
+    expected=read_json(token_path,{}).get('token','')
+    if supplied and expected and hmac.compare_digest(supplied,expected):
+        yield;return
+    # Hold a shared lock throughout startup, closing the check-to-launch race.
+    lock_path.parent.mkdir(parents=True,exist_ok=True)
+    with lock_path.open('a') as lock:
+        try:fcntl.flock(lock,fcntl.LOCK_SH|fcntl.LOCK_NB)
+        except BlockingIOError:raise RuntimeError('A verified update is in progress; wait before starting Sleep In') from None
+        yield
+
+
+def assert_update_allowed(directory):
+    with update_start_guard(directory):pass
+
+
+@contextmanager
+def guarded_instance_lock(directory):
+    instance=InstanceLock(directory)
+    with update_start_guard(directory):instance.__enter__()
+    try:yield instance
+    finally:instance.__exit__()
 
 
 def child_environment(directory, config, inherited=None):
@@ -175,7 +244,7 @@ def cancel_active(directory):
 def serve(directory):
     directory=Path(directory).resolve()
     if not should_start(directory): return 0
-    with InstanceLock(directory) as service_lock:
+    with guarded_instance_lock(directory) as service_lock:
         config=read_json(directory/'local-config.json')
         if not config or not config.get('n8n_command'): raise ValueError('Local runtime configuration is missing; reopen Sleep In to repair installation')
         env=child_environment(directory,config)
@@ -240,6 +309,10 @@ def serve(directory):
 
 
 def start(directory, explicit=False, open_browser=False):
+    with update_start_guard(directory):return _start(directory,explicit,open_browser)
+
+
+def _start(directory, explicit=False, open_browser=False):
     directory=Path(directory).resolve(); directory.mkdir(parents=True,exist_ok=True,mode=0o700)
     if not should_start(directory,explicit): return status(directory)
     launched=None
@@ -275,13 +348,14 @@ def main():
     parser.add_argument('--state',default=os.environ.get('APP_STATE_DIR',str(Path.home()/'Library/Application Support/Sleep In/state')))
     sub=parser.add_subparsers(dest='command',required=True)
     start_parser=sub.add_parser('start'); start_parser.add_argument('--explicit',action='store_true'); start_parser.add_argument('--open',action='store_true')
-    sub.add_parser('serve'); sub.add_parser('status')
+    sub.add_parser('serve'); sub.add_parser('status');sub.add_parser('check-update')
     stop_parser=sub.add_parser('stop'); stop_parser.add_argument('--mode',choices=['finish','cancel'],required=True)
     child=sub.add_parser('child'); child.add_argument('argv',nargs=argparse.REMAINDER)
     args=parser.parse_args()
     try:
         if args.command=='child': return process_child(args.argv[1:] if args.argv[:1]==['--'] else args.argv)
         if args.command=='serve': return serve(args.state)
+        if args.command=='check-update':assert_update_allowed(args.state);return 0
         if args.command=='start': result=start(args.state,args.explicit,args.open)
         elif args.command=='stop': result=request_stop(args.state,args.mode)
         else: result=status(args.state)

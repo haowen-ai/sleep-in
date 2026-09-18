@@ -2,7 +2,7 @@
 
 English · [简体中文](PRD.zh-CN.md)
 
-**Status: proposed product design, not implemented.** This specification replaces the single-Python-task direction with a language-oriented workflow product. The existing application and localhost remain v1. See [verification evidence](VERIFICATION.md) for current capabilities and [the archived v1 specification](archive/PRD-v1.md) for history.
+**Status: implementation and integrated verification.** This specification governs the visual workflow release. The current implementation includes the execution, runtime, editor and operations layers; release acceptance is tracked individually in [completion evidence](testing/COMPLETE-RESULTS.md). Hardware, clean-Mac and distribution gates remain distinct from automated code tests.
 
 ## 1. Product definition
 
@@ -97,7 +97,7 @@ A light, restrained workspace retains Sleep In's forest-green accent. The canvas
 |---|---|
 | Top bar, about 64px | Name, version, draft/publication, save status; Test, Save draft, Publish |
 | Left panel, about 240px | Library/Outline tabs, search, language tree; collapsible |
-| Canvas | Light dot grid, left-to-right connections, automatic layout |
+| Canvas | Light dot grid, free two-dimensional placement; adaptive input/output ports on all four sides, directional arrows, obstacle-aware routes; optional horizontal/vertical layout |
 | Inspector, about 380–440px | Opens on selection; Configuration, Inputs, Outputs, Environment, Error policy |
 | Bottom run drawer | Collapsible timeline, logs, JSON/table/file previews |
 
@@ -349,10 +349,14 @@ Initial design budget: a 50-node workflow, not a measured performance claim. Tes
 
 Official documentation confirms JavaScript/Python Code nodes. It does not establish native Java/C execution. Execute Command runs inside the n8n container when deployed with Docker and is disabled by default starting in n8n 2.0. This supports choosing separate language workers. [Code](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.code/) · [Execute Command](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.executecommand/)
 
-The editor, file contract, compilation cache, admission mechanism and branch markers are proposed Sleep In work, not capabilities already delivered by n8n or this repository. Verify merge behavior against the pinned version. [Merge](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.merge/)
+The editor, file contract, compilation cache, admission mechanism and branch markers are implemented in Sleep In. Their behavior is tested against the pinned n8n version; n8n alone does not provide these application contracts. [Merge](https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.merge/)
 
 The target remains independently self-hosted personal/internal workspaces. Original Sleep In code and the n8n dependency retain separate licenses. Future paid hosting or customer-facing embedding requires a use-case-specific license review; a custom UI does not itself remove dependency licensing obligations. [Official license explanation](https://github.com/n8n-io/n8n-docs/blob/main/docs/privacy-and-security/sustainable-use-license.md)
 
-Next: validate phase A's orchestration adapter and create an editor visual target before changing application code. This PRD does not claim delivery of the proposed workflow platform.
+Use the acceptance ledger for current evidence. A configured test or implemented API does not close a real-hardware release gate.
 
 Apple documents that an idle-system-sleep assertion allows display sleep but does not prevent lid-close, explicit sleep or low-battery sleep. The design therefore supports both AC and battery while limiting its guarantee to an awake, powered system; continuous battery runtime must be measured, not assumed. [Apple power assertion](https://developer.apple.com/documentation/iokit/kiopmassertiontypepreventuseridlesystemsleep). Background registration may require user approval; the Mac helper must check status and guide that action. [Apple service registration](https://developer.apple.com/documentation/servicemanagement/smappservice/register%28%29). Signed packaging, native runtime compatibility, storage concurrency and power-state behavior remain release tests, not completed capabilities.
+
+## Interaction amendment — 2026-09-17
+
+Position never determines execution order. A user may place downstream nodes above, below, left or right. Each side has distinct filled output and hollow input ports; arrows end outside the target port, preventing overlap. Routes avoid unrelated cards; moving nodes, panning or cursor-centered zoom changes presentation only. Selecting a connection exposes source, target and mappings in a separate panel. Horizontal and vertical auto-layout are optional and undoable. A dependency may carry no data; only explicit input bindings transmit values.

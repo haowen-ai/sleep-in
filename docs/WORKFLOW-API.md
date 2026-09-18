@@ -75,3 +75,7 @@ Source text, arbitrary schemas, parameters, constants/defaults, condition values
 Successful import returns a **new disabled draft** with a new workflow ID, preserved graph-local node IDs, no publication/history, a manual schedule and no active triggers. Connection/runtime bindings and execution configuration paths are not restored. `import_requirements` records the portable requirements and `requires_rebinding:true` signals that environments/connections need review. SQL nodes remain unpublishable until a connection is explicitly selected. Runtime readiness and a new publication use the normal publication validation path; the flag is advisory metadata, not a claim that a separate runtime-selection policy is enforced. Import neither executes code nor creates connection records.
 
 Integration: `register_transfer_routes(app, store, require)` is mounted before the static catch-all. Tests use only synthetic connection/credential canaries and temporary state; no real user workflow was exported during implementation.
+
+## Completed execution extensions
+
+See [Execution API](EXECUTION-API.md) for isolated node tests, historical samples, complete dataset pagination/artifact bindings, explicit safe retries, asynchronous n8n submit/status/wait groups, credential references, named API triggers, overlap/missed-occurrence policies, run naming and process-identity recovery. These are separate contracts from whole-workflow testing and do not implicitly replay upstream work.

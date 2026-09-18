@@ -53,6 +53,10 @@ jobs:
         with:
           node-version: "24"
       - run: pip install -r requirements-dev.txt
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
       - name: Install the actual orchestration engine
         run: npm install --prefix "$RUNNER_TEMP/sleep-in-n8n" --no-audit --no-fund n8n@2.39.7
       - name: Configure isolated workflow tests
@@ -62,9 +66,14 @@ jobs:
           argv = json.dumps([shutil.which('node'), os.path.join(os.environ['RUNNER_TEMP'], 'sleep-in-n8n/node_modules/n8n/bin/n8n')])
           print('SLEEP_IN_N8N_COMMAND=' + argv)
           print('SLEEP_IN_TEST_N8N_COMMAND=' + argv)
+          print('SLEEP_IN_NODE=' + shutil.which('node'))
+          print('SLEEP_IN_TEST_JAVAC=' + shutil.which('javac'))
+          print('SLEEP_IN_TEST_NPM=' + shutil.which('npm'))
+          if shutil.which('mvn'): print('SLEEP_IN_TEST_MAVEN=' + shutil.which('mvn'))
+          if shutil.which('gradle'): print('SLEEP_IN_TEST_GRADLE=' + shutil.which('gradle'))
           PY
       - name: Verify actual graphs and supervisor lifecycle
-        run: python -m pytest -q tests/test_workflows_n8n.py tests/test_local_supervisor_integration.py -ra
+        run: python -m pytest -q tests/test_workflows_n8n.py tests/test_workflow_execution_n8n_complete.py tests/test_runtime_language_matrix.py tests/test_runtime_packs.py tests/test_runtime_projects.py tests/test_local_supervisor_integration.py -ra
 
   compose-smoke:
     runs-on: ubuntu-24.04
@@ -85,3 +94,35 @@ jobs:
       - name: Tear down
         if: always()
         run: docker compose down --volumes --remove-orphans
+
+  external-sql:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.11"
+          cache: pip
+      - run: pip install -r requirements-dev.txt pymysql==1.2.3 oracledb==26.0.0
+      - name: Start isolated database fixtures
+        run: docker compose -f deploy/sql-matrix-compose.yaml up --wait --wait-timeout 600
+      - name: Exercise real SQL transactions and typed results
+        env:
+          SLEEP_IN_EXTERNAL_SQL_TESTS: "1"
+        run: python -m pytest -q tests/test_workflow_external_sql.py -ra
+      - name: Record versions and diagnostics
+        if: always()
+        run: |
+          docker compose -f deploy/sql-matrix-compose.yaml images > sql-images.txt
+          docker compose -f deploy/sql-matrix-compose.yaml logs --no-color > sql-services.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sql-matrix-diagnostics
+          path: |
+            sql-images.txt
+            sql-services.txt
+      - name: Tear down isolated fixtures
+        if: always()
+        run: docker compose -f deploy/sql-matrix-compose.yaml down --volumes --remove-orphans

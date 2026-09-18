@@ -1,0 +1,12 @@
+# Workflow operations API
+
+Administrator + session/CSRF required for every mutation. Routes return JSON except backup download.
+
+- `GET /api/workflow-channels` → array `{id,name,kind,config,has_secret}`. `POST /api/workflow-channels` accepts `{name,kind:"webhook"|"email",config:{url,...}|{host,port,from,to:[...],tls:"starttls"|"ssl"|"none",username},secret?:string}`. `PUT /api/workflow-channels/{id}` replaces public config and retains secret unless supplied. Secret is never returned.
+- `POST /api/workflow-channels/{id}/test` sends an explicit test to the displayed configured recipient. `GET /api/workflow-notifications` returns delivery history without channel credentials.
+- Workflow `notifications:{channel_ids:[],events:["failed","timed_out","recovery","succeeded"],include_tests:false}`; disabled by empty channel list. Workflow `retention:{success_days:30,failure_days:30,metadata_days:90}`. Terminal delivery has a deduplicated outbox; delivery failure never reruns business nodes.
+- `GET /api/workflow-maintenance` returns `{policy,preview,last_cleanup,paused}`. `POST /api/workflow-maintenance/policy` accepts retention defaults. `POST /api/workflow-maintenance/cleanup` executes the shown retention plan, protects active/referenced data. `POST /api/workflow-maintenance/pause` accepts `{paused:boolean}` and affects future admission only.
+- `POST /api/workflow-backups` accepts `{password:string}` (minimum 12 characters), returns an encrypted binary download; no plaintext credentials. `POST /api/workflow-backups/inspect` accepts `{password,archive:base64}` and returns counts/version. Restore is a local-owner, stopped-instance command with pre-restore backup and atomic rollback; web UI provides download/inspection and explicit owner instructions rather than overwriting an active database.
+- `GET /api/workflow-migrations` returns v1 tasks with migration status. `POST /api/workflow-migrations/{task_id}` produces `{workflow_id,...}` for a disabled draft, retaining v1 linkage and scheduling semantics where representable. `POST /api/workflow-migrations/{task_id}/handoff` requires no active v1 run, disables the old task, and records that the replacement can now be published/enabled. Migration never automatically enables dispatch.
+
+Empty/local synthetic notification tests use local fixtures only. Delivery payload includes IDs, masked error summary, time and detail URL, not source, inputs or raw logs. Email and webhook transport use bounded timeouts. DingTalk/Feishu/WeCom are provider payload presets (`config.provider`).

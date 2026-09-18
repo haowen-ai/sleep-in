@@ -62,6 +62,7 @@ def test_write_output_failure_rolls_back_transaction(receiver, invalid_output):
     if invalid_output == 'schema':
         writer['outputs'] = {'type': 'object', 'required': ['missing_field']}
     else:
+        writer['config']['max_output_bytes'] = 1024 * 1024
         amount = '9' * (1024 * 1024 + 1)
     with pytest.raises(ValueError):
         execute_sql(store, writer, {'amount': amount, 'id': 'A001'}, 'wf')

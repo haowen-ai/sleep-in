@@ -7,7 +7,7 @@ INSTALL_ROOT="${SLEEP_IN_INSTALL_DIR:-$HOME/Library/Application Support/Sleep In
 STATE_ROOT="$INSTALL_ROOT/state"
 ACTION="${1:---launch}"
 case "$ACTION" in
-  --launch|--start|--login|--status|--stop-finish|--stop-cancel|--install-only) ;;
+  --launch|--start|--login|--status|--stop-finish|--stop-cancel|--install-only|--update) ;;
   *) echo "Unknown launch action: $ACTION" >&2; exit 1 ;;
 esac
 mkdir -p "$INSTALL_ROOT" "$STATE_ROOT"
@@ -15,6 +15,10 @@ cd "$SOURCE_ROOT"
 export PYTHONPATH="$SOURCE_ROOT${PYTHONPATH:+:$PYTHONPATH}"
 PYTHON="$INSTALL_ROOT/venv/bin/python"
 case "$ACTION" in
+  --update)
+    if [ ! -x "$PYTHON" ]; then echo 'Install Sleep In before applying an update.' >&2; exit 1; fi
+    CURRENT_APP="$(cd "$SOURCE_ROOT/../../.." && pwd)"
+    exec "$PYTHON" -m taskconsole.local_update "${2:?Choose a signed update app}" --current "$CURRENT_APP" --install-root "$INSTALL_ROOT" --mode "${3:-finish}" ;;
   --status)
     if [ ! -x "$PYTHON" ]; then echo '{"state":"not_installed","assertion":false}'; exit 0; fi
     exec "$PYTHON" -m taskconsole.local --state "$STATE_ROOT" status ;;
@@ -22,6 +26,7 @@ case "$ACTION" in
     if [ ! -x "$PYTHON" ]; then echo '{"state":"stopped","assertion":false}'; exit 0; fi
     exec "$PYTHON" -m taskconsole.local --state "$STATE_ROOT" stop --mode "${ACTION#--stop-}" ;;
 esac
+if [ -x "$PYTHON" ]; then "$PYTHON" -m taskconsole.local --state "$STATE_ROOT" check-update; fi
 if [ "$(uname -s)" != Darwin ]; then echo 'Sleep In local installation requires macOS.' >&2; exit 1; fi
 if [ "$(uname -m)" != arm64 ]; then echo 'This preview currently supports Apple silicon only. Intel packaging is not yet verified.' >&2; exit 1; fi
 OS_MAJOR="$(sw_vers -productVersion | cut -d. -f1)"
@@ -56,6 +61,15 @@ echo "$$" > "$LOCK_ROOT/pid"
 release_install_lock() { rm -f "$LOCK_ROOT/pid"; rmdir "$LOCK_ROOT" 2>/dev/null || true; }
 trap release_install_lock EXIT
 mkdir -p "$INSTALL_ROOT/downloads" "$INSTALL_ROOT/tools"
+progress() {
+  # Phase/detail values are fixed application strings, not user input.
+  printf '{"phase":"%s","detail":"%s","total_bytes":%s,"download_name":"%s"}\n' "$1" "$2" "${3:-0}" "${4:-}" > "$INSTALL_ROOT/install-progress.json.new"
+  mv "$INSTALL_ROOT/install-progress.json.new" "$INSTALL_ROOT/install-progress.json"
+}
+FREE_KB="$(df -k "$INSTALL_ROOT" | tail -1 | awk '{print $4}')"
+if [ "$FREE_KB" -lt 2097152 ]; then progress failed 'At least 2 GiB of free disk space is required'; exit 1; fi
+progress checking 'Checking managed runtimes'
+
 download_verified() {
   local url="$1" destination="$2" expected="$3"
   if [ -f "$destination" ] && [ "$(shasum -a 256 "$destination" | cut -d' ' -f1)" = "$expected" ]; then return; fi
@@ -65,6 +79,9 @@ download_verified() {
     mv "$destination.partial" "$destination"
     return
   fi
+  local total_size
+  total_size="$(curl --silent --head --location --proto '=https' --tlsv1.2 --max-time 20 "$url" | tr -d '\r' | awk 'tolower($1)=="content-length:" {n=$2} END {print n+0}' || true)"
+  progress downloading "$(basename "$destination")" "$total_size" "$(basename "$destination").partial"
   echo "Downloading $(basename "$destination") (resumes interrupted transfer)…"
   local download_status=0
   curl --fail --location --proto '=https' --tlsv1.2 --retry 3 --continue-at - --output "$destination.partial" "$url" || download_status=$?
@@ -93,12 +110,14 @@ export UV_PYTHON_INSTALL_DIR="$INSTALL_ROOT/python"
 export UV_CACHE_DIR="$INSTALL_ROOT/cache/uv"
 export npm_config_cache="$INSTALL_ROOT/cache/npm"
 if [ ! -x "$PYTHON" ]; then
+  progress python 'Installing managed Python 3.12.11'
   echo 'Installing managed Python 3.12.11…'
   "$UV" python install --no-bin 3.12.11
   "$UV" venv --python 3.12.11 "$INSTALL_ROOT/venv"
 fi
 REQ_SHA="$(shasum -a 256 "$SOURCE_ROOT/requirements.txt" | cut -d' ' -f1)"
 if [ ! -f "$INSTALL_ROOT/python-requirements.sha256" ] || [ "$(cat "$INSTALL_ROOT/python-requirements.sha256")" != "$REQ_SHA" ]; then
+  progress dependencies 'Preparing Python dependencies'
   echo 'Preparing Python dependencies…'
   "$UV" pip install --python "$PYTHON" -r "$SOURCE_ROOT/requirements.txt"
   echo "$REQ_SHA" > "$INSTALL_ROOT/python-requirements.sha256"
@@ -115,6 +134,7 @@ n8n_version_matches() {
 }
 if [ ! -f "$INSTALL_ROOT/n8n-ready" ] || ! n8n_version_matches "$N8N"; then
   rm -f "$INSTALL_ROOT/n8n-ready"
+  progress n8n 'Installing n8n 2.39.7; this may take several minutes'
   echo 'Installing pinned n8n 2.39.7 (first download can take several minutes)…'
   # Fresh staging avoids npm considering damaged files already up-to-date.
   # Existing files remain in place unless the replacement passes its self-check.
@@ -139,6 +159,7 @@ config=read_json(path,{})
 config.update(n8n_command=sys.argv[2:],app_port=config.get('app_port',8765))
 write_json(path,config)
 PY
+progress ready 'Managed runtimes verified'
 release_install_lock
 trap - EXIT
 case "$ACTION" in

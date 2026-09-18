@@ -514,6 +514,14 @@ def create_app(state_dir=None,database_url=None):
     register_workflow_routes(app,store,require)
     from .workflows_transfer import register_transfer_routes
     register_transfer_routes(app,store,require)
+    from .workflows_packs import register_runtime_routes
+    register_runtime_routes(app,store,require)
+    from .workflows_operations import register_operations_routes
+    register_operations_routes(app,store,require)
+    from .workflows_backup import register_backup_routes
+    register_backup_routes(app,store,require)
+    from .workflows_migration import register_migration_routes
+    register_migration_routes(app,store,require)
 
     static=Path(__file__).parent/'static'
     app.mount('/static',StaticFiles(directory=static),name='static')
