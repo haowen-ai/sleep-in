@@ -2,27 +2,47 @@
 
 **Let your tasks take the early shift.**
 
-Schedule Python scripts, follow every run, and get your mornings back.
+A visual, drag-and-drop low-code platform for complex scheduled workflows — now being built.
 
 English · [简体中文](README.zh-CN.md)
 
 [![CI](https://github.com/haowenchen0811/sleep-in/actions/workflows/ci.yml/badge.svg)](https://github.com/haowenchen0811/sleep-in/actions/workflows/ci.yml) · [MIT license](LICENSE)
 
-A self-hosted task console for people who want a schedule, parameters, logs, and downloadable results without opening a workflow editor. Independently written in Python and browser JavaScript, with **n8n driving scheduled dispatch**.
+Sleep In is being redesigned around a visual workflow canvas: connect SQL receivers and Python, JavaScript, Shell or other language scripts, map outputs to inputs, and schedule the entire flow with ordinary forms. n8n will orchestrate the published graph behind an independently designed interface.
 
-> Early development release. Use with trusted script authors. This is not a sandbox for code uploaded by strangers. See [verification status](docs/VERIFICATION.md) for what has actually been tested.
+> **Current status:** the repository still implements the v1 Python task console. The drag-and-drop workflow platform and always-on Mac installer below are v2 requirements, not released features. See the [PRD](docs/PRD.md), [中文 PRD](docs/PRD.zh-CN.md) and [verification status](docs/VERIFICATION.md). Run only trusted scripts; the current worker is not a hostile-code sandbox.
 
 ## Why Sleep In?
 
-Monday's meeting should not mean an early alarm just to pull data. Sunday night should still be yours. Sleep In started with that wish: prepare the work once, let scheduled tasks do the early shift, and wake up to the results.
+Monday's meeting should not mean an early alarm just to pull data. Sunday night should still be yours. Prepare the workflow once, let it collect and process the data on schedule, and wake up to the results.
 
-Our next milestone is a low-code Mac app: choose a template, connect your data, pick a time, and click **Sleep in**. No server to rent. **One-click setup. One-click run. More sleep.**
+For one isolated task, a script timer or an AI-scheduled action may already be enough. The problem gets harder when two databases must be queried, their outputs combined, a Python script computes metrics, and a JavaScript step prepares the final report. Those steps have dependencies, shared inputs, different environments and failures to inspect. **That reusable, visible workflow is why Sleep In exists.** AI can help write a script, but building and running a workflow must not require an AI service.
 
-**This is the product direction, not an available installer yet.** The current release runs Python tasks using the development setup below. The planned Mac edition adds managed local runtimes, an initial account displayed on its login page, password changes in Account settings, and persistent background management and a readiness check. See the [English PRD](docs/PRD.md) or [中文 PRD](docs/PRD.zh-CN.md).
+## The workflow we are building
 
-A locked or dark screen is compatible with background work while the Mac stays awake. Our planned automatic management keeps protecting recurring schedules between runs, without a nightly click; keep the Mac plugged in with its lid open. Closing the lid, choosing Sleep or shutting down is outside that promise. [Apple explains the limits](https://developer.apple.com/documentation/iokit/kiopmassertiontypepreventuseridlesystemsleep).
+Drag language nodes onto the canvas, connect their ports, select upstream fields, test each step, then publish and choose a human-readable schedule. Templates are editable starting points; the canvas is the main authoring surface. Branches, parallel paths, joins and node-level run history make complex jobs inspectable.
 
-## From script to schedule
+```mermaid
+flowchart LR
+  T[Every Monday at 7 AM] --> P[SQL · PostgreSQL]
+  T --> O[SQL · Oracle]
+  P -->|rows| PY[Python · combine and calculate]
+  O -->|rows| PY
+  PY -->|summary| JS[JavaScript · prepare report]
+  JS --> R[Downloadable results]
+```
+
+This is a planned example; it does not claim these integrations already work in v1. Node categories stay focused on languages and SQL dialects. Reports and calculations are script logic, not filler catalog nodes. Schedules use forms rather than Cron. English comes first, with a Simplified Chinese switch.
+
+## Install once. Keep workflows running.
+
+The Mac edition is designed to start its background service automatically after setup and required macOS approval, and keep running **on both battery and AC power**. Closing the browser or application window, unplugging, or finishing today's job should not stop tomorrow's schedule. No rented server, separate n8n account or nightly activation is required. Initial local credentials will be visible on the login page and changeable in Account settings.
+
+The service will request idle-sleep prevention while allowing screen lock and display sleep. Battery power is supported, but keeping a Mac awake consumes energy; software cannot run after power is exhausted or the machine is shut down, and idle-sleep prevention does not override lid-close or explicit system sleep. [Apple documents these limits](https://developer.apple.com/documentation/iokit/kiopmassertiontypepreventuseridlesystemsleep). The installer and battery-runtime behavior still need implementation and verification.
+
+**One-click setup. One-click run. More sleep.**
+
+## Current v1: from script to schedule
 
 ```mermaid
 flowchart LR
@@ -35,7 +55,7 @@ flowchart LR
   style D fill:#edf7ef,stroke:#9dc9ab,color:#234d32
 ```
 
-## What you can do
+## Current v1 capabilities
 
 - Start with three standard-library examples, or publish a Python file or ZIP project.
 - Choose manual, interval, daily, weekdays, weekly, monthly, or five-field cron schedules.
@@ -47,7 +67,7 @@ flowchart LR
 
 No company-specific configuration, cloud account, SMTP account, or existing n8n account is required for the examples.
 
-## Quick start
+## Run the current development version
 
 Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) or Docker Engine with the Compose plugin. Keep Docker running whenever you want scheduled tasks to execute.
 
@@ -96,7 +116,7 @@ output = Path(os.environ["TASK_OUTPUT_DIR"])
 
 ZIP projects have a `main.py` entrypoint and may include a `requirements.txt` with pinned `package==version` dependencies. Dependencies are prepared at publication, not at each run. See [script authoring](docs/SCRIPTS.md) for entrypoint semantics, limits, secrets, and dependency behavior.
 
-## How it works
+## Current v1 architecture
 
 ```mermaid
 flowchart TB

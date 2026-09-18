@@ -6,7 +6,9 @@ English · [简体中文](PRD.zh-CN.md)
 
 ## 1. Product definition
 
-Connect scripts and SQL steps into workflows, pass results between steps, and run the whole workflow on an understandable schedule.
+**A visual, drag-and-drop low-code platform for complex scheduled workflows.** Connect SQL receivers and multilingual scripts, map upstream outputs into downstream inputs, coordinate dependencies and branches, then schedule the whole published workflow.
+
+A single script or an AI-scheduled action can cover a single task. Sleep In earns its place when work spans multiple data sources, languages and dependent steps that need a reusable graph, consistent inputs, failure handling and a visible execution history. AI is optional assistance, not the scheduler, workflow definition or runtime dependency.
 
 Workflow authors configure code, connections and environments. Everyday users choose a published workflow or template, supply parameters, select a schedule and inspect results. They should not need to learn the n8n editor, Cron or internal execution protocols. The Mac companion owns service startup and readiness; everyday users should not manage infrastructure.
 
@@ -85,7 +87,7 @@ A SQL receiver accepts workflow parameters or upstream data, executes SQL throug
 
 Branch and merge are canvas wiring tools, not business catalog categories. Triggers are configured from the start card. HTTP calls are implemented in scripts; files come from output contracts; notifications belong in workflow settings.
 
-Support insertion, connections, duplication, deletion, undo/redo, layout, zoom, fit, selection and outline search. Duplicates get new IDs. Deleting a referenced node exposes broken mappings and blocks publication. Only directed acyclic graphs are supported initially.
+Support dragging nodes from the language library onto the canvas, dragging nodes to reposition them, dragging from output to input ports to connect steps, and choosing fields to map data. Also support insertion, duplication, deletion, undo/redo, layout, zoom, fit, selection and outline search. Duplicates get new IDs. Deleting a referenced node exposes broken mappings and blocks publication. Only directed acyclic graphs are supported initially.
 
 ## 6. Editor and visual direction
 
@@ -249,7 +251,7 @@ Before implementation, verify publication/activation, authenticated starts, wait
 
 A Monday morning meeting should not cost you your Sunday night. Prepare the workflow once, let your Mac collect and process the data, and wake up to the results. **One-click setup. One-click run. Sleep in.** The promise is fewer chores and clearer readiness, never guaranteed execution on a powered-off computer.
 
-The primary user owns a MacBook, not a server. The default journey is **install → choose a template → connect data → pick a time → Sleep in**. A working synthetic weekly-report template is available before connecting a real database. Editing code, drawing a graph and configuring runtimes are optional authoring paths. Template fields use ordinary labels, sample values, sensible defaults and inline validation; selecting an upstream field requires no expression syntax. Advanced settings stay collapsed. The schedule is a sentence such as “Every Monday at 7:00 AM, America/Chicago”, not Cron.
+The primary user owns a MacBook, not a server. The default journey is **install with background service → drag nodes or open a template → map inputs/outputs → test and publish → pick a schedule**. A working synthetic weekly-report template is available before connecting a real database. The visual graph editor is the primary authoring surface; templates provide ready-made graphs that remain editable. Writing code and configuring runtimes are optional advanced paths. Template fields use ordinary labels, sample values, sensible defaults and inline validation; selecting an upstream field requires no expression syntax. Advanced settings stay collapsed. The schedule is a sentence such as “Every Monday at 7:00 AM, America/Chicago”, not Cron.
 
 Product acceptance targets: no Terminal commands for the packaged Mac path; no separate n8n account, server, Docker, Python or Node installation; after installation, complete the sample in at most three product screens (template, time, readiness). Data-source authentication is an explicit extra step when needed. Measure setup completion and user mistakes before making time-saving claims.
 
@@ -269,31 +271,29 @@ On a **fresh local installation only**, initialize the administrator as `admin` 
 
 This card appears only while that installation still uses its initial credentials. Changing the password hides the card, revokes existing sessions and does not reveal the new password anywhere. Existing installations, migrated users and restored accounts are never reset or given an extra default administrator. Recovery is an explicit local-owner action. Bind the local edition to loopback and validate Host/Origin; do not publish default credentials through a non-loopback/proxied bootstrap response. A deliberate LAN/server deployment requires a new private password and removal of the public-default mode before listening externally. The current v1 setup-token path remains documented until this new path is implemented.
 
-### 14.4 The “Sleep in” button: persistent management
+### 14.4 Always-on background service, including battery power
 
-Dashboard primary action: **Sleep in / 安心睡觉** enables **Keep my schedules running**, a persistent preference. This is the default for recurring workflows: configure once, then execute every day/week without another nightly click. Completing this morning's run does not disable tomorrow's protection. Show enabled workflows, next occurrences, expected outputs and current readiness; there is no default “tomorrow 09:00” cutoff.
+**Installation/deployment starts the background service by default, after any necessary macOS approval.** Persist this choice and start at user login. No separate nightly “Sleep in” click, AC requirement or currently enabled task is needed to keep the service running. “Sleep in” describes the product promise; the primary workflow actions remain **Test, Publish, Schedule**. The home and menu bar show **Background running**, health and the next scheduled workflow.
 
-One click checks power, background authorization, service health, publication and runtime readiness, required inputs, current database/network/VPN connectivity, next occurrences and output space. Failed checks offer concrete repairs. Readiness is timestamped and does not guarantee future external availability. Do not run database writes or other side effects as a readiness probe. The first guided test uses synthetic data.
+Treat service lifetime, scheduled execution and sleep prevention as separate states. The service stays alive with zero workflows or all triggers paused, without executing disabled work. While the default always-on mode is enabled, hold an idle-system-sleep assertion on **both AC and battery**, across all waiting periods and executions. Unplugging must not stop the helper, remove the assertion, pause triggers or require another click. Finishing a daily/weekly run does not end the service or protection. No morning cutoff or temporary-session mode is required for the initial release.
 
-The helper reconciles protection at startup/login, schedule changes, power changes and periodically. While management is enabled, AC power is attached, and at least one enabled future scheduled trigger or active scheduled run exists, hold an idle-system-sleep assertion. Hold it **between executions as well as during them**, including daytime and days between weekly runs. A paused/disabled/expired trigger does not count. An enabled trigger with an unresolved runtime/connection problem still counts until explicitly paused: retain protection and show “Needs attention”, so a temporary outage does not silently remove the next day's protection. There is no unverified assumption that a sleeping Mac will wake at the next run.
+Allow the display to turn off and lock normally; do not permanently alter global power settings. Show power source and battery level as information, not an activation gate. Explain during setup that keeping the Mac awake also consumes battery between tasks. Low battery produces an alert without an application-imposed automatic pause or silent switch to AC-only operation. Respect macOS critical-power, thermal and explicit sleep/shutdown decisions; never promise unlimited battery life or bypass OS protections.
 
-The display may turn off and lock normally; no permanent system-wide power setting is changed. Show **Managed automatically · Next run Monday 7:00 AM · Keep plugged in, lid open**, with a live timestamp and a details panel explaining that the Mac stays awake on AC between schedules. Closing the browser leaves the helper running. Subsequent runs remain scheduled even if the previous one failed; apply workflow concurrency and retry policies independently.
+At startup/login and after a crash, the supervisor restores the stored running preference, rechecks n8n/application/worker health and reacquires the assertion. A single-instance lock prevents duplicate schedulers. A crash releases the old process's assertion; record the gap instead of claiming uninterrupted service. Power-source changes update status without restarting services. Health checks never perform database writes or other business side effects. Test synthetic inputs first; real connection tests assess only current reachability.
 
-Stop protection when all scheduled triggers are paused/deleted/expired and active scheduled runs finish; disabling management, quitting the app or unplugging releases it immediately. Existing task timeouts bound active work. Do not delete schedules when releasing protection. If the user explicitly stops management, remember that choice and do not silently restart it on the next power connection. If management remains enabled, reconnecting AC or logging in after restart automatically rechecks services, reacquires protection and resumes admission. A process crash releases its assertion; the supervisor restarts the helper and reacquires it from persistent preferences. Show the unprotected gap and any missed runs; never claim uninterrupted protection during that gap.
+Closing the browser or application window keeps the background service running. **Pause workflow** stops only that workflow's future admission; **Pause all schedules** keeps the service and default power protection running. An explicit **Stop background service / Quit completely** releases protection and stops admission, with a clear explanation; preserve this choice across login/restart until the user selects **Start background service**. Removing background permission or uninstalling also stops the helper. Do not silently restart after an intentional stop. Active executions use a visible finish-or-cancel choice before full stop; cancellation must be confirmed before reporting stopped.
 
-The optional **Protect until…** mode is for a one-off session and displays its exact expiry. At expiry, allow already-running work a bounded grace of at most 60 minutes, then release protection; do not cancel or erase future recurring schedules. Explicitly warn that subsequent scheduled times are not protected and offer **Switch to automatic management**. Never select this temporary mode by default for a daily or weekly template.
-
-| Mac state | Product behavior and honest promise |
+| State | Required behavior |
 |---|---|
-| Screen locked/display off, Mac awake | Background execution continues without an open browser |
-| AC attached, automatic management enabled | Request idle-sleep prevention across the whole recurring schedule, not only one night |
-| Lid closed or user chooses Sleep | No guarantee; do not promise to override these states |
-| Unplugged | Release idle-sleep prevention, retain the management preference, mark protection paused; tasks may run while awake but are not guaranteed |
-| Plugged back in | If management is still enabled, recheck and restore protection automatically |
-| Powered off or logged out | No execution guarantee; restore only after the user logs in and services become healthy |
-| Internet/VPN disconnects | Local jobs may work; affected remote jobs follow their explicit failure policy; keep power protection for future scheduled work |
+| Plugged in or on battery | Same service, scheduling and idle-sleep-prevention behavior; no extra switch needed |
+| AC disconnected/reconnected during a run | The same run continues; no duplicate, restart or protection gap caused by the power transition |
+| Screen locked/display off | Service, admission and workers continue while the system stays awake |
+| No enabled workflows | Service remains available with the always-on assertion; show no upcoming runs and avoid busy polling |
+| Lid closed or explicit system Sleep | Cannot guarantee execution; do not claim idle-sleep prevention overrides these actions |
+| Battery exhausted, power off or logged out | No execution guarantee; recover after power is available and the user logs in |
+| Network/VPN unavailable | Keep the service alive; local jobs can proceed, affected workflows follow failure policies |
 
-On wake/restart, show missed occurrences and reasons. Default: skip missed runs with a visible record; offer **Run latest missed occurrence once** within a configured grace period (default 2 hours). Never replay every missed interval automatically or repeat an uncertain write. The next future occurrence stays enabled. System notifications are optional and request permission only when enabled. The menu bar exposes status, results, pause/resume management and quit. This release does not schedule system wake or guarantee execution in a closed-display external-monitor configuration.
+On wake/restart, show missed occurrences and reasons. Default: skip with a visible record; optionally run the latest missed occurrence once within a configurable grace period (default 2 hours). Do not replay a backlog or duplicate a write with an uncertain result. Next future occurrences remain enabled. Optional notifications request permission only when enabled. “24/7” means continuous intended operation on a powered, OS-running Mac; it is not an uptime SLA or a claim that software executes after shutdown. Closed-display external-monitor setups are outside the initial guarantee.
 
 ### 14.5 Release gates
 
@@ -335,11 +335,11 @@ Migration creates disabled triggers for review. Stop old dispatch before enablin
 | A16 | Clean Compose executes an actual n8n graph and scheduled occurrence with node/version/artifact evidence |
 | A17 | A clean supported Mac completes installation and a sample without Terminal, Docker or separately installed language tools; repeated launch never duplicates services |
 | A18 | Fresh local login displays working initial credentials; password change hides them and revokes sessions; existing/restored users are not reset; external mode refuses public defaults |
-| A19 | Protected, plugged-in, open-lid Mac runs a scheduled workflow while locked/display-off; idle assertion is verified separately; browser closure does not stop it |
-| A20 | Consecutive daily occurrences survive morning completion without another click; pause-all releases protection; AC reconnect/login restores enabled management, while explicit stop stays stopped; missed recovery never duplicates writes |
+| A19 | On AC and battery separately, a locked/display-off Mac executes scheduled workflows; verify the assertion and power source, not just screenshots; closing either window keeps services alive |
+| A20 | Consecutive daily occurrences run without another click; switching AC/battery during a run causes no interruption or duplicate; login restores default services, explicit stop remains stopped; missed recovery avoids duplicate writes |
 | A21 | Background permission accepted/denied/revoked paths work; post-login restart, signed installation, update rollback and timezone changes are tested on each advertised Mac target |
-| A22 | A novice completes the synthetic template through at most three post-install product screens; defaults, errors, result location and both languages need no code or Cron |
-| A23 | Temporary expiry, one-off completion, helper crash and revocation release assertions correctly; failed recurring runs keep future schedules; cross-day/weekly gaps and DST are verified |
+| A22 | A novice completes the synthetic template through at most three post-install screens; a separate authoring test drags two SQL sources into Python then JS, maps outputs, previews the run and publishes a form schedule without expression syntax or AI |
+| A23 | Zero/paused workflows keep services alive; explicit full stop, crash and revocation release assertions correctly; default launch needs no separate protection click; test an AC overnight soak and measured battery sessions spanning multiple occurrences |
 
 Initial design budget: a 50-node workflow, not a measured performance claim. Test 10/25/50-node and branching graphs before defining a supported limit.
 
@@ -353,4 +353,4 @@ The target remains independently self-hosted personal/internal workspaces. Origi
 
 Next: validate phase A's orchestration adapter and create an editor visual target before changing application code. This PRD does not claim delivery of the proposed workflow platform.
 
-Apple documents that an idle-system-sleep assertion allows display sleep but does not prevent lid-close, explicit sleep or low-battery sleep. This is the basis for the plugged-in/open-lid requirement, not a guarantee of overnight delivery. [Apple power assertion](https://developer.apple.com/documentation/iokit/kiopmassertiontypepreventuseridlesystemsleep). Background registration may require user approval; the Mac helper must check status and guide that action. [Apple service registration](https://developer.apple.com/documentation/servicemanagement/smappservice/register%28%29). Signed packaging, native runtime compatibility, storage concurrency and power-state behavior remain release tests, not completed capabilities.
+Apple documents that an idle-system-sleep assertion allows display sleep but does not prevent lid-close, explicit sleep or low-battery sleep. The design therefore supports both AC and battery while limiting its guarantee to an awake, powered system; continuous battery runtime must be measured, not assumed. [Apple power assertion](https://developer.apple.com/documentation/iokit/kiopmassertiontypepreventuseridlesystemsleep). Background registration may require user approval; the Mac helper must check status and guide that action. [Apple service registration](https://developer.apple.com/documentation/servicemanagement/smappservice/register%28%29). Signed packaging, native runtime compatibility, storage concurrency and power-state behavior remain release tests, not completed capabilities.

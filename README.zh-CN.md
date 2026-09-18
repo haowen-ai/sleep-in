@@ -2,27 +2,47 @@
 
 **把早班交给任务，把清晨留给自己。**
 
-定时运行 Python 脚本，跟踪每次执行，取回属于自己的时间。
+可视化拖拽的低代码平台，让复杂工作流定时完成——新版本设计中。
 
 [English](README.md) · 简体中文
 
 [![CI](https://github.com/haowenchen0811/sleep-in/actions/workflows/ci.yml/badge.svg)](https://github.com/haowenchen0811/sleep-in/actions/workflows/ci.yml) · [MIT 许可证](LICENSE)
 
-独立编写的自托管任务平台，以 Python 和浏览器 JavaScript 实现，**由 n8n 定时唤起调度**。在网页上选择脚本、填写参数和时间，查看日志、下载结果，无需操作工作流编辑器。
+Sleep In 正在围绕可视化流程画布重做：连接 SQL 接收器及 Python、JavaScript、Shell 等语言脚本，映射上下游输入输出，通过普通表单定时执行整条流程。独立设计的界面背后，由 n8n 编排已发布的流程图。
 
-> 当前为早期开发版本，适合可信的脚本作者使用，不是运行陌生人代码的安全沙箱。已完成与未完成的验证见[验证记录](docs/VERIFICATION.md)。
+> **当前状态：** 仓库现有实现仍是 v1 Python 定时任务控制台。下述拖拽工作流平台与常驻 Mac 安装版属于 v2 需求，尚未发布；详见[中文 PRD](docs/PRD.zh-CN.md)、[English PRD](docs/PRD.md)和[验证记录](docs/VERIFICATION.md)。当前执行器用于可信脚本，不是陌生人代码的安全沙箱。
 
 ## 为什么叫“不再早起”？
 
-不要因为周一早上开周会，就得早起拉数据。周日晚上还想继续玩，就把重复的准备工作提前安排好，让电脑到点执行，早上直接看结果。
+不要因为周一早上开周会，就得早起拉数据。周日晚上还想继续玩，就把整条准备流程提前搭好，让电脑到点收集、处理数据，早上直接看结果。
 
-我们希望把它做成一个低代码的 Mac 应用：**选模板、接数据、选时间，点一下“安心睡觉”。** 不用租服务器，不要求每个人都会写代码。**一键部署，一键运行，一键安心睡觉。**
+单个任务用脚本定时，或者让 AI 安排一次执行，可能已经够用了。复杂的是：先查两个数据库，把输出合并，交给 Python 算指标，再用 JavaScript 整理报告。步骤之间有依赖和数据传递，运行环境不同，失败后还得知道卡在哪一步。**把这些工作变成可复用、看得见、可排查的流程，才是这个项目存在的意义。** AI 可以辅助写代码，但搭建和运行流程不依赖 AI 服务。
 
-**这是下一版的产品方向，Mac 安装器尚未发布。** 当前版本仍通过下方开发者方式运行 Python 定时任务。下一版设计包含应用托管的本地环境、登录页明示的初始账号密码、后台改密、后台就绪检查与重复任务的持续防休眠托管。完整要求见[中文 PRD](docs/PRD.zh-CN.md)及 [English PRD](docs/PRD.md)。
+## 我们要做的工作流
 
-锁屏、熄屏与系统休眠是不同状态：电脑保持唤醒时，后台任务可以继续。拟议的“安心睡觉”默认持续托管重复任务，今天跑完仍保护明天，不用每天再点，需要插电并保持开盖；合盖、主动睡眠和关机不在保障范围内。[Apple 官方说明](https://developer.apple.com/documentation/iokit/kiopmassertiontypepreventuseridlesystemsleep)。
+把语言节点拖进画布，拖动端口连线，点选上游字段，逐步试跑，然后发布并选择普通人能看懂的执行时间。模板是可编辑的起点，画布是主要创作界面；支持分支、并行、汇合和逐节点运行记录，让复杂任务也能看清楚。
 
-## 从脚本到定时任务
+```mermaid
+flowchart LR
+  T[每周一早上 7 点] --> P[SQL · PostgreSQL]
+  T --> O[SQL · Oracle]
+  P -->|查询结果| PY[Python · 合并并计算]
+  O -->|查询结果| PY
+  PY -->|摘要| JS[JavaScript · 整理报告]
+  JS --> R[可下载的结果]
+```
+
+以上为设计中的流程示例，不代表 v1 已支持这些集成。节点按语言和 SQL 方言分类；报告、计算属于脚本内容，不另造凑数业务节点。定时使用表单，不用 Cron。默认英文，可切简体中文。
+
+## 安装一次，后台持续运行
+
+Mac 版的目标是安装并完成必要系统授权后，自动启动后台，**插电和电池供电都持续运行**。关闭网页或应用窗口、拔电、今天任务完成，都不应影响明天继续调度。不租服务器，不另注册 n8n，也不用每天点击开启。登录页展示本地初始账号密码，用户可以在账号设置中修改。
+
+后台会申请防空闲系统休眠，同时允许锁屏和熄屏。电池运行仍会耗电；电量耗尽、关机后软件无法执行，防空闲休眠也不能阻止合盖或主动系统睡眠。[Apple 官方边界](https://developer.apple.com/documentation/iokit/kiopmassertiontypepreventuseridlesystemsleep)。安装器和电池运行效果仍需实际开发验证。
+
+**一键部署，一键运行，一键安心睡觉。**
+
+## 当前 v1：从脚本到定时任务
 
 ```mermaid
 flowchart LR
@@ -35,7 +55,7 @@ flowchart LR
   style D fill:#edf7ef,stroke:#9dc9ab,color:#234d32
 ```
 
-## 功能
+## 当前 v1 功能
 
 - 从三个仅使用标准库的示例开始，或发布 Python 单文件、ZIP 项目。
 - 手动、间隔、每天、工作日、每周、每月、五字段 Cron，共七种计划。
@@ -47,7 +67,7 @@ flowchart LR
 
 运行示例无需公司配置、云账号、SMTP 账号或已有的 n8n 账号。
 
-## 快速开始
+## 运行当前开发版
 
 安装 [Docker Desktop](https://www.docker.com/products/docker-desktop/)，或 Docker Engine 与 Compose 插件。执行定时任务期间，电脑与 Docker 必须持续运行。
 
@@ -96,7 +116,7 @@ output = Path(os.environ["TASK_OUTPUT_DIR"])
 
 ZIP 项目以 `main.py` 为入口，可在 `requirements.txt` 中使用 `包名==版本` 固定依赖。依赖在发布时准备，不在每次运行时重复安装。入口语义、限制、密钥与依赖说明见[脚本编写指南](docs/SCRIPTS.md)。
 
-## 工作原理
+## 当前 v1 架构
 
 ```mermaid
 flowchart TB
