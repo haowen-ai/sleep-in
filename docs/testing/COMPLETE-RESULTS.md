@@ -2,6 +2,10 @@
 
 This ledger supersedes the earlier [core-preview results](RESULTS.md). Tests use synthetic, isolated state. The original test design was committed before implementation; later defects were reproduced with failing tests before fixes. Passing software tests do not establish physical power or public-distribution behavior.
 
+## Fixed downward layout revision — 2026-09-18
+
+The latest user requirement supersedes the free-placement acceptance below. The editor now derives positions from dependencies: downward chains, side-by-side branches, merges below predecessors, centered top input and bottom output. Mouse dragging, keyboard repositioning and the horizontal-layout selector are removed. Existing graph semantics and explicit input bindings are preserved. Three new cases failed before implementation; the updated frontend, geometry and fixed-layout suites pass **34 tests**. Earlier four-sided/free-layout evidence below is historical.
+
 ## Integrated verification
 
 Local integrated regression before the final build-recovery patch: **443 passed, 26 skipped, 2 dependency deprecation warnings in 474.69 seconds** (exit 0). The 26 skips are 24 external SQL cases, one PostgreSQL storage fixture and one legacy Java-discovery test; the separate 49-language-pair matrix did use a working verified JDK. A second default-fixture run passed 371 tests with 98 explicit skips. The final frontend additions passed 32 UI/geometry tests. The final source commit was then verified by all four GitHub Actions jobs below. The full local run enables actual n8n 2.39.7, Node, JDK, Maven, Gradle and npm fixtures. The development Mac has no Docker daemon; clean Compose and external SQL fixtures run separately in GitHub Actions.
