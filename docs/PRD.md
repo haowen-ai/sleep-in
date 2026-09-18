@@ -87,7 +87,7 @@ A SQL receiver accepts workflow parameters or upstream data, executes SQL throug
 
 Branch and merge are canvas wiring tools, not business catalog categories. Triggers are configured from the start card. HTTP calls are implemented in scripts; files come from output contracts; notifications belong in workflow settings.
 
-Support dragging nodes from the language library onto the canvas, dragging nodes to reposition them, dragging from output to input ports to connect steps, and choosing fields to map data. Also support insertion, duplication, deletion, undo/redo, layout, zoom, fit, selection and outline search. Duplicates get new IDs. Deleting a referenced node exposes broken mappings and blocks publication. Only directed acyclic graphs are supported initially.
+Click language nodes to add them. Arrange every graph automatically from top to bottom by dependency depth, with parallel branches side by side and merges below all predecessors. Disable free node dragging, keyboard repositioning and horizontal layout. Only a centered top input and bottom output are available; connect them and choose fields to map data. Also support insertion, duplication, deletion, undo/redo, layout, zoom, fit, selection and outline search. Duplicates get new IDs. Deleting a referenced node exposes broken mappings and blocks publication. Only directed acyclic graphs are supported initially.
 
 ## 6. Editor and visual direction
 
@@ -97,7 +97,7 @@ A light, restrained workspace retains Sleep In's forest-green accent. The canvas
 |---|---|
 | Top bar, about 64px | Name, version, draft/publication, save status; Test, Save draft, Publish |
 | Left panel, about 240px | Library/Outline tabs, search, language tree; collapsible |
-| Canvas | Light dot grid, free two-dimensional placement; adaptive input/output ports on all four sides, directional arrows, obstacle-aware routes; optional horizontal/vertical layout |
+| Canvas | Light dot grid, fixed downward dependency layout; centered top input/bottom output, directional arrows and obstacle-aware routes; branches expand sideways automatically |
 | Inspector, about 380–440px | Opens on selection; Configuration, Inputs, Outputs, Environment, Error policy |
 | Bottom run drawer | Collapsible timeline, logs, JSON/table/file previews |
 
@@ -360,3 +360,7 @@ Apple documents that an idle-system-sleep assertion allows display sleep but doe
 ## Interaction amendment — 2026-09-17
 
 Position never determines execution order. A user may place downstream nodes above, below, left or right. Each side has distinct filled output and hollow input ports; arrows end outside the target port, preventing overlap. Routes avoid unrelated cards; moving nodes, panning or cursor-centered zoom changes presentation only. Selecting a connection exposes source, target and mappings in a separate panel. Horizontal and vertical auto-layout are optional and undoable. A dependency may carry no data; only explicit input bindings transmit values.
+
+## Interaction revision — 2026-09-18
+
+Fixed downward layout supersedes earlier free-placement requirements. Existing saved coordinates are reflowed on editor load without changing dependencies, source code, mappings or publication. Node addition, duplication, connection, deletion and undo/redo keep the layout derived from the graph. Panning/zooming only move the view. Adding a node never invents a dependency or input binding.

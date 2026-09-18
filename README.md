@@ -26,7 +26,7 @@ This is an independently written application. n8n executes the published depende
 
 ## What you can do
 
-- Drag nodes anywhere. Connect on any side, follow directional arrows, pan/zoom, undo changes, or choose horizontal/vertical layout.
+- Build fixed downward flows. Click to add nodes; branches arrange side by side automatically. Connect bottom outputs to top inputs, pan/zoom and undo structural changes. Nodes cannot be freely dragged.
 - Use **SQL, Python, JavaScript, Shell, Java, C and C++**. SQL has SQLite, PostgreSQL, MySQL and Oracle receivers.
 - Pick upstream fields, constants, workflow parameters, artifacts or credentials as inputs. An ordering connection alone passes no data.
 - Branch and merge, test one node with explicit samples, retry safe steps, cancel a run, inspect attempts/logs and download complete results.

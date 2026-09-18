@@ -1,14 +1,34 @@
 const clone = value => JSON.parse(JSON.stringify(value));
 export const LANGUAGES = ['sql','python','javascript','shell','java','c','cpp'];
+// Positions are derived from dependencies, never from pointer or keyboard movement.
+export function layoutDown(graph){
+  const nodes=graph.nodes,byId=new Map(nodes.map(n=>[n.id,n])),parents=new Map(nodes.map(n=>[n.id,[]]));
+  for(const e of graph.edges)if(byId.has(e.source)&&byId.has(e.target))parents.get(e.target).push(e.source);
+  const depth=new Map();let pending=[...nodes];
+  while(pending.length){const ready=pending.filter(n=>parents.get(n.id).every(id=>depth.has(id)));if(!ready.length)break;
+    for(const n of ready)depth.set(n.id,Math.max(-1,...parents.get(n.id).map(id=>depth.get(id)))+1);
+    pending=pending.filter(n=>!depth.has(n.id));}
+  // Invalid imported cycles remain editable for validation; never recurse forever.
+  for(const n of pending)depth.set(n.id,Math.max(-1,...depth.values())+1);
+  const levels=new Map();for(const n of nodes){const d=depth.get(n.id);if(!levels.has(d))levels.set(d,[]);levels.get(d).push(n);}
+  for(const [d,layer] of [...levels].sort((a,b)=>a[0]-b[0])){
+    const wanted=n=>{const p=parents.get(n.id).filter(id=>depth.get(id)<d);return p.length?p.reduce((sum,id)=>sum+byId.get(id).position.x,0)/p.length:layer.indexOf(n)*320;};
+    const ordered=layer.map((node,index)=>({node,index,x:wanted(node)})).sort((a,b)=>a.x-b.x||a.index-b.index);
+    let last=-Infinity;for(const item of ordered){item.placed=Math.max(item.x,last+320);last=item.placed;}
+    const shift=ordered.reduce((sum,item)=>sum+item.placed-item.x,0)/ordered.length;
+    for(const item of ordered)item.node.position={x:item.placed-shift,y:100+d*200};
+  }
+  const minX=Math.min(0,...nodes.map(n=>n.position.x));for(const n of nodes)n.position.x+=80-minX;
+}
 export class GraphModel {
-  constructor(value={}) { this.value=clone({...value,nodes:value.nodes||[],edges:value.edges||[]}); this.past=[];this.future=[]; }
-  commit(change) { const before=clone(this.value);try {change(this.value);}catch(error){this.value=before;throw error;}this.past.push(before);if(this.past.length>100)this.past.shift();this.future=[]; }
+  constructor(value={}) { this.value=clone({...value,nodes:value.nodes||[],edges:value.edges||[]}); layoutDown(this.value);this.past=[];this.future=[]; }
+  commit(change) { const before=clone(this.value);try {change(this.value);layoutDown(this.value);}catch(error){this.value=before;throw error;}this.past.push(before);if(this.past.length>100)this.past.shift();this.future=[]; }
   node(id){return this.value.nodes.find(n=>n.id===id);}
   update(id,patch){this.commit(g=>Object.assign(g.nodes.find(n=>n.id===id),clone(patch)));}
   add(node){const id=node.id||crypto.randomUUID();this.commit(g=>g.nodes.push(clone({...node,id})));return id;}
   remove(id){this.commit(g=>{g.nodes=g.nodes.filter(n=>n.id!==id);g.edges=g.edges.filter(e=>e.source!==id&&e.target!==id);});}
   duplicate(id){const n=clone(this.node(id));n.id=crypto.randomUUID();n.position={x:(n.position?.x||0)+40,y:(n.position?.y||0)+40};this.commit(g=>{g.nodes.push(n);g.edges.push(...g.edges.filter(e=>e.target===id).map(e=>({...clone(e),target:n.id})));});return n.id;}
-  move(id,position){this.update(id,{position});}
+  move(){/* Fixed layout: node positions are not editable. */}
   unbind(id,key){this.commit(g=>{delete g.nodes.find(n=>n.id===id).inputs[key];});}
   reaches(from,to){const seen=new Set();const walk=id=>{if(id===to)return true;if(seen.has(id))return false;seen.add(id);return this.value.edges.filter(e=>e.source===id).some(e=>walk(e.target));};return walk(from);}
   canConnect(source,target){return !!this.node(source)&&!!this.node(target)&&source!==target&&!this.reaches(target,source);}
@@ -18,7 +38,8 @@ export class GraphModel {
   errors(){const errors=[];for(const n of this.value.nodes)for(const [field,b] of Object.entries(n.inputs||{}))if(['node','artifact'].includes(b.source)){if(!this.node(b.node_id))errors.push({node_id:n.id,field,code:'missing_source'});else if(!this.reaches(b.node_id,n.id))errors.push({node_id:n.id,field,code:'unreachable_source'});}return errors;}
   undo(){if(!this.past.length)return;this.future.push(clone(this.value));this.value=this.past.pop();}
   redo(){if(!this.future.length)return;this.past.push(clone(this.value));this.value=this.future.pop();}
-  layout(direction="horizontal"){this.commit(g=>{const depth=id=>{const incoming=g.edges.filter(e=>e.target===id);return incoming.length?1+Math.max(...incoming.map(e=>depth(e.source))):0;};const rows={};for(const n of g.nodes){const d=depth(n.id);n.position=direction==='vertical'?{x:80+(rows[d]||0)*320,y:100+d*200}:{x:80+d*320,y:100+(rows[d]||0)*170};rows[d]=(rows[d]||0)+1;}});}
+  layout(){layoutDown(this.value);}
+
 }
 export function outputFields(node,sample){const fields=new Set(node.kind==='sql'?['rows','columns','rowCount',...(node.config?.mode==='write'?['affectedRows']:[])]:[]);const walk=(o,p='',schema=false)=>{for(const [k,v] of Object.entries(o||{})){const path=p?`${p}.${k}`:k;fields.add(path);if(schema&&v?.properties)walk(v.properties,path,true);else if(!schema&&v&&typeof v==='object'&&!Array.isArray(v))walk(v,path);}};walk(node.outputs?.properties||node.outputs||{},'',true);walk(sample);return [...fields];}
 

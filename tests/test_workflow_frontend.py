@@ -23,7 +23,7 @@ class WorkflowFrontendTests(unittest.TestCase):
         self.run_js("const g=new m.GraphModel({nodes:[{id:'a',name:'Query',inputs:{}},{id:'b',inputs:{orders:{source:'node',node_id:'a',path:'rows'}}}],edges:[{source:'a',target:'b'}]}); g.update('a',{name:'New name'}); assert.equal(g.value.nodes[1].inputs.orders.node_id,'a'); g.remove('a'); assert.equal(g.errors()[0].code,'missing_source'); g.undo(); assert.equal(g.value.nodes.length,2); assert.equal(g.errors().length,0); g.redo(); assert.equal(g.value.nodes.length,1);")
 
     def test_duplicate_has_new_identity_and_position_and_history_does_not_alias(self):
-        self.run_js("const g=new m.GraphModel({nodes:[{id:'a',kind:'python',inputs:{x:{source:'constant',value:[1,2,3]}},position:{x:10,y:20}}],edges:[]}); const id=g.duplicate('a'); assert.notEqual(id,'a'); g.update(id,{name:'copy'}); assert.equal(g.value.nodes[0].name,undefined); assert.equal(g.value.nodes[1].position.x,50); g.undo(); assert.equal(g.value.nodes[1].name,undefined);")
+        self.run_js("const g=new m.GraphModel({nodes:[{id:'a',kind:'python',inputs:{x:{source:'constant',value:[1,2,3]}},position:{x:10,y:20}}],edges:[]}); const id=g.duplicate('a'); assert.notEqual(id,'a'); g.update(id,{name:'copy'}); assert.equal(g.value.nodes[0].name,undefined); assert.equal(g.value.nodes[1].position.x-g.value.nodes[0].position.x,320); g.undo(); assert.equal(g.value.nodes[1].name,undefined);")
 
     def test_field_picker_uses_contract_and_samples_preserving_whole_arrays(self):
         self.run_js("assert.deepEqual(m.outputFields({kind:'sql'}),['rows','columns','rowCount']); assert.deepEqual(m.outputFields({kind:'sql',config:{mode:'write'}}),['rows','columns','rowCount','affectedRows']); assert.ok(m.outputFields({outputs:{summary:{type:'object'}}},{summary:{count:3},rows:[{x:1}]}).includes('summary.count')); assert.ok(!m.outputFields({}, {rows:[{x:1}]}).includes('rows.0.x')); const g=new m.GraphModel({nodes:[{id:'a',inputs:{}},{id:'b',inputs:{}}],edges:[]}); assert.equal(g.canConnect('a','b'),true); assert.equal(g.canConnect('a','a'),false);")
@@ -46,8 +46,8 @@ class WorkflowFrontendTests(unittest.TestCase):
     def test_mixed_input_types_optional_missing_and_present_null(self):
         self.run_js("const n={inputs:{orders:{source:'node',node_id:'a',path:'rows'},region:{source:'parameter',path:'region'},flag:{source:'constant',value:false},empty:{source:'node',node_id:'a',path:'missing',optional:true,default:[]},nullable:{source:'node',node_id:'a',path:'nil',optional:true,default:'fallback'}}}; assert.deepEqual(m.previewInputs(n,{a:{rows:[1,2,3],nil:null}},{region:'West'}),{orders:[1,2,3],region:'West',flag:false,empty:[],nullable:null}); assert.throws(()=>m.previewInputs({inputs:{required:{source:'node',node_id:'a',path:'absent'}}},{a:{}},{}),/missing/);")
 
-    def test_drag_is_one_history_move_and_duplicate_preserves_incoming_only(self):
-        self.run_js("const g=new m.GraphModel({nodes:[{id:'a',inputs:{}},{id:'b',inputs:{orders:{source:'node',node_id:'a',path:'rows'}},position:{x:1,y:2}},{id:'c',inputs:{}}],edges:[{source:'a',target:'b'},{source:'b',target:'c'}]}); g.move('b',{x:200,y:300}); g.undo(); assert.deepEqual(g.node('b').position,{x:1,y:2}); const id=g.duplicate('b'); assert.ok(g.value.edges.some(e=>e.source==='a'&&e.target===id)); assert.ok(!g.value.edges.some(e=>e.source===id)); assert.equal(g.errors().length,0);")
+    def test_fixed_positions_and_duplicate_preserves_incoming_only(self):
+        self.run_js("const g=new m.GraphModel({nodes:[{id:'a',inputs:{}},{id:'b',inputs:{orders:{source:'node',node_id:'a',path:'rows'}},position:{x:1,y:2}},{id:'c',inputs:{}}],edges:[{source:'a',target:'b'},{source:'b',target:'c'}]}); const before={...g.node('b').position};g.move('b',{x:200,y:300});assert.deepEqual(g.node('b').position,before);assert.equal(g.past.length,0); const id=g.duplicate('b'); assert.ok(g.value.edges.some(e=>e.source==='a'&&e.target===id)); assert.ok(!g.value.edges.some(e=>e.source===id)); assert.equal(g.errors().length,0);")
 
     def test_field_picker_preserves_literal_keys_and_indexes_as_path_tokens(self):
         self.run_js("const options=m.outputOptions({outputs:{type:'object',properties:{'a.b':{type:'string'},nested:{type:'object',properties:{'two words':{type:'integer'}}},rows:{type:'array',items:{type:'object',properties:{x:{type:'number'}}}}}}},{'a.b':'literal',nested:{'two words':3},rows:[{x:4}]}); assert.ok(options.some(o=>JSON.stringify(o.path)==='[\"a.b\"]')); assert.ok(options.some(o=>JSON.stringify(o.path)==='[\"nested\",\"two words\"]')); assert.ok(options.some(o=>JSON.stringify(o.path)==='[\"rows\",0,\"x\"]')); assert.equal(m.readPath({'a.b':7},['a.b']),7); assert.equal(m.readPath({rows:[{x:4}]},['rows',0,'x']),4);")
@@ -67,22 +67,8 @@ class WorkflowFrontendTests(unittest.TestCase):
     def test_save_ack_keeps_form_references_and_does_not_clean_later_edits(self):
         self.run_js("const s={graph:new m.GraphModel({nodes:[],edges:[],schedule:{kind:'weekly',weekdays:[0]},triggers:[{id:'t',schedule:{kind:'daily',time:'09:00'}}]}),dirty:true,editRevision:3};const schedule=s.graph.value.schedule,trigger=s.graph.value.triggers[0];m.acknowledgeSave(s,{id:'w',schedule:{kind:'weekly',weekdays:[0]},triggers:[{id:'t',schedule:{kind:'daily',time:'09:00'}}],published_version_id:'v1'},3);assert.equal(s.dirty,false);assert.equal(s.graph.value.schedule,schedule);assert.equal(s.graph.value.triggers[0],trigger);s.editRevision=5;s.dirty=true;m.acknowledgeSave(s,{id:'w'},4);assert.equal(s.dirty,true);assert.equal(s.graph.value.published_version_id,'v1');")
 
-    def test_library_pointer_drop_uses_canvas_zoom_scroll_and_cancels_outside(self):
-        self.run_js("""
-        const {attachLibraryDrag}=await import('./taskconsole/static/workflows.js');
-        const listeners={};const classes=new Set();const item={addEventListener(k,v){listeners[k]=v},setPointerCapture(){},releasePointerCapture(){},focus(){},classList:{add(k){classes.add(k)},remove(k){classes.delete(k)}}};
-        const viewport={getBoundingClientRect:()=>({left:300,top:100,right:900,bottom:600}),scrollLeft:40,scrollTop:60,classList:{toggle(){},remove(){}}};const drops=[];
-        const consume=attachLibraryDrag(item,viewport,()=>2,p=>drops.push(p));
-        const e=(x,y)=>({pointerId:1,button:0,clientX:x,clientY:y,preventDefault(){}});
-        listeners.pointerdown(e(100,200));listeners.pointermove(e(500,300));listeners.pointerup(e(500,300));
-        assert.deepEqual(drops,[{x:120,y:130}]);assert.equal(consume({detail:1}),true);assert.equal(consume({detail:0}),false);
-        listeners.pointerdown(e(100,200));listeners.pointerup(e(100,200));assert.equal(consume({detail:1}),false);assert.equal(drops.length,1);
-        listeners.pointerdown(e(100,200));listeners.pointermove(e(200,300));listeners.pointerup(e(200,300));assert.equal(drops.length,1);
-        listeners.pointerdown(e(100,200));listeners.pointermove(e(500,300));listeners.pointercancel(e(500,300));listeners.pointerup(e(500,300));assert.equal(drops.length,1);assert.equal(classes.size,0);
-        """)
-
     def test_artifact_binding_and_vertical_layout_keep_semantics_and_undo(self):
-        self.run_js("const g=new m.GraphModel({nodes:[{id:'a',inputs:{}},{id:'b',inputs:{}}],edges:[]});g.bind('b','file',{source:'artifact',node_id:'a',name:'report.txt'});assert.deepEqual(g.value.edges,[{source:'a',target:'b'}]);assert.throws(()=>g.bind('a','back',{source:'artifact',node_id:'b',name:'x'}));g.layout('vertical');assert.ok(g.node('b').position.y>g.node('a').position.y);assert.equal(g.node('a').position.x,g.node('b').position.x);g.undo();assert.equal(g.node('a').position,undefined);g.remove('a');assert.equal(g.errors()[0].code,'missing_source');")
+        self.run_js("const g=new m.GraphModel({nodes:[{id:'a',inputs:{}},{id:'b',inputs:{}}],edges:[]});g.bind('b','file',{source:'artifact',node_id:'a',name:'report.txt'});assert.deepEqual(g.value.edges,[{source:'a',target:'b'}]);assert.throws(()=>g.bind('a','back',{source:'artifact',node_id:'b',name:'x'}));g.layout('vertical');assert.ok(g.node('b').position.y>g.node('a').position.y);assert.equal(g.node('a').position.x,g.node('b').position.x);g.undo();assert.equal(g.value.edges.length,0);g.redo();assert.ok(g.node('b').position.y>g.node('a').position.y);g.remove('a');assert.equal(g.errors()[0].code,'missing_source');")
 
     def test_context_preview_does_not_invent_credentials_or_artifact_paths(self):
         self.run_js("assert.deepEqual(m.previewInputs({inputs:{run:{source:'context',path:['run_id']}}},{},{},{run_id:'synthetic'}),{run:'synthetic'});assert.throws(()=>m.previewInputs({inputs:{secret:{source:'credential',credential_id:'private'}}}));")

@@ -46,12 +46,10 @@ for(const count of [10,25,50]){const nodes=Array.from({length:count},(_,i)=>({id
 '''],cwd=ROOT,text=True,capture_output=True)
         self.assertEqual(result.returncode,0,result.stderr)
 
-    def test_shared_face_incoming_and_outgoing_have_distinct_endpoints(self):
+    def test_fixed_graph_routes_from_bottom_to_top_around_intermediate_cards(self):
         result = subprocess.run([NODE,'--input-type=module','-e','''
-import assert from 'node:assert/strict';import {routeEdge} from './taskconsole/static/workflow-geometry.js';
-const sql={id:'sql',position:{x:836,y:449}},py={id:'py',position:{x:420,y:180}},js={id:'js',position:{x:206,y:640}},nodes=[sql,py,js];
-const incoming=routeEdge(sql,py,nodes),outgoing=routeEdge(py,js,nodes);
-assert.equal(incoming.targetSide,'bottom');assert.equal(outgoing.sourceSide,'bottom');assert.notDeepEqual(incoming.points.at(-1),outgoing.points[0]);
-assert.ok(Math.abs(incoming.points.at(-1).x-outgoing.points[0].x)>=20);
+import assert from 'node:assert/strict';import {routeEdge,nodeRect,segmentCrosses} from './taskconsole/static/workflow-geometry.js';import {GraphModel} from './taskconsole/static/workflow-model.js';
+const g=new GraphModel({nodes:['root','left','right','leaf','merge'].map(id=>({id})),edges:[{source:'root',target:'left'},{source:'root',target:'right'},{source:'left',target:'leaf'},{source:'leaf',target:'merge'},{source:'right',target:'merge'},{source:'root',target:'merge'}]});
+for(const e of g.value.edges){const a=g.node(e.source),b=g.node(e.target),r=routeEdge(a,b,g.value.nodes);assert.equal(r.blocked,false);assert.equal(r.sourceSide,'bottom');assert.equal(r.targetSide,'top');assert.equal(r.points[0].x,a.position.x+120);assert.equal(r.points.at(-1).x,b.position.x+120);for(const n of g.value.nodes.filter(n=>n!==a&&n!==b))for(let i=1;i<r.points.length;i++)assert.equal(segmentCrosses(r.points[i-1],r.points[i],nodeRect(n)),false);}
 '''],cwd=ROOT,text=True,capture_output=True)
         self.assertEqual(result.returncode,0,result.stderr)

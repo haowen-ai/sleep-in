@@ -6,7 +6,7 @@ export function zoomAt(camera,point,factor){const world=toWorld(point,camera),zo
 const inside=(p,r)=>p.x>r.x&&p.x<r.x+r.width&&p.y>r.y&&p.y<r.y+r.height;
 export function segmentCrosses(a,b,r){if(a.x===b.x)return a.x>r.x&&a.x<r.x+r.width&&Math.max(a.y,b.y)>r.y&&Math.min(a.y,b.y)<r.y+r.height;if(a.y===b.y)return a.y>r.y&&a.y<r.y+r.height&&Math.max(a.x,b.x)>r.x&&Math.min(a.x,b.x)<r.x+r.width;return true;}
 const vectors={top:[0,-1],right:[1,0],bottom:[0,1],left:[-1,0]};
-export function portPoint(n,side,flow){const r=nodeRect(n),offset=flow==='out'?-12:flow==='in'?12:0;return {x:r.x+(side==='left'?0:side==='right'?r.width:r.width/2+offset),y:r.y+(side==='top'?0:side==='bottom'?r.height:r.height/2+offset)};}
+export function portPoint(n,side,flow){const r=nodeRect(n),offset=0;return {x:r.x+(side==='left'?0:side==='right'?r.width:r.width/2+offset),y:r.y+(side==='top'?0:side==='bottom'?r.height:r.height/2+offset)};}
 function rounded(points){let d=`M${points[0].x},${points[0].y}`;for(let i=1;i<points.length-1;i++){const a=points[i-1],b=points[i],c=points[i+1],ab=Math.hypot(b.x-a.x,b.y-a.y),bc=Math.hypot(c.x-b.x,c.y-b.y),r=Math.min(7,ab/2,bc/2);const p={x:b.x+(a.x-b.x)*r/ab,y:b.y+(a.y-b.y)*r/ab},q={x:b.x+(c.x-b.x)*r/bc,y:b.y+(c.y-b.y)*r/bc};d+=` L${p.x},${p.y} Q${b.x},${b.y} ${q.x},${q.y}`;}return d+` L${points.at(-1).x},${points.at(-1).y}`;}
 function routeSides(source,target,nodes,sides){
  const a=nodeRect(source),b=nodeRect(target),dx=b.x-a.x,dy=b.y-a.y;
@@ -31,4 +31,4 @@ function routeSides(source,target,nodes,sides){
  return {blocked:false,points,path:rounded(points),sourceSide,targetSide};
 }
 
-export function routeEdge(source,target,nodes){const preferred=routeSides(source,target,nodes);if(!preferred.blocked)return preferred;const a=nodeRect(source),b=nodeRect(target);if(a.x<b.x+b.width&&a.x+a.width>b.x&&a.y<b.y+b.height&&a.y+a.height>b.y)return preferred;let best;for(const sourceSide of Object.keys(vectors))for(const targetSide of Object.keys(vectors)){const route=routeSides(source,target,nodes,[sourceSide,targetSide]);if(route.blocked)continue;const length=route.points.slice(1).reduce((sum,p,i)=>sum+Math.abs(p.x-route.points[i].x)+Math.abs(p.y-route.points[i].y),0);if(!best||length<best.length)best={...route,length};}return best||preferred;}
+export function routeEdge(source,target,nodes){return routeSides(source,target,nodes,['bottom','top']);}
