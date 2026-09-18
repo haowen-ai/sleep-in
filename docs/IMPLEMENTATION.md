@@ -1,4 +1,4 @@
-# n8n Task Console implementation plan
+# Sleep In implementation plan
 
 Goal: an independently written, English-first Python task console with an explicit Simplified Chinese switch, based on the approved PRD.
 

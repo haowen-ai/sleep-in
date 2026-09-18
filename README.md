@@ -1,14 +1,29 @@
-# n8n Task Console
+# Sleep In · 不再早起
 
-**Schedule your Python scripts. Track every run.**
+**Let your tasks take the early shift.**
+
+Schedule Python scripts, follow every run, and get your mornings back.
 
 English · [简体中文](README.zh-CN.md)
 
-[![CI](https://github.com/haowenchen0811/n8n-task-console/actions/workflows/ci.yml/badge.svg)](https://github.com/haowenchen0811/n8n-task-console/actions/workflows/ci.yml) · [MIT license](LICENSE)
+[![CI](https://github.com/haowenchen0811/sleep-in/actions/workflows/ci.yml/badge.svg)](https://github.com/haowenchen0811/sleep-in/actions/workflows/ci.yml) · [MIT license](LICENSE)
 
 A self-hosted task console for people who want a schedule, parameters, logs, and downloadable results without opening a workflow editor. Independently written in Python and browser JavaScript, with **n8n driving scheduled dispatch**.
 
 > Early development release. Use with trusted script authors. This is not a sandbox for code uploaded by strangers. See [verification status](docs/VERIFICATION.md) for what has actually been tested.
+
+## From script to schedule
+
+```mermaid
+flowchart LR
+  A[Choose a script] --> B[Set a schedule]
+  B --> C[Preview and enable]
+  C --> D[Check logs and results]
+  style A fill:#edf7ef,stroke:#9dc9ab,color:#234d32
+  style B fill:#edf7ef,stroke:#9dc9ab,color:#234d32
+  style C fill:#edf7ef,stroke:#9dc9ab,color:#234d32
+  style D fill:#edf7ef,stroke:#9dc9ab,color:#234d32
+```
 
 ## What you can do
 
@@ -27,8 +42,8 @@ No company-specific configuration, cloud account, SMTP account, or existing n8n 
 Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) or Docker Engine with the Compose plugin. Keep Docker running whenever you want scheduled tasks to execute.
 
 ```bash
-git clone https://github.com/haowenchen0811/n8n-task-console.git
-cd n8n-task-console
+git clone https://github.com/haowenchen0811/sleep-in.git
+cd sleep-in
 docker compose up -d --build
 ```
 
@@ -74,7 +89,7 @@ ZIP projects have a `main.py` entrypoint and may include a `requirements.txt` wi
 ## How it works
 
 ```mermaid
-flowchart LR
+flowchart TB
   Browser[Web console] --> API[FastAPI]
   API --> DB[(PostgreSQL)]
   n8n[n8n: every 5 seconds] -->|authenticated dispatch heartbeat| API
@@ -82,6 +97,8 @@ flowchart LR
   Worker --> Scripts[Versioned Python scripts]
   Scripts --> Results[Logs and output files]
   API --> Results
+  classDef service fill:#edf7ef,stroke:#9dc9ab,color:#234d32
+  class Browser,API,DB,n8n,Worker,Scripts,Results service
 ```
 
 The application owns task definitions and timezone calculations. A single, automatically provisioned n8n workflow wakes dispatch; it does not contain users' source code or parameters. PostgreSQL transactions serialize due-job creation and claims. The worker runs trusted Python in a separate process group, with a minimal environment and no Docker socket.

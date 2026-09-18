@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "n8n-task-console"
 version = "0.1.0"
-description = "English-first Python scheduling console with n8n and a Chinese language switch"
+description = "Sleep In — English-first Python scheduling console with n8n and a Chinese language switch"
 requires-python = ">=3.12"
 dynamic = ["dependencies"]
 license = "MIT"
@@ -17,7 +17,7 @@ dependencies = {file = ["requirements.txt"]}
 include = ["taskconsole*"]
 
 [tool.setuptools.package-data]
-taskconsole = ["static/*"]
+taskconsole = ["static/*", "static/icons/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

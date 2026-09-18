@@ -25,7 +25,7 @@ def fail(status,code,message):
 
 
 def initialize(store):
-    samples=[('Hello, schedule','Print a friendly greeting.','print("Hello from n8n Task Console!")\n',{}),('Parameters in action','Pass a name to your Python function.','def main(params):\n    print("Hello, " + params.get("name", "world") + "!")\n',{'parameters':[{'key':'name','help':'Who should we greet?','default':'world','required':False}]}),('Create an output file','Generate a downloadable text file.','import os\nfrom pathlib import Path\nPath(os.environ["TASK_OUTPUT_DIR"], "hello.txt").write_text("Hello from your scheduled Python task!\\n", encoding="utf-8")\nprint("Created hello.txt")\n',{})]
+    samples=[('Hello, schedule','Print a friendly greeting.','print("Hello from Sleep In!")\n',{}),('Parameters in action','Pass a name to your Python function.','def main(params):\n    print("Hello, " + params.get("name", "world") + "!")\n',{'parameters':[{'key':'name','help':'Who should we greet?','default':'world','required':False}]}),('Create an output file','Generate a downloadable text file.','import os\nfrom pathlib import Path\nPath(os.environ["TASK_OUTPUT_DIR"], "hello.txt").write_text("Hello from your scheduled Python task!\\n", encoding="utf-8")\nprint("Created hello.txt")\n',{})]
     with store.transaction() as tx:
         for i,(name,description,source,manifest) in enumerate(samples):
             sid=f'sample-{i+1}';vid=f'{sid}-v1'
@@ -41,7 +41,7 @@ def create_app(state_dir=None,database_url=None):
     directory=Path(state_dir or os.environ.get('APP_STATE_DIR','state')).resolve()
     store=Store(directory,database_url or os.environ.get('DATABASE_URL',f'sqlite:///{directory}/console.db'))
     initialize(store)
-    app=FastAPI(title='n8n Task Console',version=__version__,docs_url=None,redoc_url=None,openapi_url=None)
+    app=FastAPI(title='Sleep In',version=__version__,docs_url=None,redoc_url=None,openapi_url=None)
     app.state.store=store
 
     @app.middleware('http')

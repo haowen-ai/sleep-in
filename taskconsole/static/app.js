@@ -22,6 +22,7 @@ const el = (tag, attrs={}, ...children) => {
   }
   for (const child of children.flat()) if (child != null) {
     if (child instanceof Node) node.append(child);
+    else if (child?.timestamp) node.append(el('span',{'data-timestamp':child.timestamp},String(child)));
     else if (child?.i18nKey && tag==='option') {node.dataset.i18n=child.i18nKey;node.textContent=String(child);}
     else if (child?.i18nKey) node.append(el('span',{'data-i18n':child.i18nKey},String(child)));
     else node.append(document.createTextNode(String(child)));
@@ -30,10 +31,13 @@ const el = (tag, attrs={}, ...children) => {
 };
 const clear = node => { while(node.firstChild) node.removeChild(node.firstChild); };
 const showToast = (message, bad=false) => { toast.textContent=message; toast.style.background=bad?'#8d211b':''; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),3500); };
-const fmt = value => { const stamp=timestampOf(value); return stamp ? new Intl.DateTimeFormat(state.locale,{dateStyle:'medium',timeStyle:'short'}).format(new Date(stamp)) : t('common.never'); };
+const fmt = value => { const stamp=timestampOf(value); return stamp ? Object.assign(new String(new Intl.DateTimeFormat(state.locale,{dateStyle:'medium',timeStyle:'short'}).format(new Date(stamp))),{timestamp:stamp}) : t('common.never'); };
 const route = () => location.pathname.replace(/\/$/,'') || '/tasks';
-const link = (href, text, active=false) => el('a',{href,'class':active?'active':'',onclick:e=>{e.preventDefault();history.pushState({},'',href);render();}},text);
-const button = (text, handler, kind='') => el('button',{type:'button','class':`button ${kind}`,onclick:handler},text);
+const link = (href, text, active=false) => el('a',{href,'class':active?'active':'',onclick:e=>{e.preventDefault();go(href);}},text);
+const icon = name => el('span',{'class':`icon icon-${name}`,'aria-hidden':'true'});
+const buttonIcons = {'tasks.create':'plus','scripts.create':'plus','common.run':'play','common.edit':'pencil','common.refresh':'refresh-cw','common.logout':'log-out'};
+const button = (text, handler, kind='', disabled=false) => el('button',{type:'button','class':`button ${kind}`,onclick:handler,disabled},buttonIcons[text?.i18nKey]?icon(buttonIcons[text.i18nKey]):null,text);
+const brand = () => el('div',{'class':'brand'},el('span',{'class':'brand-mark'},icon('moon-star')),el('div',{},el('strong',{},t('brand.name')),el('small',{},t('brand.caption'))));
 const systemLabel = value => {const key=`states.${String(value).toLowerCase()}`;const label=translate(state.locale,key);return label===key?String(value):t(key);};
 const badge = value => el('span',{'class':`badge ${String(value).toLowerCase()}`},systemLabel(value));
 const field = (label, input, hint='', full=false) => {const id=input.matches?.('input,select,textarea')?(input.id||`control-${++controlId}`):null;if(id)input.id=id;return el('div',{'class':`field${full?' full':''}`},el('label',id?{for:id}:{},label),input,hint?el('span',{'class':'hint'},hint):null);};
@@ -43,22 +47,31 @@ function handleError(error){ if(error?.status===401){state.bootstrap.user=null;r
 async function request(path, options){ try{return await api(path,options);}catch(error){handleError(error);throw error;} }
 
 function setLocale(locale, persist=true){
-  state.locale=normalizeLocale(locale); localStorage.setItem('taskconsole.locale',state.locale); document.documentElement.lang=state.locale;
+  state.locale=normalizeLocale(locale); localStorage.setItem('taskconsole.locale',state.locale); document.documentElement.lang=state.locale; document.title=String(t('brand.name'));
   if(persist&&state.bootstrap?.user) request('/api/me',{method:'PATCH',body:jsonBody({locale:state.locale})}).catch(()=>{});
   translateDOM();
+  document.querySelectorAll('[data-timestamp]').forEach(n=>n.textContent=String(fmt(n.dataset.timestamp)));
+  document.querySelectorAll('[data-script-key]').forEach(n=>n.textContent=`${t(n.dataset.scriptKey)} · v${n.dataset.version}`);
   document.querySelectorAll('.locale button').forEach(button=>{const active=button.dataset.locale===state.locale;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});
 }
 function translateDOM(){ document.querySelectorAll('[data-i18n]').forEach(n=>n.textContent=t(n.dataset.i18n));document.querySelectorAll('*').forEach(node=>{for(const attr of [...node.attributes])if(attr.name.startsWith('data-i18n-')&&attr.name!=='data-i18n-placeholder'){const target=attr.name.slice(10);node.setAttribute(target,t(attr.value));}});document.querySelectorAll('[data-i18n-placeholder]').forEach(n=>n.placeholder=t(n.dataset.i18nPlaceholder)); }
 function localeSwitch(){ return el('div',{'class':'locale','aria-label':t('common.language')},...['en','zh-CN'].map(locale=>el('button',{type:'button','class':locale===state.locale?'active':'','data-locale':locale,'aria-pressed':locale===state.locale?'true':'false','aria-label':locale==='en'?t('common.english'):t('common.chinese'),onclick:()=>setLocale(locale)},locale==='en'?'EN':'中文'))); }
-function sampleText(script,field){const number={'sample-1':'1','sample-2':'2','sample-3':'3'}[script?.script_id||script?.id];if(!number){if(field==='name'&&script?.version_id)return script.script_name||'';return script?.[field]||'';}return translate(state.locale,`samples.sample${number}${field==='name'?'Name':'Description'}`);}
+function sampleText(script,field){const number={'sample-1':'1','sample-2':'2','sample-3':'3'}[script?.script_id||script?.id];if(!number){if(field==='name'&&script?.version_id)return script.script_name||'';return script?.[field]||'';}return t(`samples.sample${number}${field==='name'?'Name':'Description'}`);}
 
 function shell(content){
+  document.title=String(t('brand.name'));
   document.querySelector('.skip-link').textContent=String(t('common.skip'));
-  const path=route(); const user=state.bootstrap.user;
-  const nav=[['/tasks','nav.tasks'],['/scripts','nav.scripts'],['/runs','nav.runs']];
-  if(user.role==='admin') nav.push(['/admin/settings','nav.admin']);
-  const side=el('aside',{'class':'sidebar',id:'sidebar'},el('div',{'class':'brand'},el('span',{'class':'brand-mark'},'N'),el('span',{},'n8n Task Console')),el('nav',{'class':'nav','aria-label':t('common.primaryNav')},...nav.map(([href,key])=>link(href,t(key),path.startsWith(href)))),el('div',{'class':'side-foot'},localeSwitch(),el('div',{'class':'user-card'},el('strong',{},user.username),el('div',{'class':'hint'},systemLabel(user.role))),button(t('nav.logout'),logout,'ghost')));
-  const main=el('div',{'class':'workspace'},el('header',{'class':'topbar'},button('☰',()=>side.classList.toggle('open'),'mobile-menu'),el('span',{'class':'hint'},systemLabel(state.bootstrap.scheduler?.status||'')),link('/account',t('nav.account'),path==='/account')),el('main',{id:'main','class':'content',tabindex:'-1'},content));
+  const path=route(), user=state.bootstrap.user;
+  const nav=[['/tasks','nav.tasks','calendar-clock'],['/scripts','nav.scripts','file-code-2'],['/runs','nav.runs','list-checks']];
+  const navItem=([href,key,glyph])=>{const item=link(href,t(key),href==='/tasks'?path.startsWith('/tasks'):path.startsWith(href));item.prepend(icon(glyph));return item;};
+  const navigation=el('nav',{'class':'nav','aria-label':t('common.primaryNav')},el('div',{'class':'nav-label'},t('brand.workspace')),...nav.map(navItem));
+  if(user.role==='admin')navigation.append(el('div',{'class':'nav-label nav-divider'},t('nav.admin')),...[['/admin/settings','nav.settings','settings-2'],['/admin/users','nav.users','circle-user-round'],['/admin/variables','nav.variables','code-2'],['/admin/audit','nav.audit','terminal']].map(navItem));
+  const account=link('/account',el('div',{'class':'user-identity'},el('span',{'class':'avatar'},user.username.slice(0,1).toUpperCase()),el('div',{},el('strong',{},user.username),el('small',{},systemLabel(user.role)))),path==='/account');
+  const side=el('aside',{'class':'sidebar',id:'sidebar'},brand(),navigation,el('div',{'class':'side-foot'},el('div',{'class':'sidebar-note'},icon('moon-star'),el('p',{},t('brand.aside'))),account,button(el('span',{},icon('log-out'),t('nav.logout')),logout,'ghost logout')));
+  const section=path.startsWith('/scripts')?'nav.scripts':path.startsWith('/runs')?'nav.runs':path.startsWith('/admin')?'nav.admin':path==='/account'?'nav.account':'nav.tasks';
+  const menu=button(icon('menu'),()=>side.classList.toggle('open'),'mobile-menu');menu.setAttribute('aria-label',String(t('common.primaryNav')));
+  const health=el('div',{'class':'service-status'},badge(state.bootstrap.scheduler?.status||'unavailable'),el('span',{'class':'health-caption'},t('admin.scheduler')));
+  const main=el('div',{'class':'workspace'},el('header',{'class':'topbar'},el('div',{'class':'breadcrumb'},menu,el('span',{},t('brand.workspace')),icon('chevron-right'),el('strong',{},t(section))),el('div',{'class':'header-actions'},health,localeSwitch())),el('main',{id:'main','class':'content',tabindex:'-1'},content),el('footer',{'class':'workspace-footer'},t('brand.footer')));
   clear(app);app.append(el('div',{'class':'shell'},side,main));app.setAttribute('aria-busy','false');
 }
 function pageHead(title,subtitle,action){return el('div',{'class':'page-head'},el('div',{},el('h1',{},title),el('p',{},subtitle)),action||null);}
@@ -74,6 +87,7 @@ function render(){document.documentElement.lang=state.locale;if(!state.bootstrap
 window.addEventListener('popstate',render);
 
 function renderAuth(setup){
+  document.title=String(t('brand.name'));
   document.querySelector('.skip-link').textContent=String(t('common.skip'));
   const form=el('form',{'class':'fields'}); const title=setup?t('auth.setup'):t('auth.signIn');
   if(setup) form.append(field(t('auth.token'),input('token','', 'password',true),'',true));
@@ -84,30 +98,33 @@ function renderAuth(setup){
   clear(app);
   app.append(el('div',{'class':'auth'},
     el('section',{'class':'auth-art'},
-      el('div',{'class':'brand'},el('span',{'class':'brand-mark'},'N'),'n8n Task Console'),
+      brand(),
       el('h1',{},t('auth.welcome')),
-      el('p',{},t('auth.tagline'))),
+      el('p',{},t('auth.tagline')),el('div',{'class':'auth-promise'},icon('check'),t('brand.promise'))),
     el('section',{'class':'auth-panel'},
-      el('div',{'class':'auth-box'},el('h2',{},title),el('p',{},setup?t('auth.setupHint'):'n8n Task Console'),form))));
+      el('div',{'class':'auth-box'},el('h2',{},title),el('p',{},setup?t('auth.setupHint'):t('auth.signInHint')),form))));
   app.setAttribute('aria-busy','false');
 }
 async function logout(){try{await request('/api/logout',{method:'POST'});}finally{state.bootstrap.user=null;setCsrf(null);history.replaceState({},'','/');renderAuth(false);}}
 
 async function renderTasks(){
-  const search=input('search','','search');search.placeholder=String(t('common.search'));search.setAttribute('aria-label',t('common.search'));
+  const search=input('search','','search');search.placeholder=String(t('common.search'));search.dataset.i18nPlaceholder='common.search';search.setAttribute('aria-label',t('common.search'));search.setAttribute('data-i18n-aria-label','common.search');
   const status=el('select',{name:'status','aria-label':t('common.status')},el('option',{value:''},t('common.all')),el('option',{value:'active'},t('common.enabled')),el('option',{value:'disabled'},t('common.disabled')));
   const archived=el('select',{name:'archived','aria-label':t('common.archive')},el('option',{value:'current'},t('states.active')),el('option',{value:'archived'},t('states.archived')),el('option',{value:'all'},t('common.all')));
   const results=el('div',{},empty(t('common.loading')));
-  const filters=el('div',{'class':'card form-card toolbar'},search,status,archived);
-  const content=el('div',{},pageHead(t('tasks.title'),t('tasks.subtitle'),button(t('tasks.create'),()=>go('/tasks/new'),'primary')),filters,results);
+  const filters=el('div',{'class':'filter-bar'},el('div',{'class':'search-field'},icon('search'),search),el('div',{'class':'toolbar'},status,archived));
+  const summary=el('div',{'class':'summary-grid'});
+  const content=el('div',{},pageHead(t('tasks.title'),t('tasks.subtitle'),button(t('tasks.create'),()=>go('/tasks/new'),'primary')),summary,el('section',{'class':'task-panel'},filters,results));
   shell(content);
   try{
     state.tasks=await request('/api/tasks');
+    const current=state.tasks.filter(task=>!task.archived),next=current.filter(task=>task.enabled&&task.next_run).map(task=>task.next_run).sort()[0];
+    for(const [label,value,glyph] of [[t('tasks.total'),current.length,'calendar-clock'],[t('tasks.enabledCount'),current.filter(task=>task.enabled).length,'check'],[t('tasks.nextScheduled'),next?fmt(next):t('common.never'),'clock-3']])summary.append(el('div',{'class':'summary-item'},el('div',{},el('small',{},label),el('strong',{},value)),el('span',{'class':'summary-icon'},icon(glyph))));
     const draw=()=>{
       const query=search.value.trim().toLowerCase();
       const filtered=state.tasks.filter(task=>(!query||task.name.toLowerCase().includes(query)||task.script_name.toLowerCase().includes(query))&&(!status.value||(status.value==='active'?task.enabled:!task.enabled))&&(archived.value==='all'||Boolean(task.archived)===(archived.value==='archived')));
-      const rows=filtered.map(task=>[el('div',{},el('button',{'class':'link',onclick:()=>go(`/tasks/${task.id}`)},task.name),el('div',{'class':'hint'},sampleText(task,'name')||task.script_name||'')),badge(task.archived?'archived':task.enabled?'active':'disabled'),fmt(task.next_run),fmt(task.last_run),el('div',{'class':'toolbar'},button(t('common.edit'),()=>go(`/tasks/${task.id}/edit`)),button(t('common.run'),()=>runTask(task.id),'primary'))]);
-      clear(results);results.append(rows.length?table([t('common.name'),t('common.status'),t('tasks.nextRun'),t('tasks.lastRun'),t('common.actions')],rows):el('div',{'class':'card'},empty(t('tasks.noTasks'))));
+      const rows=filtered.map(task=>[el('div',{'class':'task-name'},el('button',{'class':'link',onclick:()=>go(`/tasks/${task.id}`)},task.name),el('div',{'class':'hint'},sampleText(task,'name')||task.script_name||'')),badge(task.archived?'archived':task.enabled?'active':'disabled'),el('div',{'class':'schedule-cell'},el('span',{},t(`tasks.${task.schedule.kind}`)),el('small',{},task.timezone)),fmt(task.next_run),fmt(task.last_run),el('div',{'class':'toolbar'},button(t('common.edit'),()=>go(`/tasks/${task.id}/edit`)),button(t('common.run'),()=>runTask(task.id),'primary'))]);
+      clear(results);results.append(rows.length?table([t('common.name'),t('common.status'),t('tasks.schedule'),t('tasks.nextRun'),t('tasks.lastRun'),t('common.actions')],rows):el('div',{'class':'onboarding'},icon('calendar-clock'),empty(t('tasks.noTasks')),el('p',{},t('tasks.getStarted'))));
     };
     search.addEventListener('input',draw);status.addEventListener('change',draw);archived.addEventListener('change',draw);draw();
   }catch{}
@@ -123,8 +140,8 @@ function trackDirty(form){form.addEventListener('input',()=>{dirty=true;});form.
 window.addEventListener('beforeunload',event=>{if(dirty){event.preventDefault();event.returnValue='';}});
 async function renderTaskForm(id){
   let task=null;try{const [scripts,current]=await Promise.all([request('/api/scripts'),id?request(`/api/tasks/${id}`):Promise.resolve(null)]);state.scripts=scripts;task=current;}catch{return;}
-  const form=el('form');const versions=state.scripts.flatMap(s=>(s.versions||[]).filter(v=>v.status==='published').map(v=>({id:v.id,label:`${s.name} · v${v.number}`,manifest:v.manifest||[]})));
-  const version=el('select',{name:'version_id',required:true},el('option',{value:''},'—'),...versions.map(v=>el('option',{value:v.id,selected:String(v.id)===String(task?.version_id)},v.label)));
+  const form=el('form');const versions=state.scripts.flatMap(s=>(s.versions||[]).filter(v=>v.status==='published').map(v=>({id:v.id,label:`${sampleText(s,'name')} · v${v.number}`,scriptKey:sampleText(s,'name')?.i18nKey,number:v.number,manifest:v.manifest||[]})));
+  const version=el('select',{name:'version_id',required:true},el('option',{value:''},'—'),...versions.map(v=>el('option',{value:v.id,'data-script-key':v.scriptKey,'data-version':v.number,selected:String(v.id)===String(task?.version_id)},v.label)));
   const kind=el('select',{name:'schedule_kind'},...['manual','interval','daily','weekdays','weekly','monthly','cron'].map(k=>el('option',{value:k,selected:k===(task?.schedule?.kind||'manual')},t(`tasks.${k}`))));
   const dynamic=el('div',{'class':'fields field full'});const preview=el('div',{'class':'card form-card'},el('h2',{},t('tasks.preview')),el('div',{id:'preview'},t('tasks.previewEmpty')));
   const renderSchedule=()=>{
@@ -147,7 +164,7 @@ async function renderTaskForm(id){
 }
 function kvRow(key='',value='',required=false,fixed=false){const keyInput=input('param_key',key);if(fixed)keyInput.readOnly=true;const valueInput=el('textarea',{name:'param_value',rows:'2'},value);if(required)valueInput.required=true;const row=el('div',{'class':'kv','data-fixed':fixed?'true':'false','data-required':required?'true':'false'},keyInput,valueInput,fixed?el('span',{'class':'badge'},required?t('common.required'):t('common.optional')):button('×',()=>row.remove(),'danger'));return row;}
 function scheduleFrom(form){const data=Object.fromEntries(new FormData(form));const s={kind:data.schedule_kind};if(data.every)s.every=Number(data.every);if(data.time)s.time=data.time;if(s.kind==='weekly')s.weekdays=[...form.querySelectorAll('[name=weekdays]:checked')].map(item=>Number(item.value));if(data.day)s.day=Number(data.day);if(data.cron)s.cron=data.cron;return s;}
-async function previewSchedule(form,target){const data=Object.fromEntries(new FormData(form));try{const result=await request('/api/preview',{method:'POST',body:jsonBody({schedule:scheduleFrom(form),timezone:data.timezone})});clear(target);(result.times||[]).forEach(x=>target.append(el('div',{'class':'hint'},fmt(x))));}catch{target.textContent=t('tasks.previewEmpty');}}
+async function previewSchedule(form,target){const data=Object.fromEntries(new FormData(form));try{const result=await request('/api/preview',{method:'POST',body:jsonBody({schedule:scheduleFrom(form),timezone:data.timezone})});clear(target);if(!(result.times||[]).length)target.append(el('p',{'class':'hint'},t('tasks.manualPreview')));(result.times||[]).forEach(x=>target.append(el('div',{'class':'hint'},fmt(x))));}catch{target.textContent=t('tasks.previewEmpty');}}
 async function saveTask(e,id){
   e.preventDefault();const form=e.currentTarget;const d=Object.fromEntries(new FormData(form));
   let params;
@@ -156,7 +173,7 @@ async function saveTask(e,id){
   const body={name:d.name,version_id:d.version_id,params,recipients:d.recipients.split('\n').map(x=>x.trim()).filter(Boolean),schedule:scheduleFrom(form),timezone:d.timezone,timeout:Number(d.timeout),enabled:form.elements.enabled.checked};
   try{await request(id?`/api/tasks/${id}`:'/api/tasks',{method:id?'PUT':'POST',body:jsonBody(body)});dirty=false;go('/tasks',true);}catch{}
 }
-async function renderTaskDetail(id){try{const task=await request(`/api/tasks/${id}`);const cards=el('div',{'class':'grid'},...[[t('tasks.nextRun'),fmt(task.next_run)],[t('tasks.lastRun'),fmt(task.last_run)],[t('tasks.timezone'),task.timezone],[t('tasks.revision'),task.revision]].map(([a,b])=>el('div',{'class':'card stat span-4'},el('small',{},a),el('strong',{},String(b)))));shell(el('div',{},pageHead(task.name,sampleText(task,'name')||task.script_name,el('div',{'class':'toolbar'},button(t('tasks.history'),()=>go(`/runs?task_id=${encodeURIComponent(id)}`)),button(t('common.edit'),()=>go(`/tasks/${id}/edit`)),button(task.enabled?t('common.disabled'):t('common.enabled'),()=>taskAction(id,'toggle',{enabled:!task.enabled})),button(task.archived?t('common.restore'):t('common.archive'),()=>taskAction(id,'archive',{archived:!task.archived}),'danger'),button(t('common.run'),()=>runTask(id),'primary'))),cards,el('section',{'class':'card form-card'},el('h2',{},t('tasks.schedule')),el('pre',{'class':'logs'},JSON.stringify(task.schedule,null,2)))));}catch{}}
+async function renderTaskDetail(id){try{const task=await request(`/api/tasks/${id}`);const cards=el('div',{'class':'grid'},...[[t('tasks.nextRun'),fmt(task.next_run)],[t('tasks.lastRun'),fmt(task.last_run)],[t('tasks.timezone'),task.timezone],[t('tasks.revision'),task.revision]].map(([a,b])=>el('div',{'class':'card stat span-4'},el('small',{},a),el('strong',{},b))));shell(el('div',{},pageHead(task.name,sampleText(task,'name')||task.script_name,el('div',{'class':'toolbar'},button(t('tasks.history'),()=>go(`/runs?task_id=${encodeURIComponent(id)}`)),button(t('common.edit'),()=>go(`/tasks/${id}/edit`)),button(task.enabled?t('common.disabled'):t('common.enabled'),()=>taskAction(id,'toggle',{enabled:!task.enabled})),button(task.archived?t('common.restore'):t('common.archive'),()=>taskAction(id,'archive',{archived:!task.archived}),'danger'),button(t('common.run'),()=>runTask(id),'primary'))),cards,el('section',{'class':'card form-card'},el('h2',{},t('tasks.schedule')),el('pre',{'class':'logs'},JSON.stringify(task.schedule,null,2)))));}catch{}}
 async function taskAction(id,action,body){if(action==='archive'&&!confirm(t('tasks.archiveConfirm')))return;try{await request(`/api/tasks/${id}/${action}`,{method:'POST',body:jsonBody(body)});renderTaskDetail(id);}catch{}}
 
 async function renderScripts(){const admin=state.bootstrap.user.role==='admin';shell(el('div',{},pageHead(t('scripts.title'),t('scripts.subtitle'),admin?button(t('scripts.create'),()=>go('/scripts/new'),'primary'):null),empty(t('common.loading'))));try{state.scripts=await request('/api/scripts');const rows=state.scripts.map(s=>{const defaultVersion=(s.versions||[]).find(v=>v.id===s.default_version);const name=sampleText(s,'name');return [admin?el('button',{'class':'link',onclick:()=>go(`/scripts/${s.id}`)},name):name,badge(s.archived?'archived':'active'),String((s.versions||[]).length),defaultVersion?`v${defaultVersion.number}`:'—',admin?button(t('common.details'),()=>go(`/scripts/${s.id}`)):'—'];});shell(el('div',{},pageHead(t('scripts.title'),t('scripts.subtitle'),admin?button(t('scripts.create'),()=>go('/scripts/new'),'primary'):null),state.scripts.length?table([t('common.name'),t('common.status'),t('scripts.versions'),t('scripts.defaultVersion'),t('common.actions')],rows):el('div',{'class':'card'},empty(t('scripts.noScripts'),admin?button(t('scripts.create'),()=>go('/scripts/new'),'primary'):null))));}catch{}}
@@ -185,7 +202,7 @@ async function scriptAction(id,action,body=null,confirmNeeded=false){if(confirmN
 async function renderRuns(){
   const initial=new URLSearchParams(location.search);
   let tasks=[];try{tasks=await request('/api/tasks');}catch{}
-  const status=el('select',{name:'status','aria-label':t('common.status')},el('option',{value:''},t('common.all')),...RUN_STATUSES.map(value=>el('option',{value,selected:initial.get('status')===value},translate(state.locale,`states.${value}`))));
+  const status=el('select',{name:'status','aria-label':t('common.status')},el('option',{value:''},t('common.all')),...RUN_STATUSES.map(value=>el('option',{value,selected:initial.get('status')===value},t(`states.${value}`))));
   const trigger=el('select',{name:'trigger','aria-label':t('runs.trigger')},el('option',{value:''},t('common.all')),el('option',{value:'manual'},t('tasks.manual')),el('option',{value:'schedule'},t('tasks.schedule')));
   const taskSelect=el('select',{name:'task_id','aria-label':t('runs.task')},el('option',{value:''},t('common.all')),...tasks.map(task=>el('option',{value:task.id,selected:initial.get('task_id')===task.id},task.name)));
   const start=input('start',(initial.get('start')||'').slice(0,10),'date');start.setAttribute('aria-label',t('runs.start'));

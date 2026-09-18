@@ -1,4 +1,4 @@
-# Product requirements — first development release
+# Sleep In · 不再早起 — Product requirements
 
 ## Purpose
 
@@ -41,3 +41,7 @@ Unit/API/runtime tests, real n8n initialization, actual browser checks, PostgreS
 ## Later scope
 
 Advanced shared-environment editing, built-in email notifications, sanitized template import/export. No SaaS tenancy, billing, arbitrary-language runner, DAG editor, automatic business retries or migration of private predecessor data.
+
+## Product identity and presentation
+
+The public product is Sleep In (不再早起 in Simplified Chinese). English is the initial language; users can explicitly switch to Chinese without losing entered form values. Both READMEs include the user journey, architecture flow, setup, script authoring and operations. The console uses a light sidebar, green accent, compact tables and consistent Lucide icons. Internal `taskconsole` commands and the Compose project identifier remain stable so existing installations retain their storage.

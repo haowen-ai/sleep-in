@@ -8,3 +8,7 @@ Only the original code in this repository is covered by its MIT license.
 - Base image components retain the licenses supplied by the Python, Debian, PostgreSQL and n8n image maintainers.
 
 README organization was informed by the public Dagu and Qinglong READMEs: a short purpose statement, explicit quick start, examples, operational boundaries and license information. No application source or branding was copied from those projects.
+
+## Lucide icons
+
+Interface icons are from [lucide-static 0.468.0](https://www.npmjs.com/package/lucide-static/v/0.468.0), distributed under the ISC license. The bundled license is in [taskconsole/static/icons/LICENSE](taskconsole/static/icons/LICENSE).
