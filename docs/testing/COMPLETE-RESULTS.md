@@ -4,7 +4,7 @@ This ledger supersedes the earlier [core-preview results](RESULTS.md). Tests use
 
 ## Integrated verification
 
-Final local integrated regression: **443 passed, 26 skipped, 2 dependency deprecation warnings in 474.69 seconds** (exit 0). The 26 skips are 24 external SQL cases, one PostgreSQL storage fixture and one legacy Java-discovery test; the separate 49-language-pair matrix did use a working verified JDK. A second default-fixture run passed 371 tests with 98 explicit skips. The final frontend additions passed 32 UI/geometry tests. GitHub Actions results are recorded separately. The full local run enables actual n8n 2.39.7, Node, JDK, Maven, Gradle and npm fixtures. The development Mac has no Docker daemon; clean Compose and external SQL fixtures run separately in GitHub Actions.
+Local integrated regression before the final build-recovery patch: **443 passed, 26 skipped, 2 dependency deprecation warnings in 474.69 seconds** (exit 0). The 26 skips are 24 external SQL cases, one PostgreSQL storage fixture and one legacy Java-discovery test; the separate 49-language-pair matrix did use a working verified JDK. A second default-fixture run passed 371 tests with 98 explicit skips. The final frontend additions passed 32 UI/geometry tests. The final source commit was then verified by all four GitHub Actions jobs below. The full local run enables actual n8n 2.39.7, Node, JDK, Maven, Gradle and npm fixtures. The development Mac has no Docker daemon; clean Compose and external SQL fixtures run separately in GitHub Actions.
 
 Component evidence already obtained:
 
@@ -13,6 +13,19 @@ Component evidence already obtained:
 - Runtime packs: real hash-locked Python wheel, npm dependency install, source/JAR/Maven/Gradle builds and C/C++ multi-source builds. Frozen versions reject tampering rather than silently changing a publication.
 - Real loopback SMTP tests exercise exact recipients, secret masking, partial refusal and failure isolation. Local HTTP fixtures exercise webhook delivery. No notification was sent to an external recipient.
 - Mac package: Swift compilation, resource self-test and ad-hoc code-signature verification. Isolated fixtures exercise update validation, backup, stop/start exclusion and rollback.
+
+## Final GitHub Actions verification — 2026-09-18
+
+[All four jobs passed](https://github.com/haowenchen0811/sleep-in/actions/runs/35322543880) for source commit `38dcfb65f09e08e0c3ada8cadc9f2d21998ddf53`:
+
+| Job | Result |
+| --- | --- |
+| Full Linux regression with PostgreSQL storage | 388 passed, 96 explicit fixture skips, 2 dependency warnings |
+| Actual n8n / language / supervisor integration | 100 passed, 2 dependency warnings |
+| PostgreSQL, MySQL and Oracle fixtures | 29 passed, no skips; includes 24 live database cases |
+| Fresh Docker Compose | Scheduled SQL → Python → JavaScript graph, native n8n execution ID, exact output artifact and repeated-bootstrap singleton verified |
+
+These suites overlap; the counts must not be added as a unique-test total. The first CI attempt caught a machine-specific Node test path and Oracle fresh-DDL read-consistency timing. Test setup was corrected and rerun without weakening production read-only SQL behavior. Interrupted runtime builds also have lock-owner/child-process recovery tests (32 runtime tests plus seven actual project builds passed locally). The final Apple-silicon app was rebuilt, ad-hoc signature checked and resource self-tested; no OS installation or permission change was invoked.
 
 ## Actual browser checks
 
@@ -36,7 +49,7 @@ Chrome, 2026-09-17, isolated localhost port 8767:
 | A05 | Complete large dataset spill, checksummed artifact materialization, exact 12,000-row transfer | Actual n8n tests |
 | A06 | Stable IDs, rename/delete/broken mapping, undo | Model/DOM tests |
 | A07 | Seven-language matrix, real compiler/JAR/project/dependency builds | Verified on development Mac |
-| A08 | SQLite real transactions; 24 external PostgreSQL/MySQL/Oracle cases and pinned fixtures | External matrix tracked separately |
+| A08 | SQLite real transactions; 24 external PostgreSQL/MySQL/Oracle cases and pinned fixtures | All 24 live cases passed in CI |
 | A09 | Branch terminal markers, optional defaults, merges, measured parallel roots | Actual n8n tests |
 | A10 | Form schedules, once/weekday/month-end/DST/zone, persisted occurrences | Automated plus real scheduled occurrence |
 | A11 | Immutable publication/environment/source versions and admitted snapshots | Automated |
@@ -44,7 +57,7 @@ Chrome, 2026-09-17, isolated localhost port 8767:
 | A13 | Independent notification outbox, tests off, masked payloads, exact recipient/partial refusal | Loopback SMTP/HTTP verified |
 | A14 | Portable source-inclusive exports remove environment/connection credentials; imports require rebind | Automated |
 | A15 | Free-direction UI, keyboard/model tests, 1024 and 390 actual viewport checks | Browser plus tests; no claim of user study |
-| A16 | Compose includes native v2 orchestrator, checks real schedule/execution ID/artifact | CI gate |
+| A16 | Compose includes native v2 orchestrator, checks real schedule/execution ID/artifact | Fresh Compose CI passed |
 | A17 | GUI progress, private runtime bootstrap, repeated-start singleton | Build/fixture tested; clean non-developer Mac still required |
 | A18 | Visible fresh-local credentials, change hides card/revokes sessions, restored/external guards | Automated; fresh-local browser login verified |
 | A19 | Always-on AC/battery idle-sleep request; no browser-dependent lifetime | Code/isolated lifecycle tested; physical lock/power trial still required |
