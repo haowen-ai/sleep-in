@@ -13,12 +13,13 @@ import threading
 from .store import uid,stamp
 from .workflows_projects import SourceProjects,relative_path,file_hash,manifest_tree
 from .workflows_runtime import executable,run_script
+from .workflows_build_lock import build_lock,recover_build_record,subprocess_lock_options
 
 PACK_LANGUAGES={'python','javascript','shell','java','c','cpp','custom'}
 
 
 def run_build(argv,directory,log,env=None,timeout=600):
-    result=subprocess.run(argv,cwd=directory,env=env,capture_output=True,text=True,timeout=timeout)
+    result=subprocess.run(argv,cwd=directory,env=env,capture_output=True,text=True,timeout=timeout,**subprocess_lock_options())
     log.append('$ '+json.dumps(argv)+'\n'+result.stdout+result.stderr)
     if result.returncode:raise ValueError('Build command failed: '+(result.stderr or result.stdout)[-3000:])
     return result.stdout
@@ -50,6 +51,7 @@ class RuntimePacks:
         return profile
     def version(self,vid,private=False):
         record=self._get('runtime_version',vid)
+        record=recover_build_record(self.store,'runtime_version',record,'runtime','building')
         with self.store.transaction() as tx:publications=tx.all('workflow_version')
         record['referencing_workflows']=sorted({v['workflow_id'] for v in publications if any(n.get('config',{}).get('runtime_version_id')==vid for n in v.get('snapshot',{}).get('nodes',[]))})
         return record if private else {**pack_public(record),'config':record['config']}
@@ -72,11 +74,14 @@ class RuntimePacks:
         return self.version(version['id'])
     def build(self,pid,vid=None):
         profile=self._get('runtime_profile',pid);vid=vid or profile['latest_version_id']
+        with build_lock(self.store.path,'runtime',vid):return self._build_locked(pid,vid)
+    def _build_locked(self,pid,vid):
+        profile=self._get('runtime_profile',pid)
         with self.store.transaction() as tx:
             record=tx.get('runtime_version',vid)
             if not record or record['profile_id']!=pid:raise ValueError('Version does not belong to profile')
-            if record['status'] in {'ready','building'}:raise ValueError('Runtime version is immutable or already building')
-            record.update(status='building',started_at=stamp());tx.put('runtime_version',record)
+            if record['status']=='ready':raise ValueError('Runtime version is immutable')
+            record.update(status='building',started_at=stamp(),recovery_required=False);tx.put('runtime_version',record)
         log=[];root=self.store.path/'runtime-packs'/vid;root.mkdir(parents=True,exist_ok=True)
         config=record['config'];language=record['language']
         try:
@@ -146,7 +151,7 @@ class RuntimePacks:
         if language=='custom':path=config.get('run_argv',[''])[0]
         resolved=shutil.which(path or '')
         if not resolved:raise ValueError('Runtime executable unavailable')
-        output=subprocess.run([resolved,'-version' if language=='java' else '--version'],capture_output=True,text=True,timeout=10)
+        output=subprocess.run([resolved,'-version' if language=='java' else '--version'],capture_output=True,text=True,timeout=10,**subprocess_lock_options())
         if output.returncode and language!='custom':raise ValueError('Toolchain is unavailable: '+(output.stderr or output.stdout)[:500])
         result={'executable':resolved,'tool_version':(output.stdout+output.stderr)[:1000],'tool_sha256':file_hash(resolved)}
         if language in {'java','c','cpp'}:result['compiler']=resolved

@@ -1,10 +1,13 @@
 import subprocess
+import os
+import shutil
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-NODE = '/Users/ec/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node'
+NODE = os.environ.get('NODE') or shutil.which('node')
 
+@unittest.skipUnless(NODE, 'Node.js is required for canvas geometry tests')
 class GeometryTests(unittest.TestCase):
     def test_routes_all_directions_obstacles_overlap_and_viewport(self):
         result = subprocess.run([NODE, '--input-type=module', '-e', '''

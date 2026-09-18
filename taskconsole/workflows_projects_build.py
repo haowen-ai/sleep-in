@@ -8,6 +8,7 @@ from pathlib import Path
 import shutil
 import subprocess
 from .workflows_projects import relative_path,file_hash,manifest_tree
+from .workflows_build_lock import subprocess_lock_options
 
 
 def expand_argv(argv,values):
@@ -47,7 +48,7 @@ def build_project_node(store,node):
     if runtime.get('java'):
         env['JAVA_HOME']=str(Path(runtime['java']).parent.parent);env['PATH']=str(Path(runtime['java']).parent)+os.pathsep+env.get('PATH','')
     def command(argv):
-        proc=subprocess.run(argv,cwd=project_dir,env=env,capture_output=True,text=True,timeout=int(config.get('build_timeout',600)))
+        proc=subprocess.run(argv,cwd=project_dir,env=env,capture_output=True,text=True,timeout=int(config.get('build_timeout',600)),**subprocess_lock_options())
         logs.append('$ '+json.dumps(argv)+'\n'+proc.stdout+proc.stderr)
         if proc.returncode:raise ValueError('Project build failed: '+(proc.stderr or proc.stdout)[-4000:])
     if language in {'c','cpp'}:

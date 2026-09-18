@@ -10,6 +10,7 @@ import tarfile
 import urllib.request
 import zipfile
 from .store import stamp
+from .workflows_build_lock import build_lock,recover_build_record,subprocess_lock_options
 from .workflows_projects import relative_path,file_hash
 
 MANIFESTS=[
@@ -24,6 +25,7 @@ class Toolchains:
     def __init__(self,store):self.store=store
     def list(self):
         with self.store.transaction() as tx:installed=tx.all('runtime_toolchain')
+        installed=[recover_build_record(self.store,'runtime_toolchain',record,'toolchain','installing') for record in installed]
         return {'candidates':[m for m in MANIFESTS if m.get('platform',platform.system().lower())==platform.system().lower() and m.get('architecture',platform.machine())==platform.machine()],'installed':installed}
     def install(self,manifest_id):
         manifest=next((m for m in self.list()['candidates'] if m['id']==manifest_id),None)
@@ -32,7 +34,7 @@ class Toolchains:
         return self.install_manifest(manifest)
     def _apple_compiler_test(self,manifest):
         """Probe selected real tool binaries; never invokes an installation shim."""
-        selected=subprocess.run(['/usr/bin/xcode-select','-p'],capture_output=True,text=True,timeout=10)
+        selected=subprocess.run(['/usr/bin/xcode-select','-p'],capture_output=True,text=True,timeout=10,**subprocess_lock_options())
         if selected.returncode:return None
         developer=Path(selected.stdout.strip())
         if not developer.is_absolute():return None
@@ -42,24 +44,26 @@ class Toolchains:
         root=self.store.path/'toolchains'/manifest['id']/'self-test';root.mkdir(parents=True,exist_ok=True)
         executables={'c':str(home/'bin/clang'),'cpp':str(home/'bin/clang++')};versions={};hashes={}
         for language,compiler in executables.items():
-            result=subprocess.run([compiler,'--version'],capture_output=True,text=True,timeout=10)
+            result=subprocess.run([compiler,'--version'],capture_output=True,text=True,timeout=10,**subprocess_lock_options())
             if result.returncode:raise ValueError('Apple compiler version check failed: '+result.stderr[-1000:])
             versions[language]=result.stdout.strip();hashes[language]=file_hash(compiler)
             source=root/('main.c' if language=='c' else 'main.cpp');program=root/(language+'-selftest')
             source.write_text('#include <stdio.h>\nint main(void){puts("7");return 0;}\n' if language=='c' else '#include <iostream>\nint main(){std::cout << 7 << "\\n";return 0;}\n')
-            result=subprocess.run([compiler,'-std=c11' if language=='c' else '-std=c++17',str(source),'-o',str(program)],capture_output=True,text=True,timeout=30)
+            result=subprocess.run([compiler,'-std=c11' if language=='c' else '-std=c++17',str(source),'-o',str(program)],capture_output=True,text=True,timeout=30,**subprocess_lock_options())
             if result.returncode:raise ValueError('Apple '+language+' compile/link self-test failed: '+result.stderr[-1500:])
-            result=subprocess.run([str(program)],capture_output=True,text=True,timeout=10)
+            result=subprocess.run([str(program)],capture_output=True,text=True,timeout=10,**subprocess_lock_options())
             if result.returncode or result.stdout!='7\n':raise ValueError('Apple '+language+' executable self-test failed')
         return {'home':str(home),'executables':executables,'executable':executables['c'],'version':versions['c'],'compiler_sha256':hashes,'verification':{'status':'passed','languages':['c','cpp'],'checks':['compile','link','execute'],'tested_at':stamp()}}
 
     def _request_apple_tools(self,manifest):
+        with build_lock(self.store.path,'toolchain',manifest['id']):return self._request_apple_tools_locked(manifest)
+    def _request_apple_tools_locked(self,manifest):
         # Only explicit administrator POST /install reaches this method.
         key=manifest['id']
         with self.store.transaction() as tx:
             previous=tx.get('runtime_toolchain',key)
-            if previous and previous['status']=='installing':return previous
-            record={**(previous or {}),'id':key,'name':manifest['name'],'language':'c','languages':['c','cpp'],'installer':'system_dialog','system_consent':True,'platform':'darwin','architecture':'arm64','license':manifest['license'],'source':manifest['source'],'manifest':manifest,'status':'installing','phase':'checking','started_at':stamp(),'verification':{'status':'not_run'}}
+            record={**(previous or {}),'id':key,'name':manifest['name'],'language':'c','languages':['c','cpp'],'installer':'system_dialog','system_consent':True,'platform':'darwin','architecture':'arm64','license':manifest['license'],'source':manifest['source'],'manifest':manifest,'status':'installing','phase':'checking','started_at':stamp(),'verification':{'status':'not_run'},'recovery_required':False}
+            record.pop('error',None);record.pop('finished_at',None)
             tx.put('runtime_toolchain',record)
         try:
             verified=self._apple_compiler_test(manifest)
@@ -68,7 +72,9 @@ class Toolchains:
             elif previous and previous.get('status')=='pending':
                 record.update(status='pending',phase='system_consent',reason='Complete the Apple installation dialog, then check installation again. Compiler self-tests have not passed.')
             else:
-                result=subprocess.run(['/usr/bin/xcode-select','--install'],capture_output=True,text=True,timeout=15)
+                record.update(phase='system_consent',requested_at=stamp())
+                with self.store.transaction() as tx:tx.put('runtime_toolchain',record)
+                result=subprocess.run(['/usr/bin/xcode-select','--install'],capture_output=True,text=True,timeout=15,**subprocess_lock_options())
                 if result.returncode:raise ValueError('Apple installation request failed: '+(result.stderr or result.stdout)[-1500:])
                 record.update(status='pending',phase='system_consent',requested_at=stamp(),reason='Approve the Apple installation dialog and its license. After macOS finishes, check installation to compile and run both C and C++ self-tests.')
         except Exception as exc:
@@ -77,11 +83,12 @@ class Toolchains:
         return record
 
     def install_manifest(self,manifest,archive=None):
+        with build_lock(self.store.path,'toolchain',manifest['id']):return self._install_manifest_locked(manifest,archive)
+    def _install_manifest_locked(self,manifest,archive=None):
         key=manifest['id'];root=self.store.path/'toolchains'/relative_path(key)
         with self.store.transaction() as tx:
             previous=tx.get('runtime_toolchain',key)
             if previous and previous['status']=='ready':return previous
-            if previous and previous['status']=='installing':raise ValueError('Toolchain installation already in progress')
             record={'id':key,'name':manifest['name'],'language':manifest['language'],'status':'installing','phase':'download','downloaded_bytes':0,'started_at':stamp(),'manifest':manifest};tx.put('runtime_toolchain',record)
         root.mkdir(parents=True,exist_ok=True)
         def update(**values):
@@ -125,7 +132,7 @@ class Toolchains:
                 with self.store.transaction() as tx:jdks=[t for t in tx.all('runtime_toolchain') if t['language']=='java' and t['status']=='ready']
                 if not jdks:raise ValueError('Install a JDK before Java build tools')
                 env['JAVA_HOME']=jdks[-1]['home'];env['PATH']=env['JAVA_HOME']+'/bin:'+env.get('PATH','')
-            proc=subprocess.run([str(executable),*manifest.get('verify_argv',['--version'])],capture_output=True,text=True,timeout=120,env=env)
+            proc=subprocess.run([str(executable),*manifest.get('verify_argv',['--version'])],capture_output=True,text=True,timeout=120,env=env,**subprocess_lock_options())
             if proc.returncode:raise ValueError('Toolchain self-test failed: '+proc.stderr[-2000:])
             update(status='ready',phase='ready',home=str(home),executable=str(executable),version=(proc.stdout+proc.stderr)[:4000],verified_digest=digest.hexdigest(),finished_at=stamp())
         except Exception as exc:update(status='failed',phase='failed',error=str(exc),finished_at=stamp())

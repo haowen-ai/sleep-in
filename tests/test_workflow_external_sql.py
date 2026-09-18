@@ -26,6 +26,26 @@ def fixture_config(dialect):
     return {'dsn':'127.0.0.1:11521/FREEPDB1','user':'sleepin','password':'sleepin_fixture_password'}
 
 
+def wait_for_oracle_fixture_ddl(db,table):
+    """Finish fresh-DDL setup before starting a separate read-only snapshot.
+
+    Oracle ORA-01466 documents an object-change/snapshot timestamp conflict.
+    LAST_DDL_TIME is a DATE (whole seconds), so cross a complete database-clock
+    second after it. This is setup only: no application query/write is retried,
+    no error is swallowed, and SET TRANSACTION READ ONLY stays enforced.
+    See https://docs.oracle.com/en/error-help/db/ora-01466/ and
+    https://docs.oracle.com/en/database/oracle/oracle-database/19/refrn/ALL_OBJECTS.html
+    """
+    deadline=time.monotonic()+5
+    with db.cursor() as cursor:
+        while time.monotonic()<deadline:
+            cursor.execute("SELECT CASE WHEN SYSDATE > LAST_DDL_TIME + 1/86400 THEN 1 ELSE 0 END FROM USER_OBJECTS WHERE OBJECT_NAME=:name AND OBJECT_TYPE='TABLE'",{'name':table.upper()})
+            row=cursor.fetchone()
+            if row and row[0]==1:return
+            time.sleep(.05)
+    raise TimeoutError('Oracle fixture DDL timestamp did not settle within 5 seconds')
+
+
 @pytest.fixture(params=DIALECTS)
 def receiver(request,tmp_path):
     dialect=request.param
@@ -44,6 +64,7 @@ def receiver(request,tmp_path):
             insert=f'INSERT INTO {table}(order_id,amount,big_value,region) VALUES(:id,:amount,:big,:region)'
             for bindings in [{'id':'A001','amount':PRECISE,'big':BIG,'region':'华东 🚀'},{'id':'A002','amount':'0.0000000001','big':'0','region':None}]:cursor.execute(sql_text(insert,dialect),bindings)
         db.commit()
+        if dialect=='oracle':wait_for_oracle_fixture_ddl(db,table)
         node={'id':'receiver','kind':'sql','source':f'SELECT order_id AS "order_id", amount AS "amount", big_value AS "big_value", region AS "region" FROM {table} ORDER BY order_id','config':{'dialect':dialect,'connection_id':public['id'],'mode':'query','timeout':2}}
         yield store,node,table,connection
     finally:
@@ -166,3 +187,35 @@ def test_driver_deadline_configuration_contract(tmp_path,monkeypatch,dialect):
             variable=db.outputtypehandler(Cursor(),types.SimpleNamespace(type_code='number',scale=10))
             assert variable['outconverter']('12345678901234567890.1234567890')==Decimal(PRECISE)
     finally:store.engine.dispose()
+
+
+def test_oracle_fixture_ddl_barrier_uses_database_clock(monkeypatch):
+    events=[]
+    class Cursor:
+        def __enter__(self):return self
+        def __exit__(self,*args):pass
+        def execute(self,query,bindings):events.append((query,bindings))
+        def fetchone(self):return (1 if len(events)>=3 else 0,)
+    class DB:
+        def cursor(self):return Cursor()
+    sleeps=[]
+    monkeypatch.setattr(time,'sleep',sleeps.append)
+    wait_for_oracle_fixture_ddl(DB(),'si_test_example')
+    assert len(events)==3 and len(sleeps)==2
+    assert all('SYSDATE > LAST_DDL_TIME' in query and 'USER_OBJECTS' in query for query,_ in events)
+    assert all(bindings=={'name':'SI_TEST_EXAMPLE'} for _,bindings in events)
+
+
+def test_oracle_fixture_ddl_barrier_is_bounded(monkeypatch):
+    class Cursor:
+        def __enter__(self):return self
+        def __exit__(self,*args):pass
+        def execute(self,*args):pass
+        def fetchone(self):return (0,)
+    class DB:
+        def cursor(self):return Cursor()
+    ticks=iter([0,0,6])
+    monkeypatch.setattr(time,'monotonic',lambda:next(ticks))
+    monkeypatch.setattr(time,'sleep',lambda _:None)
+    with pytest.raises(TimeoutError,match='Oracle fixture DDL'):
+        wait_for_oracle_fixture_ddl(DB(),'si_test_example')

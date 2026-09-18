@@ -11,6 +11,7 @@ import sqlite3
 import subprocess
 import sys
 import time
+from .workflows_build_lock import subprocess_lock_options
 
 LANGUAGES = ('python','javascript','shell','sql','java','c','cpp','custom')
 
@@ -191,7 +192,7 @@ def run_script(node,inputs,directory,root,cancelled=lambda:False):
     timeout=min(max(int(node.get('config',{}).get('timeout',300)),1),3600)
     started=time.monotonic()
     with (directory/'stdout.txt').open('w') as stdout, (directory/'stderr.txt').open('w') as stderr:
-        proc=subprocess.Popen(argv,cwd=project_dir,env=env,stdout=stdout,stderr=stderr,start_new_session=True)
+        proc=subprocess.Popen(argv,cwd=project_dir,env=env,stdout=stdout,stderr=stderr,start_new_session=True,**subprocess_lock_options())
         reason=None
         try:
             if callable(node.get('_on_process')):node['_on_process'](proc.pid)
