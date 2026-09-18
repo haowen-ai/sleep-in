@@ -1,3 +1,5 @@
+import {schedulerHealth} from './workflow-model.js';
+import {initWorkflowUI, isWorkflowRoute, renderWorkflowRoute, workflowLocaleChanged} from './workflows.js';
 import {api, jsonBody, setCsrf} from './api.js';
 import {normalizeLocale, translate} from './i18n.js';
 import {RUN_STATUSES, canCancelExecution, endOfDay, executionIsLive, manifestPayload, manifestRows, parameterRows, paramsFromRows, timestampOf} from './model.js';
@@ -32,7 +34,7 @@ const el = (tag, attrs={}, ...children) => {
 const clear = node => { while(node.firstChild) node.removeChild(node.firstChild); };
 const showToast = (message, bad=false) => { toast.textContent=message; toast.style.background=bad?'#8d211b':''; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'),3500); };
 const fmt = value => { const stamp=timestampOf(value); return stamp ? Object.assign(new String(new Intl.DateTimeFormat(state.locale,{dateStyle:'medium',timeStyle:'short'}).format(new Date(stamp))),{timestamp:stamp}) : t('common.never'); };
-const route = () => location.pathname.replace(/\/$/,'') || '/tasks';
+const route = () => location.pathname.replace(/\/$/,'') || '/workflows';
 const link = (href, text, active=false) => el('a',{href,'class':active?'active':'',onclick:e=>{e.preventDefault();go(href);}},text);
 const icon = name => el('span',{'class':`icon icon-${name}`,'aria-hidden':'true'});
 const buttonIcons = {'tasks.create':'plus','scripts.create':'plus','common.run':'play','common.edit':'pencil','common.refresh':'refresh-cw','common.logout':'log-out'};
@@ -49,7 +51,7 @@ async function request(path, options){ try{return await api(path,options);}catch
 function setLocale(locale, persist=true){
   state.locale=normalizeLocale(locale); localStorage.setItem('taskconsole.locale',state.locale); document.documentElement.lang=state.locale; document.title=String(t('brand.name'));
   if(persist&&state.bootstrap?.user) request('/api/me',{method:'PATCH',body:jsonBody({locale:state.locale})}).catch(()=>{});
-  translateDOM();
+  translateDOM();workflowLocaleChanged();
   document.querySelectorAll('[data-timestamp]').forEach(n=>n.textContent=String(fmt(n.dataset.timestamp)));
   document.querySelectorAll('[data-script-key]').forEach(n=>n.textContent=`${t(n.dataset.scriptKey)} · v${n.dataset.version}`);
   document.querySelectorAll('.locale button').forEach(button=>{const active=button.dataset.locale===state.locale;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});
@@ -62,15 +64,15 @@ function shell(content){
   document.title=String(t('brand.name'));
   document.querySelector('.skip-link').textContent=String(t('common.skip'));
   const path=route(), user=state.bootstrap.user;
-  const nav=[['/tasks','nav.tasks','calendar-clock'],['/scripts','nav.scripts','file-code-2'],['/runs','nav.runs','list-checks']];
-  const navItem=([href,key,glyph])=>{const item=link(href,t(key),href==='/tasks'?path.startsWith('/tasks'):path.startsWith(href));item.prepend(icon(glyph));return item;};
+  const nav=[['/workflows','nav.workflows','layout-dashboard'],['/workflow-runs','nav.workflowRuns','list-checks'],['/connections','nav.connections','code-2'],['/runtimes','nav.runtimes','terminal'],['/templates','nav.templates','file-code-2'],['/tasks','nav.legacy','calendar-clock']];
+  const navItem=([href,key,glyph])=>{const item=link(href,t(key),href==='/tasks'?path.startsWith('/tasks'):path.startsWith(href));item.prepend(icon(glyph));item.setAttribute('aria-label',String(t(key)));item.setAttribute('title',String(t(key)));item.setAttribute('data-i18n-aria-label',key);item.setAttribute('data-i18n-title',key);return item;};
   const navigation=el('nav',{'class':'nav','aria-label':t('common.primaryNav')},el('div',{'class':'nav-label'},t('brand.workspace')),...nav.map(navItem));
   if(user.role==='admin')navigation.append(el('div',{'class':'nav-label nav-divider'},t('nav.admin')),...[['/admin/settings','nav.settings','settings-2'],['/admin/users','nav.users','circle-user-round'],['/admin/variables','nav.variables','code-2'],['/admin/audit','nav.audit','terminal']].map(navItem));
   const account=link('/account',el('div',{'class':'user-identity'},el('span',{'class':'avatar'},user.username.slice(0,1).toUpperCase()),el('div',{},el('strong',{},user.username),el('small',{},systemLabel(user.role)))),path==='/account');
   const side=el('aside',{'class':'sidebar',id:'sidebar'},brand(),navigation,el('div',{'class':'side-foot'},el('div',{'class':'sidebar-note'},icon('moon-star'),el('p',{},t('brand.aside'))),account,button(el('span',{},icon('log-out'),t('nav.logout')),logout,'ghost logout')));
-  const section=path.startsWith('/scripts')?'nav.scripts':path.startsWith('/runs')?'nav.runs':path.startsWith('/admin')?'nav.admin':path==='/account'?'nav.account':'nav.tasks';
+  const section=path.startsWith('/workflows')?'nav.workflows':path.startsWith('/workflow-runs')?'nav.workflowRuns':path==='/connections'?'nav.connections':path==='/runtimes'?'nav.runtimes':path==='/templates'?'nav.templates':path.startsWith('/scripts')?'nav.scripts':path.startsWith('/runs')?'nav.runs':path.startsWith('/admin')?'nav.admin':path==='/account'?'nav.account':'nav.tasks';
   const menu=button(icon('menu'),()=>side.classList.toggle('open'),'mobile-menu');menu.setAttribute('aria-label',String(t('common.primaryNav')));
-  const health=el('div',{'class':'service-status'},badge(state.bootstrap.scheduler?.status||'unavailable'),el('span',{'class':'health-caption'},t('admin.scheduler')));
+  const health=el('div',{'class':'service-status',id:'scheduler-health'},...healthContents());
   const main=el('div',{'class':'workspace'},el('header',{'class':'topbar'},el('div',{'class':'breadcrumb'},menu,el('span',{},t('brand.workspace')),icon('chevron-right'),el('strong',{},t(section))),el('div',{'class':'header-actions'},health,localeSwitch())),el('main',{id:'main','class':'content',tabindex:'-1'},content),el('footer',{'class':'workspace-footer'},t('brand.footer')));
   clear(app);app.append(el('div',{'class':'shell'},side,main));app.setAttribute('aria-busy','false');
 }
@@ -78,12 +80,15 @@ function pageHead(title,subtitle,action){return el('div',{'class':'page-head'},e
 function empty(text, action){return el('div',{'class':'empty'},el('strong',{},text),action||null);}
 function table(headers, rows){const body=el('tbody');rows.forEach(cells=>body.append(el('tr',{},...cells.map(cell=>el('td',{},cell)))));return el('div',{'class':'card table-wrap'},el('table',{'class':'table'},el('thead',{},el('tr',{},...headers.map(h=>el('th',{},h)))),body));}
 
+function healthContents(){const health=schedulerHealth(state.bootstrap||{},route());return [el('span',{title:health.reason||''},badge(health.status||'unavailable')),el('span',{'class':'health-caption'},isWorkflowRoute(route())?t('admin.workflowScheduler'):t('admin.scheduler'))];}
+function refreshHealth(){const target=document.querySelector('#scheduler-health');if(target)target.replaceChildren(...healthContents());}
+setInterval(async()=>{if(!state.bootstrap?.user||!isWorkflowRoute(route()))return;try{const current=await api('/api/bootstrap');state.bootstrap.workflow_scheduler=current.workflow_scheduler;refreshHealth();}catch{state.bootstrap.workflow_scheduler={status:'unavailable'};refreshHealth();}},10000);
 async function bootstrap(){
   state.locale=normalizeLocale(localStorage.getItem('taskconsole.locale'));
   try{state.bootstrap=await api('/api/bootstrap');setCsrf(state.bootstrap.csrf); if(state.bootstrap.user) state.locale=normalizeLocale(state.bootstrap.user.locale||state.locale); render();}
   catch(error){app.textContent=errorMessage(error);}
 }
-function render(){document.documentElement.lang=state.locale;if(!state.bootstrap?.initialized)return renderAuth(true);if(!state.bootstrap?.user)return renderAuth(false);const p=route();if(p==='/tasks')return renderTasks();if(p==='/tasks/new')return renderTaskForm();if(/^\/tasks\/[^/]+$/.test(p))return renderTaskDetail(p.split('/')[2]);if(/^\/tasks\/[^/]+\/edit$/.test(p))return renderTaskForm(p.split('/')[2]);if(p==='/scripts')return renderScripts();if(p==='/scripts/new')return renderScriptForm();if(/^\/scripts\/[^/]+$/.test(p))return renderScriptDetail(p.split('/')[2]);if(p==='/runs')return renderRuns();if(/^\/runs\/[^/]+$/.test(p))return renderRunDetail(p.split('/')[2]);if(p.startsWith('/admin/'))return renderAdmin(p.split('/')[2]);if(p==='/account')return renderAccount();history.replaceState({},'','/tasks');renderTasks();}
+function render(){document.documentElement.lang=state.locale;if(!state.bootstrap?.initialized)return renderAuth(true);if(!state.bootstrap?.user)return renderAuth(false);const p=route();if(isWorkflowRoute(p))return renderWorkflowRoute(p);if(p==='/tasks')return renderTasks();if(p==='/tasks/new')return renderTaskForm();if(/^\/tasks\/[^/]+$/.test(p))return renderTaskDetail(p.split('/')[2]);if(/^\/tasks\/[^/]+\/edit$/.test(p))return renderTaskForm(p.split('/')[2]);if(p==='/scripts')return renderScripts();if(p==='/scripts/new')return renderScriptForm();if(/^\/scripts\/[^/]+$/.test(p))return renderScriptDetail(p.split('/')[2]);if(p==='/runs')return renderRuns();if(/^\/runs\/[^/]+$/.test(p))return renderRunDetail(p.split('/')[2]);if(p.startsWith('/admin/'))return renderAdmin(p.split('/')[2]);if(p==='/account')return renderAccount();history.replaceState({},'','/workflows');renderWorkflowRoute('/workflows');}
 window.addEventListener('popstate',render);
 
 function renderAuth(setup){
@@ -93,8 +98,9 @@ function renderAuth(setup){
   if(setup) form.append(field(t('auth.token'),input('token','', 'password',true),'',true));
   form.append(field(t('auth.username'),input('username','','text',true),'',true),field(t('auth.password'),input('password','','password',true),'',true));
   if(setup) form.append(field(t('auth.timezone'),input('timezone',state.bootstrap?.timezone||Intl.DateTimeFormat().resolvedOptions().timeZone,'text',true),'',true));
+  if(!setup&&state.bootstrap?.local_account){const local=state.bootstrap.local_account;form.append(el('section',{'class':'wf-default-account'},el('strong',{},t('auth.localAccount')),el('code',{},local.username+' / '+local.password),button(t('auth.useDefault'),()=>{form.elements.username.value=local.username;form.elements.password.value=local.password;}),el('p',{},t('auth.localHint'))));}
   form.append(el('div',{'class':'field full'},localeSwitch()),el('div',{'class':'field full'},el('button',{'class':'button primary',type:'submit'},title)));
-  form.addEventListener('submit',async e=>{e.preventDefault();const data=Object.fromEntries(new FormData(form));data.locale=state.locale;try{const result=await api(setup?'/api/setup':'/api/login',{method:'POST',body:jsonBody(data)});state.bootstrap.user=result.user;state.bootstrap.initialized=true;setCsrf(result.csrf);history.replaceState({},'','/tasks');render();}catch(error){handleError(error);}});
+  form.addEventListener('submit',async e=>{e.preventDefault();const data=Object.fromEntries(new FormData(form));data.locale=state.locale;try{const result=await api(setup?'/api/setup':'/api/login',{method:'POST',body:jsonBody(data)});state.bootstrap.user=result.user;state.bootstrap.initialized=true;setCsrf(result.csrf);history.replaceState({},'','/workflows');render();}catch(error){handleError(error);}});
   clear(app);
   app.append(el('div',{'class':'auth'},
     el('section',{'class':'auth-art'},
@@ -302,6 +308,7 @@ async function adminVariables(wrap){
   wrap.lastChild.replaceWith(el('div',{},form,table([t('common.name'),t('admin.scope'),t('common.updated'),t('common.actions')],rows)));
 }
 async function adminAudit(wrap){const events=await request('/api/admin/audit');const rows=events.map(e=>[fmt(e.created_at),e.actor||'—',e.action,e.target||'—']);wrap.lastChild.replaceWith(events.length?table([t('common.created'),t('auth.username'),t('common.actions'),t('common.details')],rows):el('div',{'class':'card'},empty(t('admin.auditEmpty'))));}
-function renderAccount(){const form=el('form',{'class':'card form-card'},el('div',{'class':'fields'},field(t('auth.currentPassword'),input('current_password','','password',true),'',true),field(t('auth.newPassword'),input('password','','password',true),t('errors.passwordLength'),true)),el('div',{'class':'form-actions'},el('button',{'class':'button primary',type:'submit'},t('common.save'))));form.addEventListener('submit',async e=>{e.preventDefault();try{await request('/api/me/password',{method:'POST',body:jsonBody(Object.fromEntries(new FormData(form)))});dirty=false;state.bootstrap.user=null;setCsrf(null);history.replaceState({},'','/');renderAuth(false);showToast(t('common.success'));}catch{}});trackDirty(form);shell(el('div',{},pageHead(t('nav.account'),state.bootstrap.user.username),form));}
+function renderAccount(){const form=el('form',{'class':'card form-card'},el('div',{'class':'fields'},field(t('auth.currentPassword'),input('current_password','','password',true),'',true),field(t('auth.newPassword'),input('password','','password',true),t('errors.passwordLength'),true)),el('div',{'class':'form-actions'},el('button',{'class':'button primary',type:'submit'},t('common.save'))));form.addEventListener('submit',async e=>{e.preventDefault();try{await request('/api/me/password',{method:'POST',body:jsonBody(Object.fromEntries(new FormData(form)))});dirty=false;state.bootstrap.user=null;delete state.bootstrap.local_account;setCsrf(null);history.replaceState({},'','/');await bootstrap();showToast(t('common.success'));}catch{}});trackDirty(form);shell(el('div',{},pageHead(t('nav.account'),state.bootstrap.user.username),form));}
 
+initWorkflowUI({state,shell,request,go,showToast,setDirty:value=>{dirty=value;},admin:()=>state.bootstrap?.user?.role==='admin'});
 bootstrap();

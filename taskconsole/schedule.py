@@ -78,3 +78,63 @@ def next_runs(spec, timezone_name, after, anchor=None, count=5):
         if len(result) == count:
             return result
     raise ValueError('No matching schedule found within supported range')
+
+
+def workflow_next_runs(spec, timezone_name, after, count=5):
+    """Form-only v2 calculator; v1 Cron remains isolated above."""
+    import calendar
+    try: zone = ZoneInfo(timezone_name)
+    except (ZoneInfoNotFoundError,TypeError,ValueError): raise ValueError('Invalid IANA timezone')
+    if after.tzinfo is None:
+        raise ValueError('after must be timezone aware')
+    kind = spec.get('kind', 'manual')
+    if kind not in {'manual','interval','daily','weekdays','weekly','monthly','once'}:
+        raise ValueError('Choose a form schedule; Cron is unsupported')
+    if kind == 'manual': return []
+    def parse(value):
+        result = datetime.fromisoformat(value.replace('Z','+00:00'))
+        if result.tzinfo is None: result = result.replace(tzinfo=zone)
+        return result.astimezone(UTC)
+    start = parse(spec['start']) if spec.get('start') else after
+    end = parse(spec['end']) if spec.get('end') else None
+    if end and spec.get('start') and end < start: raise ValueError('End must follow start')
+    if end and end <= after: return []
+    if kind == 'interval':
+        every = spec.get('every')
+        if type(every) is not int or not 1 <= every <= 525600: raise ValueError('Interval must be positive')
+        if spec.get('unit','minutes') not in {'minutes','hours'}: raise ValueError('Invalid interval unit')
+        step = timedelta(minutes=every * (60 if spec.get('unit') == 'hours' else 1))
+        base = parse(spec['anchor']) if spec.get('anchor') else start
+        lower = max(after,start-timedelta(microseconds=1))
+        first = base + step * max(0, (lower-base)//step+1)
+        return [x for n in range(count) if (x := first+step*n) and (not end or x<=end)]
+    times = spec.get('times') if 'times' in spec else [spec.get('time')]
+    if not isinstance(times,list) or not times: raise ValueError('Choose at least one HH:MM time')
+    parsed = []
+    for value in times:
+        try:
+            if not isinstance(value,str) or len(value)!=5 or value[2]!=':':raise ValueError()
+            parsed.append(datetime.strptime(value,'%H:%M').time())
+        except (ValueError,TypeError): raise ValueError('Time must use HH:MM')
+    if kind == 'weekly' and (not spec.get('weekdays') or any(type(x) is not int or x not in range(7) for x in spec['weekdays'])):
+        raise ValueError('Choose weekdays 0 through 6')
+    if kind == 'monthly' and spec.get('day') != 'last' and (type(spec.get('day')) is not int or not 1 <= spec['day'] <= 31):
+        raise ValueError('Choose day 1–31 or last')
+    once = datetime.strptime(spec['date'],'%Y-%m-%d').date() if kind == 'once' else None
+    day = max(after,start).astimezone(zone).date()
+    result = []
+    for offset in range(366*9):
+        date = day+timedelta(days=offset)
+        if once and date != once: continue
+        if kind == 'weekdays' and date.weekday()>4: continue
+        if kind == 'weekly' and date.weekday() not in spec['weekdays']: continue
+        if kind == 'monthly' and date.day != (calendar.monthrange(date.year,date.month)[1] if spec['day']=='last' else spec['day']): continue
+        for clock in sorted(set(parsed)):
+            wall = datetime.combine(date,clock)
+            utc = wall.replace(tzinfo=zone,fold=0).astimezone(UTC)
+            if utc.astimezone(zone).replace(tzinfo=None)!=wall or utc<=after or utc<start: continue
+            if end and utc>end: return result
+            result.append(utc)
+            if len(result)==count: return result
+        if once and date>=once: return result
+    return result

@@ -2,6 +2,8 @@
 
 This document reports evidence, not release aspirations.
 
+The sections below preserve the **v1** verification history. Current visual-workflow and native Mac preview evidence is maintained in [Workflow preview verification](testing/RESULTS.md); v1 passing results do not establish v2 behavior.
+
 ## Current environment
 
 - Development host: Apple Silicon macOS, Python 3.12.

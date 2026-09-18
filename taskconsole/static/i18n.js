@@ -26,6 +26,14 @@ const zh = {
   samples:{sample1Name:'问候计划',sample1Description:'输出一条友好的问候。',sample2Name:'参数示例',sample2Description:'将姓名参数传给 Python 函数。',sample3Name:'创建输出文件',sample3Description:'生成可下载的文本文件。'}
 };
 
+Object.assign(en.admin,{workflowScheduler:'Workflow service'});Object.assign(zh.admin,{workflowScheduler:'工作流服务'});
+Object.assign(en.states,{partial:'Partial',stopped:'Stopped',stale:'Stale'});Object.assign(zh.states,{partial:'部分完成',stopped:'已停止',stale:'心跳过期'});
+Object.assign(en.nav,{workflows:'Workflows',workflowRuns:'Runs',connections:'Connections',runtimes:'Runtimes',templates:'Templates',legacy:'Classic tasks'});
+Object.assign(zh.nav,{workflows:'工作流',workflowRuns:'运行记录',connections:'连接',runtimes:'运行环境',templates:'模板',legacy:'旧版任务'});
+Object.assign(en.auth,{localAccount:'Default local account',useDefault:'Use default account',localHint:'After signing in, change this password in Account → Change password.'});
+Object.assign(zh.auth,{localAccount:'默认本地账户',useDefault:'使用默认账户',localHint:'登录后，请前往“账户 → 修改密码”。'});
+en.auth.tagline='Connect SQL and language scripts. Schedule the whole workflow. Wake up to finished work.';
+zh.auth.tagline='连接 SQL 与多语言脚本，安排整个工作流，把清晨留给自己。';
 export const catalogs = {en, 'zh-CN': zh};
 export const normalizeLocale = value => value === 'zh-CN' ? 'zh-CN' : 'en';
 export function translate(locale, key) {

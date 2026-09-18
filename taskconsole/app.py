@@ -1,5 +1,6 @@
 """Same-origin web API. All user operations stay in one trusted workspace."""
 import hashlib
+import ipaddress
 import hmac
 import json
 import os
@@ -40,12 +41,34 @@ def initialize(store):
 def create_app(state_dir=None,database_url=None):
     directory=Path(state_dir or os.environ.get('APP_STATE_DIR','state')).resolve()
     store=Store(directory,database_url or os.environ.get('DATABASE_URL',f'sqlite:///{directory}/console.db'))
+    from .local_accounts import initialize_local_account, local_account_hint, has_public_default
+    local_mode=os.environ.get('SLEEP_IN_LOCAL')=='1'
+    if local_mode:
+        if os.environ.get('APP_HOST') not in {'127.0.0.1','localhost','::1'}:
+            raise ValueError('The local edition must bind to loopback')
+        initialize_local_account(store)
+    else:
+        with store.transaction() as tx:
+            if has_public_default(tx):
+                raise ValueError('Change the default password in local mode before starting server mode')
     initialize(store)
     app=FastAPI(title='Sleep In',version=__version__,docs_url=None,redoc_url=None,openapi_url=None)
     app.state.store=store
+    instance_id=os.environ.get('SLEEP_IN_INSTANCE_ID')
 
     @app.middleware('http')
     async def boundaries(request,call_next):
+        if local_mode:
+            try:
+                host=urlsplit('//'+request.headers.get('host','')).hostname
+                peer=ipaddress.ip_address(request.client.host).is_loopback if request.client else False
+                origin=request.headers.get('origin')
+                local_origin=not origin or (urlsplit(origin).scheme in {'http','https'} and urlsplit(origin).netloc==request.headers.get('host'))
+            except ValueError:
+                host=None;peer=False;local_origin=False
+            forwarded=any(key.lower()=='forwarded' or key.lower().startswith('x-forwarded-') for key in request.headers)
+            if host not in {'localhost','127.0.0.1','::1'} or not peer or not local_origin or forwarded:
+                return JSONResponse({'detail':{'code':'local_only','message':'The local edition accepts direct loopback requests only'}},status_code=403)
         length=request.headers.get('content-length','0')
         if length.isdigit() and int(length)>26*1048576:
             return JSONResponse({'detail':{'code':'too_large','message':'Request exceeds 26 MiB'}},status_code=413)
@@ -94,6 +117,16 @@ def create_app(state_dir=None,database_url=None):
         healthy=last and (now()-datetime.fromisoformat(last)).total_seconds()<30
         return {'status':'ready' if healthy else 'unavailable','last_tick':last}
 
+    def workflow_scheduler(tx):
+        worker=tx.get('meta','workflow_worker') or {}
+        last=worker.get('last_seen')
+        try:
+            age=(now()-datetime.fromisoformat(last)).total_seconds() if last else None
+            healthy=age is not None and 0<=age<30 and worker.get('status')=='ready' and worker.get('n8n_available') is True
+        except (TypeError,ValueError):healthy=False
+        return {'status':'ready' if healthy else 'unavailable','last_tick':last,
+                'reason':None if healthy else 'Workflow background service is not ready'}
+
     def show_execution(run):
         fields=('id','task_id','task_name','status','trigger','created_at','started_at','finished_at','reason','exit_code','params','version_id','script_name','timezone','artifacts','logs_expired','logs_truncated')
         return {key:run.get(key) for key in fields}
@@ -113,7 +146,7 @@ def create_app(state_dir=None,database_url=None):
         return result
 
     @app.get('/healthz')
-    def health():return {'status':'ok'}
+    def health():return {'status':'ok',**({'instance_id':instance_id} if instance_id else {})}
 
     @app.get('/readyz')
     def ready():
@@ -122,10 +155,11 @@ def create_app(state_dir=None,database_url=None):
 
     @app.get('/api/bootstrap')
     def bootstrap(request:Request):
+        account_hint=local_account_hint(store) if local_mode else None
         with store.transaction() as tx:
             user,session=session_lookup(tx,request.cookies.get('console_session'))
             settings=tx.get('meta','settings')
-            return {'initialized':bool(tx.all('user')),'user':public_user(user) if user else None,'csrf':session['csrf'] if session else None,'timezone':settings['timezone'],'scheduler':scheduler(settings),'version':__version__}
+            return {'initialized':bool(tx.all('user')),'user':public_user(user) if user else None,'csrf':session['csrf'] if session else None,'timezone':settings['timezone'],'scheduler':scheduler(settings),'workflow_scheduler':workflow_scheduler(tx),'version':__version__,'local_account':account_hint}
 
     @app.post('/api/setup')
     def setup(request:Request,data:dict):
@@ -475,6 +509,11 @@ def create_app(state_dir=None,database_url=None):
     @app.get('/api/admin/audit')
     def audits(request:Request):
         with store.transaction() as tx:require(request,tx,True);return sorted(tx.all('audit'),key=lambda a:a['created_at'],reverse=True)[:200]
+
+    from .workflows import register_workflow_routes
+    register_workflow_routes(app,store,require)
+    from .workflows_transfer import register_transfer_routes
+    register_transfer_routes(app,store,require)
 
     static=Path(__file__).parent/'static'
     app.mount('/static',StaticFiles(directory=static),name='static')
