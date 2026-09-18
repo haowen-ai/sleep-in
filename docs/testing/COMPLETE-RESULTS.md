@@ -2,6 +2,12 @@
 
 This ledger supersedes the earlier [core-preview results](RESULTS.md). Tests use synthetic, isolated state. The original test design was committed before implementation; later defects were reproduced with failing tests before fixes. Passing software tests do not establish physical power or public-distribution behavior.
 
+## Flowchart editing revision — 2026-09-18
+
+Node-list editing, duplication and reviewed deletion; add-next branches; edge insertion; atomic endpoint rewiring; and explicit node-type replacement now have model and DOM coverage. The combined frontend, geometry, fixed-layout and structure suites pass **40 tests**. Tests cover single-action undo, preserved input bindings and edge conditions, cycles/duplicate rejection without partial changes, delete cancellation, type replacement and insertion buttons not starting canvas pan.
+
+Actual Chrome checks on the isolated local preview: edited an edge's source, observed the invalid-input warning, undid it to restore the original edge, inserted a Python node between SQL and Python and observed the three-edge graph, then undid it. These local browser edits were not saved. DeepFOS was inspected only as an interaction reference; a temporary edge change was undone, and Save/Publish were never clicked. This revision changes editor behavior, not the execution engine or earlier hardware-release gates.
+
 ## Fixed downward layout revision — 2026-09-18
 
 The latest user requirement supersedes the free-placement acceptance below. The editor now derives positions from dependencies: downward chains, side-by-side branches, merges below predecessors, centered top input and bottom output. Mouse dragging, keyboard repositioning and the horizontal-layout selector are removed. Existing graph semantics and explicit input bindings are preserved. Three new cases failed before implementation; the updated frontend, geometry and fixed-layout suites pass **34 tests**. Earlier four-sided/free-layout evidence below is historical.

@@ -26,6 +26,7 @@ This is an independently written application. n8n executes the published depende
 
 ## What you can do
 
+- Edit, duplicate or delete from the node list. Insert a step on a connection, add a branch, change either endpoint, or replace a node type; structural edits are undoable.
 - Build fixed downward flows. Click to add nodes; branches arrange side by side automatically. Connect bottom outputs to top inputs, pan/zoom and undo structural changes. Nodes cannot be freely dragged.
 - Use **SQL, Python, JavaScript, Shell, Java, C and C++**. SQL has SQLite, PostgreSQL, MySQL and Oracle receivers.
 - Pick upstream fields, constants, workflow parameters, artifacts or credentials as inputs. An ordering connection alone passes no data.
