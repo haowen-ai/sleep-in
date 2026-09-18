@@ -364,3 +364,11 @@ Position never determines execution order. A user may place downstream nodes abo
 ## Interaction revision — 2026-09-18
 
 Fixed downward layout supersedes earlier free-placement requirements. Existing saved coordinates are reflowed on editor load without changing dependencies, source code, mappings or publication. Node addition, duplication, connection, deletion and undo/redo keep the layout derived from the graph. Panning/zooming only move the view. Adding a node never invents a dependency or input binding.
+
+## Flowchart structure editing — 2026-09-18
+
+Fixed downward placement does not freeze graph structure. The default node list is ordered by execution depth and exposes Edit, Duplicate and Delete. Duplicate keeps incoming edges and inputs with a new ID, without cloning outgoing edges. Deletion previews affected references and connections; cancellation leaves the draft unchanged, and deletion is undoable.
+
+The node “+” creates a next step or connects an existing node as an additional branch. The edge “+” inserts a step; its original condition stays on the first half, and the target keeps its original explicit data references. No input binding is invented. The connection inspector atomically changes either endpoint, rejecting cycles, self-links and duplicate edges without altering the graph or undo history. Existing conditions and input mappings remain; invalid references are visibly flagged for repair.
+
+An explicit advanced Change node type action resets source, output schema and runtime configuration while retaining identity, name, inputs and edges. Warn before applying, review downstream mappings and retest. Each structural edit is one undoable draft action; published versions stay unchanged.

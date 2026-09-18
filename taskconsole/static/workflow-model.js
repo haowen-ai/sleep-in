@@ -33,6 +33,23 @@ export class GraphModel {
   reaches(from,to){const seen=new Set();const walk=id=>{if(id===to)return true;if(seen.has(id))return false;seen.add(id);return this.value.edges.filter(e=>e.source===id).some(e=>walk(e.target));};return walk(from);}
   canConnect(source,target){return !!this.node(source)&&!!this.node(target)&&source!==target&&!this.reaches(target,source);}
   connect(source,target){if(!this.canConnect(source,target))throw new Error('cycle');if(this.value.edges.some(e=>e.source===source&&e.target===target))return;this.commit(g=>{g.edges.push({source,target});const n=g.nodes.find(n=>n.id===target);n.config={...n.config,join:n.config?.join||'all'};});}
+  rewire(source,target,nextSource,nextTarget){
+    this.commit(g=>{const index=g.edges.findIndex(e=>e.source===source&&e.target===target);if(index<0)throw new Error('missingEdge');const edge=g.edges.splice(index,1)[0];
+      if(!this.node(nextSource)||!this.node(nextTarget))throw new Error('missingNode');
+      if(!this.canConnect(nextSource,nextTarget))throw new Error('cycle');
+      if(g.edges.some(e=>e.source===nextSource&&e.target===nextTarget))throw new Error('duplicateEdge');
+      g.edges.splice(index,0,{...edge,source:nextSource,target:nextTarget});});
+  }
+  addAfter(source,node){
+    const id=crypto.randomUUID();this.commit(g=>{if(!this.node(source))throw new Error('missingNode');g.nodes.push(clone({...node,id}));g.edges.push({source,target:id});});return id;
+  }
+  insertOnEdge(source,target,node){
+    const id=crypto.randomUUID();this.commit(g=>{const index=g.edges.findIndex(e=>e.source===source&&e.target===target);if(index<0)throw new Error('missingEdge');const edge=g.edges[index];g.nodes.push(clone({...node,id}));g.edges.splice(index,1,{...edge,target:id},{source:id,target,...(Object.hasOwn(edge,'required')?{required:edge.required}:{})});});return id;
+  }
+  replaceNode(id,replacement){
+    this.commit(()=>{const n=this.node(id);if(!n)throw new Error('missingNode');if(!LANGUAGES.includes(replacement.kind))throw new Error('missingNode');for(const key of ['kind','source','config','outputs'])n[key]=clone(replacement[key]??{});});
+  }
+  referencesTo(id){return this.value.nodes.flatMap(n=>Object.entries(n.inputs||{}).filter(([,b])=>['node','artifact'].includes(b.source)&&b.node_id===id).map(([field])=>({node_id:n.id,name:n.name||n.id,field})));}
   disconnect(source,target){this.commit(g=>{g.edges=g.edges.filter(e=>e.source!==source||e.target!==target);});}
   bind(id,key,binding){if(['node','artifact'].includes(binding.source)&&!this.canConnect(binding.node_id,id))throw new Error('cycle');this.commit(g=>{const n=g.nodes.find(n=>n.id===id);n.inputs={...n.inputs,[key]:clone(binding)};if(['node','artifact'].includes(binding.source)&&!g.edges.some(e=>e.source===binding.node_id&&e.target===id))g.edges.push({source:binding.node_id,target:id});n.config={...n.config,join:n.config?.join||'all'};});}
   errors(){const errors=[];for(const n of this.value.nodes)for(const [field,b] of Object.entries(n.inputs||{}))if(['node','artifact'].includes(b.source)){if(!this.node(b.node_id))errors.push({node_id:n.id,field,code:'missing_source'});else if(!this.reaches(b.node_id,n.id))errors.push({node_id:n.id,field,code:'unreachable_source'});}return errors;}
