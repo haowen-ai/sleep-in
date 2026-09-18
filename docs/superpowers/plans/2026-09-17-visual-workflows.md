@@ -76,8 +76,10 @@ Files: taskconsole/app.py, deployment configuration, docs/VERIFICATION.md, READM
 - [x] Inspect desktop English/Chinese UI, drag connections, saved workflows and run output via browser.
 - [x] Review security/lifecycle/duplicate and cancellation boundaries; fix findings and rerun covering tests.
 - [x] Run full regression suite, package checks and document evidence/remaining external release gates.
-- [ ] Merge reviewed work into repository, exact-path stage and push, verify remote hash; provide local test URL.
+- [x] Merge reviewed work into repository, exact-path stage and push, verify remote hash; provide local test URL.
 
 ## Scope at the preview checkpoint
 
 These checked implementation tasks establish the core development preview, not the entire PRD or every designed acceptance case. Immutable runtime packs, single-node testing, artifact inputs, notifications and further release gates are listed explicitly in docs/testing/RESULTS.md. Case inventory and execution counts are kept separate.
+
+Verified preview checkpoint: implementation `cba8ff5`, 267 tests passed / 2 environment skips; main pushed with matching local/remote hashes. Local v2 preview restarted on port 8766 with its existing state preserved.
