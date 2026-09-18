@@ -55,7 +55,7 @@ Get your local, single-use setup token:
 docker compose exec web python -m taskconsole setup-token
 ```
 
-Open **http://localhost:8080**, enter the token, and choose an administrator username, a password of at least 12 characters, and your timezone. The initial interface is always English; select **简体中文** if you prefer it.
+Open [http://localhost:8080](http://localhost:8080), enter the token, and choose an administrator username, a password of at least 12 characters, and your timezone. The initial interface is always English; select **简体中文** if you prefer it.
 
 1. Select **Create task** and the **Create an output file** example.
 2. Choose **Interval**, set **Every (minutes)** to **1**, check the preview, then create and enable it.

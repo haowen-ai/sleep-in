@@ -55,7 +55,7 @@ docker compose up -d --build
 docker compose exec web python -m taskconsole setup-token
 ```
 
-打开 **http://localhost:8080**，输入令牌，设置管理员账号、至少 12 位密码和时区。初始界面为英文，点击 **中文** 即可切换。
+打开 [http://localhost:8080](http://localhost:8080)，输入令牌，设置管理员账号、至少 12 位密码和时区。初始界面为英文，点击 **中文** 即可切换。
 
 1. 点击 **创建任务**，选择 **创建输出文件** 示例。
 2. 计划选择 **间隔**，将 **间隔（分钟）** 设为 **1**，查看预览后创建并启用。
