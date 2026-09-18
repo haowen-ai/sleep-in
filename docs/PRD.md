@@ -8,7 +8,7 @@ English · [简体中文](PRD.zh-CN.md)
 
 Connect scripts and SQL steps into workflows, pass results between steps, and run the whole workflow on an understandable schedule.
 
-Workflow authors configure code, connections and environments. Everyday users choose a published workflow or template, supply parameters, select a schedule and inspect results. They should not need to learn the n8n editor, Cron or internal execution protocols. The deployment owner still needs to start and keep the services running.
+Workflow authors configure code, connections and environments. Everyday users choose a published workflow or template, supply parameters, select a schedule and inspect results. They should not need to learn the n8n editor, Cron or internal execution protocols. The Mac companion owns service startup and readiness; everyday users should not manage infrastructure.
 
 - Brand: Sleep In / 不再早起. Start in English; explicitly switch to Simplified Chinese before or after sign-in. Preserve unsaved inputs, graph state and time semantics when switching.
 - Independent editor and runtime management, with n8n orchestrating the actual graph rather than only sending scheduling heartbeats.
@@ -160,17 +160,17 @@ Workflow-level defaults are per language and overridable per node. Multiple lang
 |---|---|
 | Python | Version, locked pip dependencies, shared modules and entrypoint; build at publication, reuse at execution |
 | JavaScript | Node version, npm lockfile, ESM/CJS and shared modules; asynchronous entrypoints supported |
-| Shell | Explicit Linux Bash/sh profile and available tools; JSON/argv input instead of command-string interpolation |
+| Shell | Explicit macOS or Linux Bash/sh profile and available tools; JSON/argv input instead of command-string interpolation |
 | SQL | Dialect/driver and optional client profile, separate from connection secrets |
 | Java | JDK, main class, source/JAR and Maven/Gradle configuration; compile at publication |
 | C/C++ | Compiler, language standard, sources, link dependencies and executable; compile at publication and record architecture |
-| Custom | Admin-registered language ID, immutable image digest, build/run argv and protocol conformance |
+| Custom | Admin-registered language ID, immutable native-runtime or image digest, build/run argv and protocol conformance |
 
 Shared code is a module/library/file appropriate to the language. Do not prepend Python to every node. Keep variables and credentials separate. Environment updates create new versions; published workflows retain old versions until revalidated and republished. Source, dependency and environment changes invalidate build caches.
 
 Environment states: Draft, Building, Ready, Failed. Show toolchain, dependency summary, build logs and referencing workflows. An unavailable environment blocks publication with an actionable explanation.
 
-Enforce working-directory, resource, time and output limits. Web and n8n do not receive a Docker socket. Use separately managed language worker services initially; administrators install custom runtime images through a controlled deployment path. This remains a trusted workspace, not a hostile-code hosting service.
+Use managed working directories, timeouts and output quotas. Report actual per-platform CPU/memory enforcement capabilities; do not imply native macOS processes have container-level controls. Separate language worker services from the web/n8n process. Docker profiles do not give web/n8n a Docker socket; custom native packs or container images use an owner-controlled installation path. This remains a trusted workspace, not a hostile-code hosting service.
 
 ## 10. Scheduling and triggers
 
@@ -243,21 +243,69 @@ Cancellation prevents new dispatch, propagates to active workers and becomes fin
 
 Before implementation, verify publication/activation, authenticated starts, wait recovery, cancellation, branch joins, artifacts, duplicate starts and restarts against the pinned n8n version. Do not assume current documentation matches every API in the existing pinned deployment, or treat undocumented internal APIs as stable integration.
 
-## 14. Deployment and delivery phases
+## 14. Mac-first setup, low-code use and delivery
 
-Keep clone → Compose → one-time setup → example workflow. The base stack contains n8n, application/storage and Python/Node.js/Shell/SQL workers. Synthetic SQLite examples require no external database or notification service.
+### 14.1 Why Sleep In exists
 
-Java and C/C++ are first-release acceptance targets, installed as optional runtime services to avoid downloading every compiler by default. The UI distinguishes available-to-install, installing, ready and unavailable, with exact administrator installation instructions. A node cannot be published before its runtime is ready. The web interface must not silently change the host Docker configuration.
+A Monday morning meeting should not cost you your Sunday night. Prepare the workflow once, let your Mac collect and process the data, and wake up to the results. **One-click setup. One-click run. Sleep in.** The promise is fewer chores and clearer readiness, never guaranteed execution on a powered-off computer.
+
+The primary user owns a MacBook, not a server. The default journey is **install → choose a template → connect data → pick a time → Sleep in**. A working synthetic weekly-report template is available before connecting a real database. Editing code, drawing a graph and configuring runtimes are optional authoring paths. Template fields use ordinary labels, sample values, sensible defaults and inline validation; selecting an upstream field requires no expression syntax. Advanced settings stay collapsed. The schedule is a sentence such as “Every Monday at 7:00 AM, America/Chicago”, not Cron.
+
+Product acceptance targets: no Terminal commands for the packaged Mac path; no separate n8n account, server, Docker, Python or Node installation; after installation, complete the sample in at most three product screens (template, time, readiness). Data-source authentication is an explicit extra step when needed. Measure setup completion and user mistakes before making time-saving claims.
+
+### 14.2 Installation and background ownership
+
+Preferred delivery is a signed and notarized **Sleep In.app**, with a Mac menu-bar companion and localhost web interface. Target macOS 13+ on Apple silicon first; Intel support is advertised only after a separate packaged-build test. The app manages version-pinned Node/n8n, Python, language workers and private local storage. Downloads show size/progress, verify integrity and resume after failure. An offline synthetic example works after dependencies are installed. Network data sources still need their network or VPN.
+
+Use a native-process local profile with SQLite storage and a single coordinator; verify both application admission and n8n persistence on this profile. Workers run as the signed-in user in app-managed environments. This is for trusted local scripts, not an OS security sandbox. Record platform/architecture in every runtime and artifact; Linux-only templates cannot silently run on macOS. Keep Docker Compose as the optional developer/server profile with PostgreSQL and container workers. They must share the workflow contract, not pretend to have identical isolation or dependency behavior.
+
+Installation checks OS, architecture, disk space and local port availability. Launch one service supervisor, wait for actual application/worker/n8n health, then open the browser. Repeated launch opens the existing instance instead of starting another scheduler. Offer **Retry**, **View details** and **Open app** instead of command-copy instructions. Updates back up configuration and stop admission before switching; failure rolls back without starting a second scheduler. Preserve data on uninstall unless explicitly selected for deletion.
+
+Register the background/login helper with `SMAppService`. Show why it is useful and its real status; where macOS requires approval, open the relevant System Settings page and wait for the user's action. A website alone cannot grant this permission. Closing a browser window keeps the helper running; **Quit Sleep In** stops it and clearly states scheduled tasks will pause. After reboot, service recovery starts after the user logs in; do not promise unattended execution before FileVault unlock. Do not disable system protections or request Accessibility/Full Disk Access merely to run schedules.
+
+### 14.3 Visible default login for the local edition
+
+On a **fresh local installation only**, initialize the administrator as `admin` with the public initial password `sleepin123456`. The login page shows both values in a clearly labelled **Default local account** card with **Use default account** and a short link to **Account → Change password**. English is initial; Chinese is available on this page. Timezone is detected and shown for confirmation without a setup token or command.
+
+This card appears only while that installation still uses its initial credentials. Changing the password hides the card, revokes existing sessions and does not reveal the new password anywhere. Existing installations, migrated users and restored accounts are never reset or given an extra default administrator. Recovery is an explicit local-owner action. Bind the local edition to loopback and validate Host/Origin; do not publish default credentials through a non-loopback/proxied bootstrap response. A deliberate LAN/server deployment requires a new private password and removal of the public-default mode before listening externally. The current v1 setup-token path remains documented until this new path is implemented.
+
+### 14.4 The “Sleep in” button: persistent management
+
+Dashboard primary action: **Sleep in / 安心睡觉** enables **Keep my schedules running**, a persistent preference. This is the default for recurring workflows: configure once, then execute every day/week without another nightly click. Completing this morning's run does not disable tomorrow's protection. Show enabled workflows, next occurrences, expected outputs and current readiness; there is no default “tomorrow 09:00” cutoff.
+
+One click checks power, background authorization, service health, publication and runtime readiness, required inputs, current database/network/VPN connectivity, next occurrences and output space. Failed checks offer concrete repairs. Readiness is timestamped and does not guarantee future external availability. Do not run database writes or other side effects as a readiness probe. The first guided test uses synthetic data.
+
+The helper reconciles protection at startup/login, schedule changes, power changes and periodically. While management is enabled, AC power is attached, and at least one enabled future scheduled trigger or active scheduled run exists, hold an idle-system-sleep assertion. Hold it **between executions as well as during them**, including daytime and days between weekly runs. A paused/disabled/expired trigger does not count. An enabled trigger with an unresolved runtime/connection problem still counts until explicitly paused: retain protection and show “Needs attention”, so a temporary outage does not silently remove the next day's protection. There is no unverified assumption that a sleeping Mac will wake at the next run.
+
+The display may turn off and lock normally; no permanent system-wide power setting is changed. Show **Managed automatically · Next run Monday 7:00 AM · Keep plugged in, lid open**, with a live timestamp and a details panel explaining that the Mac stays awake on AC between schedules. Closing the browser leaves the helper running. Subsequent runs remain scheduled even if the previous one failed; apply workflow concurrency and retry policies independently.
+
+Stop protection when all scheduled triggers are paused/deleted/expired and active scheduled runs finish; disabling management, quitting the app or unplugging releases it immediately. Existing task timeouts bound active work. Do not delete schedules when releasing protection. If the user explicitly stops management, remember that choice and do not silently restart it on the next power connection. If management remains enabled, reconnecting AC or logging in after restart automatically rechecks services, reacquires protection and resumes admission. A process crash releases its assertion; the supervisor restarts the helper and reacquires it from persistent preferences. Show the unprotected gap and any missed runs; never claim uninterrupted protection during that gap.
+
+The optional **Protect until…** mode is for a one-off session and displays its exact expiry. At expiry, allow already-running work a bounded grace of at most 60 minutes, then release protection; do not cancel or erase future recurring schedules. Explicitly warn that subsequent scheduled times are not protected and offer **Switch to automatic management**. Never select this temporary mode by default for a daily or weekly template.
+
+| Mac state | Product behavior and honest promise |
+|---|---|
+| Screen locked/display off, Mac awake | Background execution continues without an open browser |
+| AC attached, automatic management enabled | Request idle-sleep prevention across the whole recurring schedule, not only one night |
+| Lid closed or user chooses Sleep | No guarantee; do not promise to override these states |
+| Unplugged | Release idle-sleep prevention, retain the management preference, mark protection paused; tasks may run while awake but are not guaranteed |
+| Plugged back in | If management is still enabled, recheck and restore protection automatically |
+| Powered off or logged out | No execution guarantee; restore only after the user logs in and services become healthy |
+| Internet/VPN disconnects | Local jobs may work; affected remote jobs follow their explicit failure policy; keep power protection for future scheduled work |
+
+On wake/restart, show missed occurrences and reasons. Default: skip missed runs with a visible record; offer **Run latest missed occurrence once** within a configured grace period (default 2 hours). Never replay every missed interval automatically or repeat an uncertain write. The next future occurrence stays enabled. System notifications are optional and request permission only when enabled. The menu bar exposes status, results, pause/resume management and quit. This release does not schedule system wake or guarantee execution in a closed-display external-monitor configuration.
+
+### 14.5 Release gates
+
+Java and C/C++ remain first-release targets as optional, verified runtime packs. Show **Install runtime** with download size, license/OS prompts where applicable, progress and a real execution self-test; default users should not install every compiler. Custom environments are an advanced owner-managed path. A node cannot publish until its runtime is ready.
 
 | Phase | Deliverable and gate |
 |---|---|
-| A: vertical slice | SQLite → Python → JavaScript, typed mapping, real n8n execution, artifacts, form-based schedule and both languages |
-| B: complete initial release | Python/JS/Shell, PostgreSQL/MySQL/SQLite/Oracle receivers, optional Java/C/C++ toolchains, runtime versions, publication, validation, branching/merging, notifications, cancellation and recovery |
-| C: extensions | More languages/databases, explicit iteration/loops, subflows, checkpoint recovery, channel presets and measured scale improvements |
+| A: Mac vertical slice | Packaged local launch, visible fresh-install login, synthetic SQLite → Python → JavaScript workflow, typed mapping, real n8n execution, artifacts, form schedule, bilingual UI and persistent schedule protection |
+| B: complete initial release | Python/JS/Shell; tested SQL dialects and optional Java/C/C++; publication, branching/merging, notifications, cancellation/recovery; signed distribution, upgrades and Mac power-state evidence |
+| C: extensions | More platforms/languages/databases, iteration, subflows, checkpoint recovery and measured scale improvements |
 
-Phase A must not be advertised as full multilingual support. Oracle, Java and C/C++ require actual execution evidence before their inclusion in a phase-B release claim. Catalog entries and icons alone do not qualify.
-
-No DeepModel, reconciliation or finance-specific business nodes, SaaS billing or unlimited plugin marketplace. HTTP calls belong in scripts and file outputs in the shared contract.
+Do not advertise a one-click Mac release until a clean Mac without developer tooling can install it and finish a locked-screen scheduled run. Measure actual system sleep separately from a lock-screen screenshot. Oracle, Java and C/C++ require real platform-specific execution evidence. No business-specific filler nodes, SaaS billing or plugin marketplace.
 
 ## 15. Migration
 
@@ -285,6 +333,13 @@ Migration creates disabled triggers for review. Stop old dispatch before enablin
 | A14 | Template exports omit secret values, real connection endpoints and historical data; imports rebind environments/connections |
 | A15 | Desktop, keyboard, bilingual long text and narrow-screen reading are checked separately; no page-wide overflow |
 | A16 | Clean Compose executes an actual n8n graph and scheduled occurrence with node/version/artifact evidence |
+| A17 | A clean supported Mac completes installation and a sample without Terminal, Docker or separately installed language tools; repeated launch never duplicates services |
+| A18 | Fresh local login displays working initial credentials; password change hides them and revokes sessions; existing/restored users are not reset; external mode refuses public defaults |
+| A19 | Protected, plugged-in, open-lid Mac runs a scheduled workflow while locked/display-off; idle assertion is verified separately; browser closure does not stop it |
+| A20 | Consecutive daily occurrences survive morning completion without another click; pause-all releases protection; AC reconnect/login restores enabled management, while explicit stop stays stopped; missed recovery never duplicates writes |
+| A21 | Background permission accepted/denied/revoked paths work; post-login restart, signed installation, update rollback and timezone changes are tested on each advertised Mac target |
+| A22 | A novice completes the synthetic template through at most three post-install product screens; defaults, errors, result location and both languages need no code or Cron |
+| A23 | Temporary expiry, one-off completion, helper crash and revocation release assertions correctly; failed recurring runs keep future schedules; cross-day/weekly gaps and DST are verified |
 
 Initial design budget: a 50-node workflow, not a measured performance claim. Test 10/25/50-node and branching graphs before defining a supported limit.
 
@@ -297,3 +352,5 @@ The editor, file contract, compilation cache, admission mechanism and branch mar
 The target remains independently self-hosted personal/internal workspaces. Original Sleep In code and the n8n dependency retain separate licenses. Future paid hosting or customer-facing embedding requires a use-case-specific license review; a custom UI does not itself remove dependency licensing obligations. [Official license explanation](https://github.com/n8n-io/n8n-docs/blob/main/docs/privacy-and-security/sustainable-use-license.md)
 
 Next: validate phase A's orchestration adapter and create an editor visual target before changing application code. This PRD does not claim delivery of the proposed workflow platform.
+
+Apple documents that an idle-system-sleep assertion allows display sleep but does not prevent lid-close, explicit sleep or low-battery sleep. This is the basis for the plugged-in/open-lid requirement, not a guarantee of overnight delivery. [Apple power assertion](https://developer.apple.com/documentation/iokit/kiopmassertiontypepreventuseridlesystemsleep). Background registration may require user approval; the Mac helper must check status and guide that action. [Apple service registration](https://developer.apple.com/documentation/servicemanagement/smappservice/register%28%29). Signed packaging, native runtime compatibility, storage concurrency and power-state behavior remain release tests, not completed capabilities.

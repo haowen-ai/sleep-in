@@ -12,6 +12,16 @@ A self-hosted task console for people who want a schedule, parameters, logs, and
 
 > Early development release. Use with trusted script authors. This is not a sandbox for code uploaded by strangers. See [verification status](docs/VERIFICATION.md) for what has actually been tested.
 
+## Why Sleep In?
+
+Monday's meeting should not mean an early alarm just to pull data. Sunday night should still be yours. Sleep In started with that wish: prepare the work once, let scheduled tasks do the early shift, and wake up to the results.
+
+Our next milestone is a low-code Mac app: choose a template, connect your data, pick a time, and click **Sleep in**. No server to rent. **One-click setup. One-click run. More sleep.**
+
+**This is the product direction, not an available installer yet.** The current release runs Python tasks using the development setup below. The planned Mac edition adds managed local runtimes, an initial account displayed on its login page, password changes in Account settings, and persistent background management and a readiness check. See the [English PRD](docs/PRD.md) or [中文 PRD](docs/PRD.zh-CN.md).
+
+A locked or dark screen is compatible with background work while the Mac stays awake. Our planned automatic management keeps protecting recurring schedules between runs, without a nightly click; keep the Mac plugged in with its lid open. Closing the lid, choosing Sleep or shutting down is outside that promise. [Apple explains the limits](https://developer.apple.com/documentation/iokit/kiopmassertiontypepreventuseridlesystemsleep).
+
 ## From script to schedule
 
 ```mermaid
