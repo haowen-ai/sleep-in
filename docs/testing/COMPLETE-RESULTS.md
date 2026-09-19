@@ -2,7 +2,25 @@
 
 This ledger supersedes the earlier [core-preview results](RESULTS.md). Tests use synthetic, isolated state. The original test design was committed before implementation; later defects were reproduced with failing tests before fixes. Passing software tests do not establish physical power or public-distribution behavior.
 
-## Current software checkpoint — 2026-09-18
+## Current candidate — 2026-09-18
+
+Pushed candidate `863da8b43512ceb5195d68544e2da91a867b1024` has [same-revision CI evidence](https://github.com/haowenchen0811/sleep-in/actions/runs/35415901572). Its default regression passed 766 tests with 299 fixture skips. The six actual integration groups passed: engine 116 / 3 skips; data 196; execution 60; recovery 68; schedule 93; scale/isolation 13. Compose passed. External SQL had 58 passes and one failure: after an Oracle transaction committed and cancellation completed at the node, the workflow remained `cancelling`. Actual Chromium passed 69 tests. This candidate is therefore not green. These job counts overlap and must not be summed as unique tests.
+
+A local Mac preview passed Swift compilation, ad-hoc signature verification and side-effect-free self-tests; all 65 packaged resources match `863da8b`. It remains unnotarized and is not public-release approval.
+
+### Follow-up verification candidate
+
+The managed Apple-silicon Python installation exposed a real runtime-pack defect: copying its interpreter into a virtual environment without its shared library prevented `ensurepip` from starting. The pack now copies the required library before bootstrapping, includes it in the immutable manifest, and rejects subsequent tampering. Five actual managed-runtime/recovery cases passed locally, including independent missing Python, Node, n8n and worker components; 19 related pack tests passed with one optional npm-fixture skip. Python/npm repair transport in those cases restores genuine local bytes; it is not evidence of registry recovery. A new macOS CI job acquires a fresh managed installation through the real launcher before exercising the owned repair cases. That job has not yet passed.
+
+Four actual engine-health/recovery scenarios and three generation/startup policy cases passed locally. Engine incidents are reported separately from coordinator liveness and clear only after a later successful graph in the current service generation. The web badge now displays degraded engine health even while its coordinator is alive. Nine actual Chromium locale/health scenarios passed; switching language preserves drafts, bindings and instants while translating validation, port labels, built-in catalog copy and run-history timestamps. Forty-six frontend/catalog/model checks passed. Their reviewed 1440 × 900 captures supplement, rather than replace, assistive-technology trials.
+
+The Oracle cancellation failure was reproduced using real committed SQLite data and an explicit delayed-return barrier with actual n8n. The final cancelled node now atomically settles the run and queued descendants; other active nodes prevent premature completion, and repeated callbacks do not duplicate terminal notifications. Four new cases passed, alongside 13 existing actual retry/cancellation cases and 61 core cases (two explicit fixture skips). The unchanged real Oracle oracle still requires a new CI pass.
+
+Eight compiled native-controller cases passed, including real private-supervisor finish/cancel/dismiss paths. Two active and one queued run drain exactly once; cancellation waits for real worker termination and blocks downstream effects; dismissal preserves the active run and preferences. A reproduced 256 KiB subprocess-pipe deadlock is fixed by draining captured output before waiting for process exit. Modal responses remain injected OS-boundary fixtures; they are not presented-dialog, permission or physical-power evidence. Fresh Swift build, ad-hoc signature verification and side-effect-free self-tests passed, but the final committed-source package must still be rebuilt.
+
+The reviewed mappings currently classify 622 entries as full coverage, 17 partial, 33 manual and 3 superseded. These are coverage classifications, not passing outcomes. This follow-up requires its own same-revision CI and package rebuild; earlier evidence must not be presented as verification of that later revision.
+
+## Previous software checkpoint — 2026-09-18
 
 Verified pushed source: `4179b2950097fc7a7b83304e70a38d441d5a7ff7`. Its [CI run](https://github.com/haowenchen0811/sleep-in/actions/runs/35414194898) has completed these jobs:
 
@@ -12,7 +30,7 @@ Verified pushed source: `4179b2950097fc7a7b83304e70a38d441d5a7ff7`. Its [CI run]
 | Actual Chromium | 54 passed | Isolated authenticated application and actual n8n execution stories |
 | External SQL | 50 passed, 1 failed | Oracle read-only permission was denied with ORA-41900; the test expected only ORA-01031. The narrow assertion correction still requires a new real-Oracle run |
 | Compose | Passed | Fresh container build, scheduled graph and exact artifact smoke |
-| Workflow integration | Still running at this checkpoint | No final pass claim |
+| Workflow integration | 501 passed, 3 skipped | Actual n8n, language/runtime, data, schedule and lifecycle suites; external dialect variants run separately |
 
 The frozen `2516bdb` complete local run finished with **856 passed, 28 fixture skips and 1 failed browser assertion**. All graph and output assertions in that case passed; the final page-content assertion read before asynchronous run details mounted. A bounded wait for the exact Succeeded summary, followed by the unchanged content assertion, passes in an actual Chromium/n8n rerun. This follow-up is not a claim that the frozen run passed.
 

@@ -79,6 +79,32 @@ def compile_graph(run,base_url):
     return {'id':rid,'name':'Sleep In '+rid,'active':False,'nodes':nodes,'connections':connections,'settings':{'executionOrder':'v1'},'pinData':{},'versionId':rid}
 
 
+def engine_health(tx, instance_id):
+    """Project generation-scoped engine evidence without making a health probe."""
+    record=tx.get('meta','workflow_engine_health')
+    if not record or record.get('instance_id')!=instance_id:
+        return {'engine_status':'available-cli','engine_incident':None,'engine_verification':None}
+    return {key:record.get(key) for key in ('engine_status','engine_incident','engine_verification')}
+
+
+def record_engine_health(tx, run, instance_id, *, incident_code=None, started_at=None):
+    # An adapter from an earlier supervisor must not overwrite the new owner's
+    # evidence if it finishes after that supervisor has begun recovering.
+    worker=tx.get('meta','workflow_worker')
+    if worker and worker.get('instance_id')!=instance_id:return
+    current=engine_health(tx,instance_id)
+    if incident_code:
+        incident={'run_id':run['id'],'code':incident_code,'instance_id':instance_id,'observed_at':stamp()}
+        current.update(engine_status='degraded',engine_incident=incident,engine_verification=None)
+        tx.put('workflow_event',{'id':uid(),'reason':'engine_incident',**incident,'created_at':incident['observed_at']})
+    else:
+        incident=current['engine_incident']
+        if incident and (not started_at or datetime.fromisoformat(started_at)<=datetime.fromisoformat(incident['observed_at'])):return
+        current.update(engine_status='verified',engine_incident=None,
+                       engine_verification={'run_id':run['id'],'instance_id':instance_id,'verified_at':stamp()})
+    tx.put('meta',{'id':'workflow_engine_health','instance_id':instance_id,**current})
+
+
 def execute_graph(service,rid):
     store=service.store
     with store.transaction() as tx:
@@ -88,6 +114,7 @@ def execute_graph(service,rid):
         run['status']='running';run['started_at']=run['started_at'] or stamp();tx.put('workflow_run',run)
     directory=store.path/'workflow-runs'/rid;directory.mkdir(parents=True,exist_ok=True,mode=0o700)
     logfile=directory/'n8n.log';proc=None;started=time.monotonic()
+    engine_started_at=stamp();instance_id=os.environ.get('SLEEP_IN_INSTANCE_ID');incident_code='adapter_setup_failed'
     try:
         argv=command();base=os.environ.get('SLEEP_IN_BASE_URL','http://127.0.0.1:8080')
         graph=compile_graph(run,base);file=directory/'n8n-graph.json';file.write_text(json.dumps(graph));file.chmod(0o600)
@@ -101,6 +128,7 @@ def execute_graph(service,rid):
         for action in ([*argv,'import:workflow','--input='+str(file)],[*argv,'execute','--id='+rid,'--rawOutput']):
             if service._cancelled(rid):break
             with logfile.open('a') as output:
+                incident_code='adapter_launch_failed'
                 proc=subprocess.Popen(action,stdout=output,stderr=subprocess.STDOUT,env=env,cwd=directory,start_new_session=True)
                 with store.transaction() as tx:
                     current=tx.get('workflow_run',rid);current['adapter_pid']=proc.pid;tx.put('workflow_run',current)
@@ -117,17 +145,26 @@ def execute_graph(service,rid):
                         except subprocess.TimeoutExpired:os.killpg(proc.pid,signal.SIGKILL);proc.wait()
                         break
                     time.sleep(.15)
-                if proc.returncode and service.get_run(rid)['status'] not in {'cancelling','cancelled','timed_out'}:raise ValueError(f'n8n command exited {proc.returncode}')
+                if proc.returncode and service.get_run(rid)['status'] not in {'cancelling','cancelled','timed_out'}:
+                    incident_code='adapter_process_exited'
+                    raise ValueError(f'n8n command exited {proc.returncode}')
         current=service.get_run(rid)
         if current['status']=='cancelling':
             # Active workers observe the cancelling state before completion is confirmed.
             deadline=time.monotonic()+5
             while any(n['status']=='running' for n in service.get_run(rid)['nodes'].values()) and time.monotonic()<deadline:time.sleep(.1)
             service.finish(rid)
-        elif current['status'] in {'queued','running'}:raise ValueError('n8n ended without an authenticated terminal callback')
+        elif current['status'] in {'queued','running'}:
+            incident_code='terminal_callback_missing'
+            raise ValueError('n8n ended without an authenticated terminal callback')
+        elif current['status']=='succeeded' and current.get('graph_execution_id'):
+            with store.transaction() as tx:
+                record_engine_health(tx,current,instance_id,started_at=engine_started_at)
     except Exception as exc:
         with store.transaction() as tx:
             current=tx.get('workflow_run',rid)
+            if current and current['status'] not in {'cancelling','cancelled','timed_out'}:
+                record_engine_health(tx,current,instance_id,incident_code=incident_code)
             if current and current['status'] in {'queued','running'}:
                 message=str(exc)
                 if any(node.get('process_started') for node in current['nodes'].values()):
@@ -229,7 +266,8 @@ def worker_loop(service):
     while not stopping.is_set():
         try:command();ready=True;reason=None
         except Exception as exc:ready=False;reason=str(exc)
-        with service.store.transaction() as tx:tx.put('meta',{'id':'workflow_worker','status':'ready' if ready else 'unavailable','instance_id':instance_id,'pid':os.getpid(),'last_seen':stamp(),'engine':'n8n','n8n_available':ready,'reason':reason})
+        with service.store.transaction() as tx:
+            tx.put('meta',{'id':'workflow_worker','status':'ready' if ready else 'unavailable','instance_id':instance_id,'pid':os.getpid(),'last_seen':stamp(),'engine':'n8n','n8n_available':ready,'reason':reason,**engine_health(tx,instance_id)})
         try:
             service.tick()
             from .workflows_operations import WorkflowOperations

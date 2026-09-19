@@ -63,10 +63,10 @@ jobs:
               tests/test_acceptance_schedule_security.py tests/test_acceptance_schedule_security_closure.py tests/test_acceptance_auth_matrix.py tests/test_acceptance_schedule_anchor.py tests/test_acceptance_missed_history.py tests/test_acceptance_local_accounts_extended.py
           - suite: recovery
             tests: >-
-              tests/test_acceptance_lifecycle.py tests/test_acceptance_release_edges.py tests/test_acceptance_admission_recovery.py tests/test_acceptance_local_recovery.py tests/test_acceptance_engine_recovery.py tests/test_acceptance_native_recovery_edges.py tests/test_acceptance_backup_integrity.py tests/test_acceptance_transfer_authorization.py tests/test_acceptance_delivery.py tests/test_acceptance_operations_edges.py
+              tests/test_acceptance_lifecycle.py tests/test_acceptance_release_edges.py tests/test_acceptance_admission_recovery.py tests/test_acceptance_local_recovery.py tests/test_acceptance_engine_recovery.py tests/test_acceptance_engine_health.py tests/test_acceptance_native_recovery_edges.py tests/test_acceptance_backup_integrity.py tests/test_acceptance_transfer_authorization.py tests/test_acceptance_delivery.py tests/test_acceptance_operations_edges.py
           - suite: execution
             tests: >-
-              tests/test_acceptance_branches.py tests/test_acceptance_concurrency.py tests/test_acceptance_orchestration_faults.py tests/test_acceptance_external_uncertainty.py tests/test_acceptance_execution_limits.py tests/test_acceptance_retry_cancel.py tests/test_acceptance_adapter_deadline.py tests/test_acceptance_workflow_deadline.py tests/test_acceptance_stream_redaction.py
+              tests/test_acceptance_branches.py tests/test_acceptance_concurrency.py tests/test_acceptance_orchestration_faults.py tests/test_acceptance_external_uncertainty.py tests/test_acceptance_execution_limits.py tests/test_acceptance_retry_cancel.py tests/test_acceptance_cancel_settlement.py tests/test_acceptance_adapter_deadline.py tests/test_acceptance_workflow_deadline.py tests/test_acceptance_stream_redaction.py
           - suite: scale-isolation
             tests: >-
               tests/test_acceptance_gold_concurrency.py tests/test_acceptance_runtime_remaining.py tests/test_acceptance_n8n_isolation.py
@@ -226,7 +226,7 @@ jobs:
         env:
           SLEEP_IN_BROWSER_TEST: "1"
           SLEEP_IN_BROWSER_EVIDENCE_DIR: ${{ github.workspace }}/.browser-evidence
-        run: python -m pytest -q tests/test_acceptance_browser.py tests/test_acceptance_browser_mapping.py tests/test_acceptance_browser_schedules.py tests/test_acceptance_browser_repair.py tests/test_acceptance_browser_run_feedback.py tests/test_acceptance_browser_execution.py tests/test_acceptance_browser_dataflow.py tests/test_acceptance_browser_async_admission.py tests/test_acceptance_browser_runtime.py tests/test_acceptance_browser_account_sessions.py tests/test_acceptance_browser_accessibility.py --junitxml=browser-results.xml
+        run: python -m pytest -q tests/test_acceptance_browser.py tests/test_acceptance_browser_mapping.py tests/test_acceptance_browser_schedules.py tests/test_acceptance_browser_repair.py tests/test_acceptance_browser_run_feedback.py tests/test_acceptance_browser_execution.py tests/test_acceptance_browser_dataflow.py tests/test_acceptance_browser_async_admission.py tests/test_acceptance_browser_runtime.py tests/test_acceptance_browser_account_sessions.py tests/test_acceptance_browser_accessibility.py tests/test_acceptance_browser_locale.py tests/test_acceptance_browser_health.py --junitxml=browser-results.xml
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -235,9 +235,63 @@ jobs:
             browser-results.xml
             .browser-evidence/
 
+  mac-managed-runtime:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Acquire the actual Apple-silicon managed installation
+        run: |
+          test "$(uname -s)" = Darwin
+          test "$(uname -m)" = arm64
+          managed_fixture="$RUNNER_TEMP/sleep-in-managed"
+          SLEEP_IN_INSTALL_DIR="$managed_fixture" PATH=/usr/bin:/bin:/usr/sbin:/sbin \
+            /bin/bash ./launch-mac.command --install-only
+          "$managed_fixture/tools/uv-aarch64-apple-darwin/uv" pip install \
+            --python "$managed_fixture/venv/bin/python" -r requirements-dev.txt
+          echo "SLEEP_IN_TEST_INSTALL_DIR=$managed_fixture" >> "$GITHUB_ENV"
+          echo "$managed_fixture/tools/node-v24.13.0-darwin-arm64/bin" >> "$GITHUB_PATH"
+          SLEEP_IN_TEST_INSTALL_DIR="$managed_fixture" "$managed_fixture/venv/bin/python" - <<'PY' >> "$GITHUB_ENV"
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['SLEEP_IN_TEST_INSTALL_DIR'])
+          node = root / 'tools/node-v24.13.0-darwin-arm64/bin/node'
+          command = json.dumps([str(node), str(root / 'n8n/node_modules/n8n/bin/n8n')])
+          print('SLEEP_IN_N8N_COMMAND=' + command)
+          print('SLEEP_IN_TEST_N8N_COMMAND=' + command)
+          print('SLEEP_IN_NODE=' + str(node))
+          PY
+      - name: Verify managed Python packs and owned missing-component recovery
+        run: |
+          "$SLEEP_IN_TEST_INSTALL_DIR/venv/bin/python" -m pytest -q \
+            tests/test_acceptance_runtime_repair.py tests/test_acceptance_native_controls.py -o junit_family=xunit1 -ra \
+            --basetemp="$RUNNER_TEMP/managed-repair-tests" --junitxml=mac-runtime-repair.xml
+      - name: Stop only this job's owned repair supervisors
+        if: always()
+        run: |
+          managed_python="$RUNNER_TEMP/sleep-in-managed/venv/bin/python"
+          if [ -x "$managed_python" ]; then
+            "$managed_python" - <<'PY'
+          import os, time
+          from pathlib import Path
+          from taskconsole.local import request_stop, status
+          root = Path(os.environ['RUNNER_TEMP']) / 'managed-repair-tests'
+          for state in sorted({path.resolve() for path in root.glob('*/installation/state')}):
+              request_stop(state, 'cancel')
+              deadline = time.monotonic() + 20
+              while status(state).get('state') not in ('stopped', 'not_installed') and time.monotonic() < deadline:
+                  time.sleep(.2)
+          PY
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mac-managed-runtime-evidence
+          path: mac-runtime-repair.xml
+
   acceptance-evidence:
     if: always()
-    needs: [test, workflow-integration, external-sql, browser, compose-smoke]
+    needs: [test, workflow-integration, external-sql, browser, compose-smoke, mac-managed-runtime]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4

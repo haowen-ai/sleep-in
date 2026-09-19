@@ -18,7 +18,7 @@ struct TerminationPolicy {
 }
 
 // This preview is unsigned/ad-hoc signed. Distribution signing/notarization is a release gate.
-final class SleepInDelegate: NSObject, NSApplicationDelegate {
+class SleepInDelegate: NSObject, NSApplicationDelegate {
     var item: NSStatusItem!
     var statusItem: NSMenuItem!
     var loginItem: NSMenuItem!
@@ -39,7 +39,10 @@ final class SleepInDelegate: NSObject, NSApplicationDelegate {
     var nextRetry = Date.distantPast
     var timer: Timer?
     let defaults = UserDefaults.standard
-    let root = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/Sleep In")
+    var root: URL {
+        if let configured=ProcessInfo.processInfo.environment["SLEEP_IN_INSTALL_DIR"],!configured.isEmpty { return URL(fileURLWithPath:configured) }
+        return FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Library/Application Support/Sleep In")
+    }
     var launcher: URL { Bundle.main.resourceURL!.appendingPathComponent("app/launch-mac.command") }
     var detailLog: URL { root.appendingPathComponent("native-launch.txt") }
 
@@ -87,9 +90,12 @@ final class SleepInDelegate: NSObject, NSApplicationDelegate {
             let handle=try? FileHandle(forWritingTo:detailLog); _ = try? handle?.seekToEnd()
             process.standardOutput=handle; process.standardError=handle
         }
-        do { try process.run(); process.waitUntilExit() }
+        do { try process.run() }
         catch { return (1,error.localizedDescription) }
+        // Drain while the child is alive: waiting first can fill the pipe and
+        // deadlock status, shutdown verification or update diagnostics.
         let text=capture ? String(data:pipe.fileHandleForReading.readDataToEndOfFile(),encoding:.utf8) ?? "" : ""
+        process.waitUntilExit()
         return (process.terminationStatus,text)
     }
     func launch(_ argument:String,promptRegistration:Bool=false,automatic:Bool=false) {
@@ -104,7 +110,7 @@ final class SleepInDelegate: NSObject, NSApplicationDelegate {
                     let alert=NSAlert(); alert.messageText=nativeText("Sleep In could not become ready")
                     alert.informativeText=nativeText("Choose View details for installation or component errors. Retry preserves your existing account and workflows.")
                     alert.addButton(withTitle:nativeText("Retry")); alert.addButton(withTitle:nativeText("View details")); alert.addButton(withTitle:nativeText("Close"))
-                    let choice=alert.runModal()
+                    let choice=self.presentAlert(alert)
                     if choice == .alertFirstButtonReturn { self.launch(argument,promptRegistration:promptRegistration) }
                     else if choice == .alertSecondButtonReturn { self.viewDetails() }
                 } else {
@@ -125,7 +131,7 @@ final class SleepInDelegate: NSObject, NSApplicationDelegate {
         let alert=NSAlert(); alert.messageText=nativeText("Keep Sleep In ready after login?")
         alert.informativeText=nativeText("Background mode keeps your Mac awake on AC and battery while allowing the screen to lock and turn off. It uses battery between tasks. Start at Login restores the service after you sign in; explicit Stop stays stopped. Lid closure, system Sleep, shutdown and critical battery can interrupt schedules.")
         alert.addButton(withTitle:nativeText("Enable Start at Login")); alert.addButton(withTitle:nativeText("Not now"))
-        if alert.runModal() == .alertFirstButtonReturn { register() }
+        if self.presentAlert(alert) == .alertFirstButtonReturn { register() }
     }
     func register() {
         do { try SMAppService.mainApp.register(); refreshRegistration(); if SMAppService.mainApp.status == .requiresApproval { SMAppService.openSystemSettingsLoginItems() } }
@@ -136,7 +142,7 @@ final class SleepInDelegate: NSObject, NSApplicationDelegate {
             let alert=NSAlert(); alert.messageText=nativeText("Disable login startup and stop background service?")
             alert.informativeText=nativeText("Scheduled tasks pause. Active work can finish before the background service stops.")
             alert.addButton(withTitle:nativeText("Disable and finish active work")); alert.addButton(withTitle:nativeText("Cancel"))
-            if alert.runModal() == .alertFirstButtonReturn {
+            if self.presentAlert(alert) == .alertFirstButtonReturn {
                 do { try SMAppService.mainApp.unregister(); launch("--stop-finish"); refreshRegistration() }
                 catch { showError("Could not disable login startup",error.localizedDescription) }
             }
@@ -167,7 +173,7 @@ final class SleepInDelegate: NSObject, NSApplicationDelegate {
         let alert=NSAlert(); alert.messageText=nativeText("Stop background service?")
         alert.informativeText=nativeText("Future schedules will pause and idle-sleep protection will end. If work is active, choose whether to finish or cancel it. Sleep In reports draining until workers actually stop.")
         alert.addButton(withTitle:nativeText("Finish active work")); alert.addButton(withTitle:nativeText("Cancel active work")); alert.addButton(withTitle:nativeText("Keep running"))
-        switch alert.runModal() { case .alertFirstButtonReturn:return "--stop-finish"; case .alertSecondButtonReturn:return "--stop-cancel"; default:return nil }
+        switch self.presentAlert(alert) { case .alertFirstButtonReturn:return "--stop-finish"; case .alertSecondButtonReturn:return "--stop-cancel"; default:return nil }
     }
     @objc func stopService() { if let action=chooseStop() { launch(action) } }
     @objc func quitCompletely() { NSApp.terminate(nil) }
@@ -232,7 +238,7 @@ final class SleepInDelegate: NSObject, NSApplicationDelegate {
         if low && !lowBatteryAlerted {lowBatteryAlerted=true;showError("Low battery","Sleep In is still running. Connect power when convenient; macOS can sleep or shut down at critical battery. No schedules were paused by this alert.")}
         if !low {lowBatteryAlerted=false}
     }
-    func showProgress() {
+    func showProgress(present:Bool=true) {
         if progressWindow == nil {
             let panel=NSPanel(contentRect:NSRect(x:0,y:0,width:580,height:360),styleMask:[.titled,.closable,.resizable],backing:.buffered,defer:false)
             panel.title="Sleep In";panel.center();panel.isReleasedWhenClosed=false
@@ -244,7 +250,7 @@ final class SleepInDelegate: NSObject, NSApplicationDelegate {
             panel.contentView!.addSubview(stack);NSLayoutConstraint.activate([stack.leadingAnchor.constraint(equalTo:panel.contentView!.leadingAnchor,constant:22),stack.trailingAnchor.constraint(equalTo:panel.contentView!.trailingAnchor,constant:-22),stack.topAnchor.constraint(equalTo:panel.contentView!.topAnchor,constant:22),stack.bottomAnchor.constraint(equalTo:panel.contentView!.bottomAnchor,constant:-22),bar.widthAnchor.constraint(equalTo:stack.widthAnchor),scroll.widthAnchor.constraint(equalTo:stack.widthAnchor),scroll.heightAnchor.constraint(greaterThanOrEqualToConstant:150)])
             progressWindow=panel;progressTimer=Timer.scheduledTimer(withTimeInterval:1,repeats:true){[weak self] _ in self?.refreshProgress()}
         }
-        NSApp.activate(ignoringOtherApps:true);progressWindow?.makeKeyAndOrderFront(nil);refreshProgress()
+        if present {NSApp.activate(ignoringOtherApps:true);progressWindow?.makeKeyAndOrderFront(nil)};refreshProgress()
     }
     func refreshProgress() {
         let data=(try? Data(contentsOf:root.appendingPathComponent("install-progress.json"))) ?? Data()
@@ -268,7 +274,8 @@ final class SleepInDelegate: NSObject, NSApplicationDelegate {
         busy=true;showProgress();statusItem.title=nativeText("Update")
         DispatchQueue.global().async {let result=self.command("--update",capture:true,extra:[url.path,mode]);DispatchQueue.main.async {self.busy=false;self.refresh();self.showError(result.0 == 0 ? "Update complete" : "Update did not complete",result.0 == 0 ? "The updated background service is ready. Reopen the companion to load new menu features." : "Review update details. If readiness failed, the previous application and data were restored; the backup is retained.");self.progressText?.string=result.1}}
     }
-    func showError(_ title:String,_ text:String) { let alert=NSAlert(); alert.messageText=nativeText(title); alert.informativeText=nativeText(text); alert.runModal() }
+    func presentAlert(_ alert:NSAlert)->NSApplication.ModalResponse {alert.runModal()}
+    func showError(_ title:String,_ text:String) { let alert=NSAlert(); alert.messageText=nativeText(title); alert.informativeText=nativeText(text); _ = self.presentAlert(alert) }
 }
 
 if CommandLine.arguments.contains("--self-test") {

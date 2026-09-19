@@ -21,10 +21,11 @@
     "id": "MAC-IN-03",
     "tests": [
       "tests/test_acceptance_lifecycle.py::test_mac_in03_busy_port_is_rejected_before_any_runtime_launch",
-      "tests/test_local_service.py::test_http_readiness_rejects_another_application_generation"
+      "tests/test_local_service.py::test_http_readiness_rejects_another_application_generation",
+      "tests/test_acceptance_native_controls.py::test_mac_in03_native_retry_reuses_action_and_waits_for_success"
     ],
     "coverage": "partial",
-    "rationale": "Real occupied socket remains owned; service stops before runtime invocation; readiness rejects another generation. Browser retry/repair still required.",
+    "rationale": "Real occupied socket remains owned; service stops before runtime invocation; readiness rejects another generation. Browser retry/repair still required. Compiled production AppKit controller evidence now covers the corresponding action/progress/details; modal responses are injected at the OS boundary. BG09/10/11 also exercise actual isolated supervisors and n8n, not fabricated run records.",
     "remaining": [
       "Real occupied socket remains owned; service stops before runtime invocation; readiness rejects another generation. Browser retry/repair still required."
     ]
@@ -33,10 +34,11 @@
     "id": "MAC-IN-04",
     "tests": [
       "tests/test_local_service.py::test_completed_download_partial_is_verified_and_reused_without_network",
-      "tests/test_local_service.py::test_unresumable_partial_retries_full_download_and_checks_hash"
+      "tests/test_local_service.py::test_unresumable_partial_retries_full_download_and_checks_hash",
+      "tests/test_acceptance_native_controls.py::test_mac_in04_native_partial_download_progress_uses_private_actual_bytes"
     ],
     "coverage": "partial",
-    "rationale": "Real shell download logic validates hashes/retries a synthetic transport; interrupted mid-download GUI progress and prior-version preservation need full integration.",
+    "rationale": "Real shell download logic validates hashes/retries a synthetic transport; interrupted mid-download GUI progress and prior-version preservation need full integration. Compiled production AppKit controller evidence now covers the corresponding action/progress/details; modal responses are injected at the OS boundary. BG09/10/11 also exercise actual isolated supervisors and n8n, not fabricated run records.",
     "remaining": [
       "Real shell download logic validates hashes/retries a synthetic transport; interrupted mid-download GUI progress and prior-version preservation need full integration."
     ]
@@ -45,22 +47,23 @@
     "id": "MAC-IN-05",
     "tests": [
       "tests/test_local_service.py::test_installer_repairs_stale_n8n_marker_without_real_downloads",
-      "tests/test_local_service.py::test_worker_readiness_requires_fresh_heartbeat_and_n8n"
+      "tests/test_local_service.py::test_worker_readiness_requires_fresh_heartbeat_and_n8n",
+      "tests/test_acceptance_runtime_repair.py::test_managed_python_pack_copies_required_dylib_before_bootstrap",
+      "tests/test_acceptance_runtime_repair.py::test_mac_in05_each_missing_managed_component_repairs_and_runs_real_graph"
     ],
-    "coverage": "partial",
-    "rationale": "Stale n8n installation and stale/missing worker heartbeat covered; all four individually missing executables need real repair/start trials.",
-    "remaining": [
-      "Stale n8n installation and stale/missing worker heartbeat covered; all four individually missing executables need real repair/start trials."
-    ]
+    "coverage": "full",
+    "rationale": "Actual Apple-silicon managed Python/Node/n8n and isolated launcher/supervisor run five complete published SQL→Python→JavaScript graphs (baseline and each repaired component). Independently missing Python, Node, n8n and worker yield component-specific repair/error; no unavailable aggregate is marked ready. Loopback listener, hostile Host/proxy refusal, account/publication identity, exact results and one attempt per node are verified. Python/npm reacquisition uses explicitly synthetic local transport restoring genuine bytes; Node uses the real cached archive and production SHA/extraction. Missing worker source is explicitly restored before retry. This is software integration, not clean-device, registry-download, native dialog or physical-power certification.",
+    "remaining": []
   },
   {
     "id": "MAC-IN-06",
     "tests": [
       "tests/test_local_service.py::test_worker_readiness_requires_fresh_heartbeat_and_n8n",
-      "tests/test_local_service.py::test_fresh_worker_heartbeat_from_previous_generation_is_not_ready"
+      "tests/test_local_service.py::test_fresh_worker_heartbeat_from_previous_generation_is_not_ready",
+      "tests/test_acceptance_native_controls.py::test_mac_in06_failed_worker_shows_details_instead_of_ready"
     ],
     "coverage": "partial",
-    "rationale": "Worker capability/generation freshness is checked; deliberately failing each live component and browser repair transition remain.",
+    "rationale": "Worker capability/generation freshness is checked; deliberately failing each live component and browser repair transition remain. Compiled production AppKit controller evidence now covers the corresponding action/progress/details; modal responses are injected at the OS boundary. BG09/10/11 also exercise actual isolated supervisors and n8n, not fabricated run records.",
     "remaining": [
       "Worker capability/generation freshness is checked; deliberately failing each live component and browser repair transition remain."
     ]
@@ -319,35 +322,38 @@
   {
     "id": "MAC-BG-09",
     "tests": [
-      "tests/test_local_supervisor_integration.py::test_real_supervisor_drains_or_confirms_cancel_before_stop"
+      "tests/test_local_supervisor_integration.py::test_real_supervisor_drains_or_confirms_cancel_before_stop",
+      "tests/test_acceptance_native_controls.py::test_mac_bg09_native_finish_drains_active_and_queued_runs_once"
     ],
     "coverage": "partial",
-    "rationale": "Actual n8n active run finishes and admission is blocked before service stop; native UI and queued-run variants still needed.",
+    "rationale": "Actual n8n active run finishes and admission is blocked before service stop; native UI and queued-run variants still needed. Compiled production AppKit controller evidence now covers the corresponding action/progress/details; modal responses are injected at the OS boundary. BG09/10/11 also exercise actual isolated supervisors and n8n, not fabricated run records.",
     "remaining": [
-      "Actual n8n active run finishes and admission is blocked before service stop; native UI and queued-run variants still needed."
+      "Presented native modal interaction remains to be exercised; compiled controller Finish now drains two active and one queued run exactly once, blocks admission and verifies stopped child processes. Power assertions are disabled in this isolated fixture; physical release is covered by separate manual gates."
     ]
   },
   {
     "id": "MAC-BG-10",
     "tests": [
       "tests/test_local_supervisor_integration.py::test_real_supervisor_drains_or_confirms_cancel_before_stop",
-      "tests/test_workflow_execution_n8n_complete.py::test_actual_n8n_cancel_waiting_process_prevents_downstream"
+      "tests/test_workflow_execution_n8n_complete.py::test_actual_n8n_cancel_waiting_process_prevents_downstream",
+      "tests/test_acceptance_native_controls.py::test_mac_bg10_native_cancel_waits_for_process_ack_and_blocks_downstream"
     ],
     "coverage": "partial",
-    "rationale": "Actual n8n cancellation and downstream blocking tested; native UI transition and independent side-effect ledger remain.",
+    "rationale": "Actual n8n cancellation and downstream blocking tested; native UI transition and independent side-effect ledger remain. Compiled production AppKit controller evidence now covers the corresponding action/progress/details; modal responses are injected at the OS boundary. BG09/10/11 also exercise actual isolated supervisors and n8n, not fabricated run records.",
     "remaining": [
-      "Actual n8n cancellation and downstream blocking tested; native UI transition and independent side-effect ledger remain."
+      "Presented native modal interaction remains to be exercised; compiled controller Cancel now verifies real worker termination, terminal cancellation, no downstream effect and no premature stopped label at the sampled transition. Physical assertion release remains a separate manual gate."
     ]
   },
   {
     "id": "MAC-BG-11",
     "tests": [
-      "tests/test_local_service.py::test_native_quit_policy_waits_for_drain_and_retries_after_failure"
+      "tests/test_local_service.py::test_native_quit_policy_waits_for_drain_and_retries_after_failure",
+      "tests/test_acceptance_native_controls.py::test_mac_bg11_native_dismiss_keeps_real_active_run_and_service"
     ],
     "coverage": "partial",
-    "rationale": "Native quit state-machine self-test checks dismiss/wait/retry; real dialog cancellation while executing and preference ledger remain.",
+    "rationale": "Native quit state-machine self-test checks dismiss/wait/retry; real dialog cancellation while executing and preference ledger remain. Compiled production AppKit controller evidence now covers the corresponding action/progress/details; modal responses are injected at the OS boundary. BG09/10/11 also exercise actual isolated supervisors and n8n, not fabricated run records.",
     "remaining": [
-      "Native quit state-machine self-test checks dismiss/wait/retry; real dialog cancellation while executing and preference ledger remain."
+      "Presented native modal dismissal remains to be exercised; injected controller dismissal during actual execution preserves service PID, running preference, absence of stop request and successful run completion."
     ]
   },
   {
@@ -491,13 +497,15 @@
     "id": "MAC-RC-02",
     "tests": [
       "tests/test_acceptance_engine_recovery.py::test_owned_engine_component_death_preserves_effect_and_future_schedule",
-      "tests/test_acceptance_engine_recovery.py::test_recovery_reclaims_verified_worker_from_already_failed_run"
+      "tests/test_acceptance_engine_recovery.py::test_recovery_reclaims_verified_worker_from_already_failed_run",
+      "tests/test_acceptance_engine_health.py::test_actual_engine_incident_survives_prior_concurrent_success_and_business_failure",
+      "tests/test_acceptance_engine_health.py::test_degraded_open_does_not_accept_failed_required_power_component",
+      "tests/test_acceptance_engine_health.py::test_old_generation_adapter_cannot_replace_new_owner_engine_evidence",
+      "tests/test_acceptance_browser_health.py::test_browser_ready_worker_with_engine_incident_is_degraded_in_both_locales"
     ],
-    "coverage": "partial",
-    "rationale": "All three real isolated process-death trials now execute against the actual supervisor/n8n after a durable independent effect. App/worker deaths produce degraded/stopped service; restart safely cleans owned business worker/child/adapter, closes interrupted attempt state, prevents effect/graph replay and completes a later scheduled actual n8n run. Per-run n8n death exposes failed/uncertain run status while installed CLI and coordinator remain healthy. These are actual software integration trials with power assertion disabled, not simulated PID or physical power claims.",
-    "remaining": [
-      "Original MAC-RC-02 requires required health to become degraded for every trial; per-run n8n death currently leaves service availability ready while exposing the failure in the run. A distinct run-engine health signal or an explicit design clarification is still required."
-    ]
+    "coverage": "full",
+    "rationale": "Three real isolated supervisor component-death trials (app, worker, per-run n8n) now produce honest degraded/stopped health after a durable effect. Generation-scoped engine incidents degrade native health without terminating unrelated work or blocking recovery admission. Actual concurrent control proves an earlier-started success cannot clear an incident, ordinary business failures neither create nor replace it, and a subsequent actual successful graph verifies recovery. Restart preserves prior incident/run history, prevents uncertain effect replay, cleans owned process trees and completes a future scheduled graph exactly once. These software trials disable physical power assertions; no physical OS or power claim.",
+    "remaining": []
   },
   {
     "id": "MAC-RC-03",

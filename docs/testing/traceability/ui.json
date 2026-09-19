@@ -46,12 +46,13 @@
       "tests/test_acceptance_ui.py::AcceptanceUITests::test_rejected_edges_and_bindings_preserve_history_and_existing_edit",
       "tests/test_workflows.py::test_invalid_cycle_and_mapping_block_publication",
       "tests/test_acceptance_browser.py::test_browser_structure_insert_branch_rewire_rejects_cycle",
-      "tests/test_acceptance_browser.py::test_browser_self_cycle_rejection_keeps_graph_history_and_api_gate"
+      "tests/test_acceptance_browser.py::test_browser_self_cycle_rejection_keeps_graph_history_and_api_gate",
+      "tests/test_acceptance_browser_locale.py::test_browser_chinese_self_cycle_port_errors_and_picker_prevention_preserve_history"
     ],
     "coverage": "partial",
-    "rationale": "Real Chromium self-port and multi-node cycle gestures show an endpoint-specific English cycle error without changing persisted graph/history; API rejects both invalid publications, and the input picker excludes self/cyclic candidates. Model assertions cover atomic edge and binding rejection.",
+    "rationale": "Real Chromium self-port and multi-node cycle gestures show endpoint-specific English and Chinese cycle errors without changing persisted graph, bindings or undo/redo history; API rejects both invalid publications. The input picker excludes self/cyclic candidates in both languages. Model assertions cover atomic edge and binding rejection.",
     "remaining": [
-      "The literal source-picker oracle requests an attempted-connection error; current picker instead prevents self/cyclic attempts by omitting those candidates. Chinese cycle feedback is translated by the catalog but this gesture is only executed in English."
+      "The literal source-picker oracle requests an attempted-connection error; the current picker instead prevents self/cyclic attempts by omitting those candidates. This preventive interaction is not relabeled as satisfying the historical attempt-and-error oracle."
     ]
   },
   {
@@ -270,14 +271,18 @@
       "tests/test_frontend.py::FrontendContractTests::test_locale_is_english_by_default_and_only_explicit_chinese_is_accepted",
       "tests/test_frontend.py::FrontendContractTests::test_translation_never_translates_unknown_or_user_content",
       "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_bilingual_catalog_and_source_literals_are_complete",
-      "tests/test_acceptance_browser.py::test_browser_locale_preserves_unsaved_graph_source_and_mapping"
+      "tests/test_acceptance_browser.py::test_browser_locale_preserves_unsaved_graph_source_and_mapping",
+      "tests/test_acceptance_browser_locale.py::test_browser_chinese_os_starts_english_and_login_switch_preserves_credentials",
+      "tests/test_acceptance_browser_locale.py::test_browser_locale_all_named_surfaces_keep_authored_graph_params_and_run_data",
+      "tests/test_acceptance_browser_locale.py::test_browser_chinese_self_cycle_port_errors_and_picker_prevention_preserve_history",
+      "tests/test_acceptance_browser_locale.py::test_browser_invalid_json_message_switches_language_without_replacing_draft",
+      "tests/test_acceptance_browser_locale.py::test_browser_existing_mapping_label_and_weekdays_localize_in_place",
+      "tests/test_acceptance_browser_locale.py::test_browser_run_list_and_schedule_history_timestamps_switch_without_changing_instants",
+      "tests/test_acceptance_browser_locale.py::test_browser_builtin_catalog_copy_localizes_by_id_without_changing_clone_or_custom_template"
     ],
-    "coverage": "partial",
-    "rationale": "Default/normalization and catalog parity/literal keys are covered, with untranslated unknown content.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Use fresh Chinese-locale browser to inspect all specified surfaces and explicit switches; manually review labels/tooltips/errors without translating authored content."
-    ]
+    "coverage": "full",
+    "rationale": "Eight real Chromium cases start a fresh Chinese-locale browser in English, switch explicitly before and after login, preserve credentials, authored source/names/graph/parameters and actual n8n run output, and cover login/default account, navigation, catalog, editor/library/inspector, schedules, empty states, run detail/list/history, errors and tooltips. Built-in template display copy is translated by stable ID while custom templates and actual cloned payloads remain unchanged. Port/add-next labels, parameter captions, existing invalid-JSON messages and timestamp text refresh in place; UTC instants, selected timezones and stored records remain exact. Catalog parity tests remain attached. The root reviewer independently inspected the owned EN/ZH screenshots and control/validation evidence at 1440×900, including final Chinese catalog, weekday labels and dates, with no clipping in those reviewed surfaces. This text/visual review does not claim screen-reader testing.",
+    "remaining": []
   },
   {
     "id": "UI-L02",
@@ -541,11 +546,9 @@
       "tests/test_acceptance_browser_execution.py::test_browser_settings_export_downloads_portable_template",
       "tests/test_acceptance_browser_external_sql.py::test_ui_r11_template_rebinds_explicitly_to_actual_postgresql_without_mutating_other_instance"
     ],
-    "coverage": "partial",
-    "rationale": "Existing actual browser/n8n synthetic template and instance/export isolation evidence retained. New PostgreSQL story explicitly rebinds through editor, checks real F-ORDERS and summary/report bytes, keeps catalog/other clone unchanged, checks secret-free portable export and awaits durable adapter completion. External database browser run remains pending CI.",
-    "remaining": [
-      "Run new real PostgreSQL+n8n+Chromium story in external CI; local relay unit evidence and collected test code do not satisfy browser/database integration."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium and n8n execute the synthetic SQLite template without external accounts, clone two independent workflow IDs, explicitly select a provisioned PostgreSQL connection after changing dialect, and verify exact F-ORDERS rows, Python count/total, JavaScript report and downloaded bytes. Catalog and other instance remain unchanged; portable export omits credentials, private endpoints, connection IDs and historical run IDs. Durable adapter execution identities are required. Executed in GitHub Actions job https://github.com/haowenchen0811/sleep-in/actions/runs/35415901572/job/105824382995 at commit 863da8b43512ceb5195d68544e2da91a867b1024. The verified command includes this browser module; the job reports 58 passed, zero skips and one failure only in the separate Oracle cancellation test, so this records these passed cases rather than claiming the whole job passed.",
+    "remaining": []
   },
   {
     "id": "UI-R12",
@@ -553,11 +556,9 @@
       "tests/test_workflow_api_contract.py::test_connection_secret_not_returned_in_metadata",
       "tests/test_acceptance_browser_external_sql.py::test_ui_r12_actual_connection_test_timestamp_does_not_hide_later_network_failure"
     ],
-    "coverage": "partial",
-    "rationale": "New actual PostgreSQL browser story verifies successful connection-test response/time then closes only owned loopback relay. Retest must report failure with updated metadata; previously published real n8n execution must fail safely, block downstream, omit secrets and persist adapter completion. Local relay forwarding/shutdown passed, but external database browser run remains pending CI.",
-    "remaining": [
-      "Run new real PostgreSQL+n8n+Chromium story in external CI; local relay unit evidence and collected test code do not satisfy browser/database integration."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium performs a successful PostgreSQL connection test and verifies actual response, timestamp and secret-free metadata. Closing only the fixture-owned TCP relay makes a second test fail with a later timestamp; previously published actual n8n execution fails at SQL, executes no downstream attempts, displays its database error after reload, and retains source text without stored secrets. Run/metadata/export/UI never expose the password; durable adapter identity is required. Executed in GitHub Actions job https://github.com/haowenchen0811/sleep-in/actions/runs/35415901572/job/105824382995 at commit 863da8b43512ceb5195d68544e2da91a867b1024. The verified command includes this browser module; the job reports 58 passed, zero skips and one failure only in the separate Oracle cancellation test, so this records these passed cases rather than claiming the whole job passed.",
+    "remaining": []
   },
   {
     "id": "UI-A01",

@@ -27,6 +27,8 @@ const zh = {
 };
 
 Object.assign(en.admin,{workflowScheduler:'Workflow service'});Object.assign(zh.admin,{workflowScheduler:'工作流服务'});
+Object.assign(en.states,{degraded:'Degraded'});Object.assign(zh.states,{degraded:'服务降级'});
+Object.assign(en.admin,{engineDegradedHint:'The execution engine reported an incident. Review the affected run before relying on new executions.',engineHealthUnavailable:'Execution engine health could not be confirmed.'});Object.assign(zh.admin,{engineDegradedHint:'执行引擎报告了异常。请先检查受影响的运行，再确认后续执行是否可靠。',engineHealthUnavailable:'无法确认执行引擎的健康状态。'});
 Object.assign(en.states,{partial:'Partial',stopped:'Stopped',stale:'Stale'});Object.assign(zh.states,{partial:'部分完成',stopped:'已停止',stale:'心跳过期'});
 Object.assign(en.nav,{workflows:'Workflows',workflowRuns:'Runs',connections:'Connections',runtimes:'Runtimes',templates:'Templates',legacy:'Classic tasks'});
 Object.assign(zh.nav,{workflows:'工作流',workflowRuns:'运行记录',connections:'连接',runtimes:'运行环境',templates:'模板',legacy:'旧版任务'});

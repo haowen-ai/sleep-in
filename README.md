@@ -13,7 +13,7 @@ Monday's meeting shouldn't make you wake up early to pull data. Build the prepar
 A single scheduled script often needs no platform. Sleep In is for the work between scripts: querying different databases, choosing which results feed Python, passing its summary into JavaScript, producing a file, and finding the exact step that failed. You can build and run these workflows without an AI service or a separate n8n account.
 
 ```mermaid
-flowchart LR
+flowchart TD
   A[SQL orders] --> C[Python summary]
   B[SQL targets] --> C
   C --> D[JavaScript report]

@@ -2,6 +2,8 @@
 
 All public routes require the existing session/CSRF contract and workflow authorization.
 
+`GET /api/workflow-health` separates coordinator readiness from per-run engine health. `engine_status` is `available-cli`, `degraded` or `verified`; an unexpected adapter failure records a generation-scoped incident and degrades the native background status without stopping unrelated workflows. Ordinary business failures do not create an engine incident. A successfully completed actual graph that started after the incident, or a new supervisor generation with startup checks, can restore health; older concurrent successes cannot erase an incident. Historical failed/uncertain runs are never replayed by a health probe.
+
 - `POST /api/workflows/{wid}/nodes/{nid}/test` (administrator), body exactly one of `{inputs: {...}}` or `{sample_run_id, sample_node_id?}`. Returns 202 run. Tests only the selected current-draft node using explicit inputs or that workflow's historical recorded inputs; freezes source/runtime, removes all edges and mapping expressions, sets `test=true` and `test_node_id`. No upstream execution or implicit historical injection.
 - `GET /api/workflow-runs/{rid}/nodes/{nid}/sample`: `{inputs, run_id, version_id, produced_at, stale}`. Reading a sample does not admit a run.
 - Node `config.retry`: `{max_attempts: 1..5, delay_seconds: 0..60, safe_to_retry: boolean}`. More than one attempt requires explicit safe-to-retry declaration. SQL writes additionally require `idempotent:true`. Interrupted/unknown side effects, cancellations and timeouts never auto-retry. Attempts have separate immutable logs/timestamps and directories. n8n drives retry submission.

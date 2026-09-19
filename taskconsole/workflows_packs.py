@@ -25,6 +25,34 @@ def run_build(argv,directory,log,env=None,timeout=600):
     return result.stdout
 
 
+def build_python_environment(base,root,log,env):
+    directory=root/'env'
+    library=None
+    if sys.platform=='darwin':
+        details=json.loads(run_build([base,'-c',
+            'import json,sys,sysconfig;print(json.dumps({"base_prefix":sys.base_prefix,**{k:sysconfig.get_config_var(k) for k in '
+            '("LIBDIR","LDLIBRARY","Py_ENABLE_SHARED","PYTHONFRAMEWORK")}}))'],root,log,env))
+        # The shipped standalone interpreter loads its library relative to its
+        # executable. venv --copies does not copy that library, so ensurepip
+        # cannot start until the owned environment contains it. Framework and
+        # non-Darwin interpreters retain the standard venv construction path.
+        name=details.get('LDLIBRARY')
+        if details.get('Py_ENABLE_SHARED') and not details.get('PYTHONFRAMEWORK') and isinstance(name,str) and name.endswith('.dylib'):
+            # Relocatable Python distributions can retain their build-time
+            # LIBDIR (for example /install/lib); use the live base prefix then.
+            library=Path(details.get('LIBDIR') or details['base_prefix'])/name
+            if not library.is_file():library=Path(details['base_prefix'])/'lib'/name
+            if not library.is_file():raise ValueError('Managed Python shared library unavailable: '+str(library))
+    if library is None:
+        run_build([base,'-m','venv','--copies',str(directory)],root,log,env)
+    else:
+        run_build([base,'-m','venv','--copies','--without-pip',str(directory)],root,log,env)
+        target=directory/'lib'/library.name;target.parent.mkdir(parents=True,exist_ok=True)
+        shutil.copy2(library,target)
+        # This regular file becomes part of the immutable pack manifest.
+        run_build([str(directory/'bin/python'),'-m','ensurepip','--upgrade','--default-pip'],root,log,env)
+
+
 def safe_files(directory,files):
     if not isinstance(files,dict):raise ValueError('shared_files must be a named text object')
     for name,text in files.items():
@@ -94,7 +122,7 @@ class RuntimePacks:
             shared=root/'shared';shared.mkdir(exist_ok=True);safe_files(shared,config.get('shared_files',{}))
             env={**os.environ,'PYTHONDONTWRITEBYTECODE':'1','PIP_DISABLE_PIP_VERSION_CHECK':'1','PIP_NO_INPUT':'1'}
             if language=='python':
-                base=tools['executable'];run_build([base,'-m','venv','--copies',str(root/'env')],root,log,env)
+                base=tools['executable'];build_python_environment(base,root,log,env)
                 record['executable']=str(root/'env'/'bin'/'python')
                 lock=config.get('requirements_lock','');(root/'requirements.lock').write_text(lock)
                 if lock.strip():

@@ -846,11 +846,9 @@
       "tests/test_workflow_external_sql.py::test_external_connection_write_permission_is_enforced",
       "tests/test_acceptance_external_sql_edges.py::test_sql12_actual_read_only_principal_cannot_write_even_when_connection_flag_allows"
     ],
-    "coverage": "partial",
-    "rationale": "Dedicated real database principal receives SELECT only; test requires successful read-only readiness, exact per-driver permission failure on write despite application write_enabled, unchanged effect count and no credential disclosure. Local external D execution is BLOCKED_ENV: no Docker/database listeners; test implementation is not acceptance evidence until CI completes.",
-    "remaining": [
-      "Run all PostgreSQL/MySQL/Oracle variants against the disposable CI database fixtures and inspect successful assertions; local SQLite or mocked drivers cannot satisfy D."
-    ]
+    "coverage": "full",
+    "rationale": "Actual PostgreSQL/MySQL/Oracle principals passed read-only readiness and denied writes with driver-specific diagnostics; independent rows/effect checks remained unchanged. Oracle permits only the observed ORA-01031/ORA-41900 privilege-denial forms. Source863da8b CI35415901572 external job105824382995 ran the exact selectors with58 passes, zero skips and one separate CAN04 terminal-state failure. This is per-case evidence, not an overall-green or release claim.",
+    "remaining": []
   },
   {
     "id": "SQL13",
@@ -924,11 +922,9 @@
     "tests": [
       "tests/test_acceptance_oracle_tls.py::test_sql20_actual_tls_verification_failure_never_downgrades_connection"
     ],
-    "coverage": "partial",
-    "rationale": "Prepared actual ephemeral PostgreSQL TLS Docker fixture with generated CA/server keys and dynamic loopback port. Authenticated product connection test verifies success baseline, rejects unrelated CA and wrong host, while an explicit successful plaintext control makes silent fallback observable. Local collection succeeds; no local Docker means no D evidence yet.",
-    "remaining": [
-      "Run both variants in CI with SLEEP_IN_EXTERNAL_TLS_TESTS=1; inspect actual verified TLS version and failed invalid-CA/hostname product responses."
-    ]
+    "coverage": "full",
+    "rationale": "Both actual PostgreSQL TLS variants passed: verified connection success, unrelated CA and wrong-host rejection, and explicit plaintext control proving a downgrade would have been observable. Source863da8b CI35415901572 external job105824382995 ran the exact selectors with58 passes, zero skips and one separate CAN04 terminal-state failure. This is per-case evidence, not an overall-green or release claim.",
+    "remaining": []
   },
   {
     "id": "SQL21",
@@ -949,22 +945,18 @@
       "tests/test_workflow_external_sql.py::test_external_write_commit_and_failed_second_statement_rollback",
       "tests/test_acceptance_oracle_tls.py::test_sql22_exact_oracle_thin_query_bind_null_commit_and_rollback"
     ],
-    "coverage": "partial",
-    "rationale": "Prepared exact Oracle VARCHAR2 F-ORDERS rows and ordered metadata, bound A002/null/injection, actual n8n effect-001 commit once and independent read, parameterized insert/update rollback after real ORA-00942, and committed update. JUnit properties record actual Thin/driver/server/platform/architecture and pinned image scope. Local external fixture unavailable; no new D/M completion claimed.",
-    "remaining": [
-      "Run with real Oracle fixture and n8n in CI; inspect assertions and driver/server/platform/Thin properties. Evidence applies only to that tested fixture/runner, never wallets, Thick mode or other platforms."
-    ]
+    "coverage": "full",
+    "rationale": "Actual Oracle Thin fixture passed exact F-ORDERS metadata/data, bound/null/injection checks, one n8n commit effect, failed insert/update rollback and committed update. Evidence applies to the disposable CI driver/server/platform, not wallets, Thick mode or all Mac versions. Source863da8b CI35415901572 external job105824382995 ran the exact selectors with58 passes, zero skips and one separate CAN04 terminal-state failure. This is per-case evidence, not an overall-green or release claim.",
+    "remaining": []
   },
   {
     "id": "SQL23",
     "tests": [
       "tests/test_acceptance_oracle_tls.py::test_sql23_oracle_ddl_implicit_commit_survives_later_failure_without_false_rollback_claim"
     ],
-    "coverage": "partial",
-    "rationale": "Prepared disposable owned-table trial: UPDATE before CREATE TABLE persists, table persists, later INSERT rolls back after ORA-00942. Workflow must remain failed with explicit external-effect review warning and no false rollback claim. Exact implicit-commit outcome is recorded in JUnit, with only owned table cleanup. Local Oracle unavailable; real outcome pending CI.",
-    "remaining": [
-      "Run actual Oracle trial and inspect persisted pre-DDL update/table plus zero post-DDL inserts. Preserve explicit Oracle implicit-commit documentation and scoped driver/server/platform evidence."
-    ]
+    "coverage": "full",
+    "rationale": "Actual Oracle fixture passed the independent ledger: pre-DDL update and created table persist, later insert rolls back after ORA-00942, run remains failed with explicit external-effect uncertainty and no false rollback claim. Source863da8b CI35415901572 external job105824382995 ran the exact selectors with58 passes, zero skips and one separate CAN04 terminal-state failure. This is per-case evidence, not an overall-green or release claim.",
+    "remaining": []
   },
   {
     "id": "SQL24",
@@ -1343,10 +1335,11 @@
   {
     "id": "CAN04",
     "tests": [
-      "tests/test_acceptance_external_cancel.py::test_can04_cancel_after_real_oracle_commit_preserves_effect_and_never_retries"
+      "tests/test_acceptance_external_cancel.py::test_can04_cancel_after_real_oracle_commit_preserves_effect_and_never_retries",
+      "tests/test_acceptance_cancel_settlement.py::test_committed_sql_return_after_adapter_exit_settles_cancel_without_replay"
     ],
     "coverage": "partial",
-    "rationale": "Prepared actual Oracle+n8n boundary: independent connection must observe effect-001 after COMMIT while DBMS_SESSION.SLEEP is still outstanding; authenticated cancellation must retain committed effect, report review uncertainty without rollback promise, prevent SQL retry/downstream execution and suppress same-key replay. Local fixture unavailable; collected test is not D evidence.",
+    "rationale": "Prepared actual Oracle+n8n boundary: independent connection must observe effect-001 after COMMIT while DBMS_SESSION.SLEEP is still outstanding; authenticated cancellation must retain committed effect, report review uncertainty without rollback promise, prevent SQL retry/downstream execution and suppress same-key replay. Local fixture unavailable; collected test is not D evidence. The863 real Oracle run exposed late-node cancellation settlement failure. A separate actual SQLite commit/n8n return-barrier regression reproduced it and passes after atomic last-node/run settlement; it does not replace the required new Oracle run.",
     "remaining": [
       "Run actual disposable Oracle+n8n case in external CI, inspect committed effect count1, cancel state, one SQL attempt, blocked downstream and recorded Thin/server/driver/platform evidence."
     ]
@@ -1605,9 +1598,8 @@
       "tests/test_acceptance_runtime_version_upgrades.py::test_authenticated_same_path_real_gcc_to_clang_upgrade_invalidates_native_cache"
     ],
     "coverage": "partial",
-    "rationale": "Authenticated publication plus real native C workers verify changed compile flags and header dependencies invalidate the build cache and change exact outputs while preserving the same runtime ID. Identical republish reuses the original artifact hash/mtime, and the original binary remains unchanged. A separate genuine GCC-to-Clang upgrade test switches a test-owned symlink at the same executable path and asserts actual compiler hashes/version/output/cache differences; it is skipped locally because macOS gcc aliases Apple Clang, with no fabricated version response.",
+    "rationale": "Authenticated publication plus real native C workers verify changed compile flags and header dependencies invalidate the build cache and change exact outputs while preserving the same runtime ID. Identical republish reuses the original artifact hash/mtime, and the original binary remains unchanged. A separate genuine GCC-to-Clang upgrade test switches a test-owned symlink at the same executable path and asserts actual compiler hashes/version/output/cache differences; it is skipped locally because macOS gcc aliases Apple Clang, with no fabricated version response. Actual same-path GCC-to-Clang case passed in source863da8b CI35415901572 data job105824383094 (196 passed, zero skips).",
     "remaining": [
-      "Actual same-path distinct GCC/Clang upgrade awaits Linux CI execution.",
       "Architecture identity/cache behavior has not been verified across actual different target architectures."
     ]
   },

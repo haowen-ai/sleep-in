@@ -345,14 +345,30 @@ class WorkflowService(ExecutionMixin):
                 tx.put('workflow_run',run)
             return run['status'] in {'cancelling','cancelled','timed_out','failed'}
 
+    @staticmethod
+    def _settle_cancellation(run):
+        # A blocking database call can outlive the adapter's cancellation wait.
+        # Commit the last node and whole-run terminal state together; no future
+        # engine callback or coordinator tick is required to finish cancelling.
+        if run['status']!='cancelling' or any(node['status'] in {'running','dispatching'} for node in run['nodes'].values()):return
+        for node in run['nodes'].values():
+            if node['status']=='queued':node.update(status='cancelled',finished_at=stamp())
+        run.update(status='cancelled',finished_at=stamp())
+
     def execute_node(self,rid,nid):
+        state=self._execute_node(rid,nid)
+        if state['status']=='cancelled':self.on_terminal(rid)
+        return state
+
+    def _execute_node(self,rid,nid):
         with self.store.transaction() as tx:
             run=need(tx,'workflow_run',rid)
             if nid not in run['nodes']:raise WorkflowError('Node is not in this run')
             state=run['nodes'][nid]
             if state['status'] in NODE_TERMINAL or state['status']=='running':return copy.deepcopy(state)
             if run['status'] in {'cancelled','cancelling','timed_out','failed','succeeded','partial'}:
-                state.update(status='cancelled' if run['status'] in {'cancelled','cancelling'} else 'not_run',finished_at=stamp());tx.put('workflow_run',run);return state
+                state.update(status='cancelled' if run['status'] in {'cancelled','cancelling'} else 'not_run',finished_at=stamp())
+                self._settle_cancellation(run);tx.put('workflow_run',run);return state
             snapshot=run['snapshot'];node=copy.deepcopy(next(n for n in snapshot['nodes'] if n['id']==nid))
             attempt=len(state['attempts'])+1
             directory=self.store.path/'workflow-runs'/rid/nid/('attempt-'+str(attempt))
@@ -462,6 +478,7 @@ class WorkflowService(ExecutionMixin):
             state['attempts'][-1].update(status=result['status'],finished_at=state['finished_at'],error=result.get('error'),stdout=result.get('stdout',''),stderr=result.get('stderr',''))
             for artifact in state.get('output',{}).get('artifacts',[]):
                 artifact.update(id=uid(),node_id=nid);current['artifacts'].append(copy.deepcopy(artifact))
+            self._settle_cancellation(current)
             tx.put('workflow_run',current)
         return copy.deepcopy(state)
 

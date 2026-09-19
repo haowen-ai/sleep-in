@@ -67,7 +67,15 @@ def test_owned_engine_component_death_preserves_effect_and_future_schedule(super
         if component=='n8n':
             terminal=finished(s,rid)
             assert terminal['status']=='failed'
-            # Installed CLI/healthy coordinator may remain ready while this graph failed.
+            degraded=until(lambda:(value if (value:=status(s.state)).get('state')=='degraded' else None),timeout=15)
+            assert degraded['pid']==before['pid'] and degraded['children']==before['children']
+            assert degraded['components']['worker']=='ready' and degraded['components']['n8n']=='degraded'
+            health=until(lambda:(value if (value:=s.client.get('/api/workflow-health').json()).get('engine_status')=='degraded' else None),timeout=10)
+            assert health['status']=='ready' and health['n8n_available'] is True
+            assert health['engine_status']=='degraded'
+            assert health['engine_incident']['run_id']==rid
+            assert health['engine_incident']['code']=='adapter_process_exited'
+            assert health['engine_incident']['instance_id']==before['generation']
             public=s.client.get('/api/workflow-runs/'+rid);assert public.status_code==200 and public.json()['status']=='failed'
             request_stop(s.state,'cancel')
         else:
@@ -75,6 +83,9 @@ def test_owned_engine_component_death_preserves_effect_and_future_schedule(super
         until(lambda:status(s.state)['state']=='stopped',timeout=40)
         replacement=s.launch('--explicit') if component=='n8n' else s.launch()
         assert replacement['generation']!=before['generation'] and replacement['components']['power']=='disabled-for-test'
+        assert replacement['components']['n8n']=='available-cli'
+        restored_health=s.client.get('/api/workflow-health').json()
+        assert restored_health['engine_status']=='available-cli' and restored_health.get('engine_incident') is None
         assert s.launch()['pid']==replacement['pid']
         try:until(lambda:all(not alive(pid) for pid in [worker_pid,adapter_pid,child_pid]),timeout=20)
         except AssertionError:

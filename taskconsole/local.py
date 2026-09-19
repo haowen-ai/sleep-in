@@ -222,6 +222,20 @@ def worker_health(directory, generation=None):
     finally: store.engine.dispose()
 
 
+def run_engine_health(directory, generation):
+    """Read engine evidence separately from coordinator liveness."""
+    import sqlite3
+    database=Path(directory)/'console.db'
+    try:
+        with sqlite3.connect('file:'+str(database)+'?mode=ro',uri=True,timeout=1) as connection:
+            row=connection.execute("SELECT payload FROM console_records WHERE kind='meta' AND id='workflow_engine_health'").fetchone()
+        record=json.loads(row[0]) if row else {}
+        if record.get('instance_id')==generation:
+            return record.get('engine_status','available-cli')
+        return 'available-cli'
+    except (sqlite3.Error,ValueError):return 'unavailable'
+
+
 def active_runs(directory):
     from .store import Store
     store=Store(directory,f'sqlite:///{directory}/console.db')
@@ -292,10 +306,11 @@ def serve(directory):
                     component_states={name:('running' if proc.poll() is None else 'failed') for name,proc in children.items()}
                     component_states['app']='ready' if healthy else 'unavailable'
                     component_states['worker']=worker_health(directory,service_lock.generation)
-                    component_states['n8n']='available-cli'
+                    component_states['n8n']=run_engine_health(directory,service_lock.generation)
                     component_states['power']='disabled-for-test' if config.get('disable_power_assertion') else ('held' if assertion and assertion.poll() is None else 'failed')
                     ready=healthy and component_states['worker']=='ready' and all(proc.poll() is None for proc in children.values()) and (config.get('disable_power_assertion') or assertion.poll() is None)
-                    write_json(directory/'local-status.json',{'pid':os.getpid(),'generation':service_lock.generation,'state':'draining' if request else ('running' if ready else 'degraded'),
+                    engine_ready=component_states['n8n'] in {'available-cli','verified'}
+                    write_json(directory/'local-status.json',{'pid':os.getpid(),'generation':service_lock.generation,'state':'draining' if request else ('running' if ready and engine_ready else 'degraded'),
                         'assertion':bool(assertion and assertion.poll() is None),'url':url,'components':component_states,
                         'children':{name:proc.pid for name,proc in children.items()},'started_at':started,'seen_at':time.time(),'recovery':gap})
                     if not ready: raise RuntimeError('A background component failed; see local-service.log')
@@ -325,7 +340,9 @@ def _start(directory, explicit=False, open_browser=False):
     deadline=time.monotonic()+75
     while time.monotonic()<deadline:
         result=status(directory)
-        if result.get('state')=='running' and app_healthy(result.get('url',''),result.get('generation')):
+        components=result.get('components',{})
+        engine_only_degraded=result.get('state')=='degraded' and components.get('n8n')=='degraded' and components.get('app')=='ready' and components.get('worker')=='ready' and components.get('power') in {'held','disabled-for-test'}
+        if (result.get('state')=='running' or engine_only_degraded) and app_healthy(result.get('url',''),result.get('generation')):
             if open_browser:
                 import webbrowser
                 webbrowser.open(result['url'])
