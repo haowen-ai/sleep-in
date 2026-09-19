@@ -299,13 +299,12 @@
   {
     "id": "MAC-BG-07",
     "tests": [
-      "tests/test_workflow_execution_complete.py::test_disabled_trigger_discards_unadmitted_occurrence"
+      "tests/test_workflow_execution_complete.py::test_disabled_trigger_discards_unadmitted_occurrence",
+      "tests/test_acceptance_browser_pause.py::test_mac_bg07_browser_pause_one_then_global_pause_preserves_active_work_and_service"
     ],
-    "coverage": "partial",
-    "rationale": "Disabled admission covered; two workflow pause-one/pause-all with active run and UI lifecycle remain.",
-    "remaining": [
-      "Disabled admission covered; two workflow pause-one/pause-all with active run and UI lifecycle remain."
-    ]
+    "coverage": "full",
+    "rationale": "Actual Chromium pause-one then global pause with a real isolated supervisor/n8n and two scheduled workflows. Exact occurrence/run IDs and independent effects prove only B is newly admitted after A pauses, active A finishes during global pause, and both re-enabled due workflows remain pending without new effects. Supervisor/generation/children, persistent running preference and power policy remain unchanged. Controlled future scheduler instants do not change the OS clock. Physical sleep assertions are disabled in this software fixture and remain subject to the separate manual power gates.",
+    "remaining": []
   },
   {
     "id": "MAC-BG-08",

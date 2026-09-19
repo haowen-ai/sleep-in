@@ -2,7 +2,13 @@
 
 This ledger supersedes the earlier [core-preview results](RESULTS.md). Tests use synthetic, isolated state. The original test design was committed before implementation; later defects were reproduced with failing tests before fixes. Passing software tests do not establish physical power or public-distribution behavior.
 
-## Current candidate — 2026-09-18
+## Round closeout — 2026-09-18
+
+Production source `74f549aa3b9f2d2f127b2d5dc3cf64b677d0f8c3` is pushed; its [full CI](https://github.com/haowenchen0811/sleep-in/actions/runs/35417044871) was still running at closeout. A new independent localhost preview at `http://127.0.0.1:8767/` has healthy app/worker and available n8n, with OS power assertions explicitly disabled for testing. All 65 packaged resources in the rebuilt local preview match this source; Swift build, ad-hoc signature and side-effect-free self-tests passed.
+
+The final additional browser pause-one/global-pause scenario passed locally with actual supervisor/n8n (1 passed, 27.30 seconds). It changes test coverage only; its CI fixture configuration and exact case mapping accompany this closeout. No further feature expansion is included. CI results are pending, and formal signing, physical Mac trials and remaining acceptance gaps are not claimed complete.
+
+## Previous candidate — 2026-09-18
 
 Pushed candidate `863da8b43512ceb5195d68544e2da91a867b1024` has [same-revision CI evidence](https://github.com/haowenchen0811/sleep-in/actions/runs/35415901572). Its default regression passed 766 tests with 299 fixture skips. The six actual integration groups passed: engine 116 / 3 skips; data 196; execution 60; recovery 68; schedule 93; scale/isolation 13. Compose passed. External SQL had 58 passes and one failure: after an Oracle transaction committed and cancellation completed at the node, the workflow remained `cancelling`. Actual Chromium passed 69 tests. This candidate is therefore not green. These job counts overlap and must not be summed as unique tests.
 
@@ -18,7 +24,7 @@ The Oracle cancellation failure was reproduced using real committed SQLite data 
 
 Eight compiled native-controller cases passed, including real private-supervisor finish/cancel/dismiss paths. Two active and one queued run drain exactly once; cancellation waits for real worker termination and blocks downstream effects; dismissal preserves the active run and preferences. A reproduced 256 KiB subprocess-pipe deadlock is fixed by draining captured output before waiting for process exit. Modal responses remain injected OS-boundary fixtures; they are not presented-dialog, permission or physical-power evidence. Fresh Swift build, ad-hoc signature verification and side-effect-free self-tests passed, but the final committed-source package must still be rebuilt.
 
-The reviewed mappings currently classify 622 entries as full coverage, 17 partial, 33 manual and 3 superseded. These are coverage classifications, not passing outcomes. This follow-up requires its own same-revision CI and package rebuild; earlier evidence must not be presented as verification of that later revision.
+The reviewed mappings currently classify 623 entries as full coverage, 16 partial, 33 manual and 3 superseded. These are coverage classifications, not passing outcomes. This follow-up requires its own same-revision CI and package rebuild; earlier evidence must not be presented as verification of that later revision.
 
 ## Previous software checkpoint — 2026-09-18
 

@@ -213,6 +213,7 @@ jobs:
           argv = json.dumps([shutil.which('node'), os.path.join(os.environ['RUNNER_TEMP'], 'sleep-in-n8n/node_modules/n8n/bin/n8n')])
           print('SLEEP_IN_N8N_COMMAND=' + argv)
           print('SLEEP_IN_TEST_N8N_COMMAND=' + argv)
+          print('SLEEP_IN_TEST_N8N_COMMAND=' + argv)
           print('SLEEP_IN_NODE=' + shutil.which('node'))
           print('SLEEP_IN_TEST_JAVAC=' + shutil.which('javac'))
           PY
@@ -226,7 +227,7 @@ jobs:
         env:
           SLEEP_IN_BROWSER_TEST: "1"
           SLEEP_IN_BROWSER_EVIDENCE_DIR: ${{ github.workspace }}/.browser-evidence
-        run: python -m pytest -q tests/test_acceptance_browser.py tests/test_acceptance_browser_mapping.py tests/test_acceptance_browser_schedules.py tests/test_acceptance_browser_repair.py tests/test_acceptance_browser_run_feedback.py tests/test_acceptance_browser_execution.py tests/test_acceptance_browser_dataflow.py tests/test_acceptance_browser_async_admission.py tests/test_acceptance_browser_runtime.py tests/test_acceptance_browser_account_sessions.py tests/test_acceptance_browser_accessibility.py tests/test_acceptance_browser_locale.py tests/test_acceptance_browser_health.py --junitxml=browser-results.xml
+        run: python -m pytest -q tests/test_acceptance_browser.py tests/test_acceptance_browser_mapping.py tests/test_acceptance_browser_schedules.py tests/test_acceptance_browser_repair.py tests/test_acceptance_browser_run_feedback.py tests/test_acceptance_browser_execution.py tests/test_acceptance_browser_dataflow.py tests/test_acceptance_browser_async_admission.py tests/test_acceptance_browser_runtime.py tests/test_acceptance_browser_account_sessions.py tests/test_acceptance_browser_accessibility.py tests/test_acceptance_browser_locale.py tests/test_acceptance_browser_health.py tests/test_acceptance_browser_pause.py --junitxml=browser-results.xml
       - uses: actions/upload-artifact@v4
         if: always()
         with:
