@@ -128,7 +128,10 @@ def execute_graph(service,rid):
         with store.transaction() as tx:
             current=tx.get('workflow_run',rid)
             if current and current['status'] in {'queued','running'}:
-                current.update(status='failed',error=str(exc),finished_at=stamp())
+                message=str(exc)
+                if any(node.get('process_started') for node in current['nodes'].values()):
+                    message+='; orchestration interrupted, external effects may be uncertain. Explicit rerun required.'
+                current.update(status='failed',error=message,finished_at=stamp())
                 for node in current['nodes'].values():
                     if node['status']=='queued':node.update(status='not_run',reason='orchestration_failed',finished_at=stamp())
                 tx.put('workflow_run',current)
@@ -184,9 +187,10 @@ def recover_interrupted(service):
     from .workflows_execution import terminate_orphan
     with service.store.transaction() as tx:candidates=tx.all('workflow_run')
     for candidate in candidates:
-        if candidate['status'] not in {'queued','running','cancelling'}:continue
+        # An adapter may fail before its detached node process exits. Terminal
+        # run status alone is not evidence that owned processes were reclaimed.
         for state in candidate['nodes'].values():
-            if state.get('worker_pid'):
+            if state.get('worker_pid') and (candidate['status'] in {'queued','running','cancelling'} or state['status'] in {'running','dispatching'}):
                 termination=terminate_orphan(state['worker_pid'],state.get('worker_identity'),service.store.path/'workflow-runs'/candidate['id'])
                 with service.store.transaction() as tx:
                     current=tx.get('workflow_run',candidate['id'])
@@ -194,10 +198,21 @@ def recover_interrupted(service):
     # Runs left by an earlier worker cannot be replayed safely after an uncertain write.
     with service.store.transaction() as tx:
         for run in tx.all('workflow_run'):
-            if run['status'] in {'running','cancelling'} or run['status']=='queued' and run.get('adapter_lease') and not run.get('adapter_finished_at'):
-                run.update(status='failed',error='Worker interrupted; external effects may be uncertain. Explicit rerun required.',finished_at=stamp(),adapter_finished_at=stamp())
+            stranded=any(node.get('worker_pid') and node['status'] in {'running','dispatching'} for node in run['nodes'].values())
+            interrupted_active=run['status'] in {'running','cancelling'} or run['status']=='queued' and run.get('adapter_lease') and not run.get('adapter_finished_at')
+            if stranded or interrupted_active:
+                interrupted_active=run['status'] in {'queued','running','cancelling'}
+                recovered_at=stamp();note='Worker interrupted; external effects may be uncertain. Explicit rerun required.'
+                if interrupted_active:
+                    run.update(status='failed',error=note,finished_at=recovered_at,adapter_finished_at=recovered_at)
+                else:
+                    # Cleanup must not rewrite a recorded terminal outcome or its chronology.
+                    run.update(recovered_at=recovered_at,recovery_note=note)
                 for node in run['nodes'].values():
-                    if node['status'] in {'running','queued','dispatching'}:node.update(status='not_run',reason='interrupted_unknown_effect',finished_at=stamp())
+                    if node['status'] in {'running','queued','dispatching'} and (interrupted_active or node.get('worker_pid')):
+                        node.update(status='not_run',reason='interrupted_unknown_effect',finished_at=stamp())
+                        for attempt in node.get('attempts',[]):
+                            if attempt.get('status')=='running':attempt.update(status='failed',error='Worker interrupted; external effects may be uncertain',finished_at=stamp())
                 tx.put('workflow_run',run)
             elif run.get('adapter_lease') and not run.get('adapter_finished_at'):
                 run['adapter_finished_at']=stamp();tx.put('workflow_run',run)

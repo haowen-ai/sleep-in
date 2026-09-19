@@ -96,13 +96,11 @@
   {
     "id": "CHAIN01",
     "tests": [
-      "tests/test_runtime_language_matrix.py::test_actual_n8n_fixed_pair_design"
+      "tests/test_acceptance_data_contracts.py::test_actual_n8n_seven_language_chain_retains_types_and_sql_bootstrap"
     ],
-    "coverage": "partial",
-    "rationale": "Native N+W pairs cover complete F-ORDERS and exact F-TYPES echoes across all script boundaries.",
-    "remaining": [
-      "One actual seven-language SQL-to-C++ chain with F-TYPES in the script segment and SQL bootstrap preservation has not been run."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated publication/admission executes one real SQLite\u2192Python\u2192JavaScript\u2192Shell\u2192Java\u2192C\u2192C++ n8n chain. Python receives and asserts the exact SQLite bootstrap rows plus F-TYPES; each subsequent script receives and echoes the complete F-TYPES payload with Unicode, null, false, nested arrays and precision strings unchanged. Runtime packs build actual toolchains; Shell uses declared native sed byte-preserving fixture extraction, Java/C/C++ use constrained native envelope parsers. Independent SQL calls and native append counters equal1; every boundary timestamp and pinned language identity asserted.",
+    "remaining": []
   },
   {
     "id": "MAP01",
@@ -116,44 +114,38 @@
   {
     "id": "MAP02",
     "tests": [
-      "tests/test_workflows.py::test_mapping_order_only_and_explicit_field"
+      "tests/test_acceptance_data_contracts.py::test_actual_n8n_explicit_nonadjacent_renamed_paths_constants_and_dynamic_types"
     ],
-    "coverage": "partial",
-    "rationale": "Real worker consumer input equals exactly {v:7}.",
-    "remaining": [
-      "Actual n8n invocation required by case."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated publish/admit and actual n8n execute A.x=7\u2192B.v and A\u2192B\u2192C with C directly bound to nonadjacent A.x. A display name is renamed while ID stays A. Both B/C inputs and outputs equal exactly {v:7}, C starts after B finishes, and independent business counters are1.",
+    "remaining": []
   },
   {
     "id": "MAP03",
     "tests": [
-      "tests/test_workflows.py::test_invalid_cycle_and_mapping_block_publication"
+      "tests/test_acceptance_data_contracts.py::test_authenticated_unreachable_or_deleted_binding_is_preserved_and_rejected"
     ],
-    "coverage": "partial",
-    "rationale": "Service validator rejects cycle and disconnected mapping before publication.",
-    "remaining": [
-      "Real authenticated HTTP save/publish rejection, affected stable IDs/code and no admission/dispatch assertions required."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated public draft/save/publication covers disconnected A\u2192B binding, future-source A binding B, and deletion of A while retaining B.v reference. Draft/readback preserve the broken binding. Publication422 includes exact unreachable_source or missing_source code plus affected stable node and v field; no publication or run admitted.",
+    "remaining": []
   },
   {
     "id": "MAP04",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "C receives 7 after B terminal success; indirect ancestor binding allowed (required level U+N)"
-    ]
+    "tests": [
+      "tests/test_acceptance_data_contracts.py::test_actual_n8n_explicit_nonadjacent_renamed_paths_constants_and_dynamic_types"
+    ],
+    "coverage": "full",
+    "rationale": "Authenticated publish/admit and actual n8n execute A.x=7\u2192B.v and A\u2192B\u2192C with C directly bound to nonadjacent A.x. A display name is renamed while ID stays A. Both B/C inputs and outputs equal exactly {v:7}, C starts after B finishes, and independent business counters are1.",
+    "remaining": []
   },
   {
     "id": "MAP05",
     "tests": [
-      "tests/test_workflows.py::test_invalid_cycle_and_mapping_block_publication"
+      "tests/test_acceptance_data_contracts.py::test_authenticated_unreachable_or_deleted_binding_is_preserved_and_rejected"
     ],
-    "coverage": "partial",
-    "rationale": "Service validator rejects cycle and disconnected mapping before publication.",
-    "remaining": [
-      "Real authenticated HTTP save/publish rejection, affected stable IDs/code and no admission/dispatch assertions required."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated public draft/save/publication covers disconnected A\u2192B binding, future-source A binding B, and deletion of A while retaining B.v reference. Draft/readback preserve the broken binding. Publication422 includes exact unreachable_source or missing_source code plus affected stable node and v field; no publication or run admitted.",
+    "remaining": []
   },
   {
     "id": "MAP06",
@@ -167,22 +159,20 @@
   {
     "id": "MAP07",
     "tests": [
-      "tests/test_acceptance_data.py::test_actual_n8n_golden_variants"
+      "tests/test_acceptance_data_contracts.py::test_actual_n8n_explicit_nonadjacent_renamed_paths_constants_and_dynamic_types"
     ],
-    "coverage": "partial",
-    "rationale": "Actual authenticated public save/publish/run and real n8n golden variant renames/reorders source nodes while stable mappings retain complete exact F-ORDERS outputs.",
-    "remaining": [
-      "The separately fixed MAP07 fixture requires renamed A.x mapped as B.v=7; existing golden fixture covers stable identity with F-ORDERS but not this exact value oracle."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated publish/admit and actual n8n execute A.x=7\u2192B.v and A\u2192B\u2192C with C directly bound to nonadjacent A.x. A display name is renamed while ID stays A. Both B/C inputs and outputs equal exactly {v:7}, C starts after B finishes, and independent business counters are1.",
+    "remaining": []
   },
   {
     "id": "MAP08",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "Draft preserves visible broken reference; publish fails missing source, rather than deleting mapping silently (required level U+A)"
-    ]
+    "tests": [
+      "tests/test_acceptance_data_contracts.py::test_authenticated_unreachable_or_deleted_binding_is_preserved_and_rejected"
+    ],
+    "coverage": "full",
+    "rationale": "Authenticated public draft/save/publication covers disconnected A\u2192B binding, future-source A binding B, and deletion of A while retaining B.v reference. Draft/readback preserve the broken binding. Publication422 includes exact unreachable_source or missing_source code plus affected stable node and v field; no publication or run admitted.",
+    "remaining": []
   },
   {
     "id": "MAP09",
@@ -214,13 +204,11 @@
   {
     "id": "MAP12",
     "tests": [
-      "tests/test_workflows.py::test_optional_without_default_rejected_and_params_mapped"
+      "tests/test_acceptance_data_contracts.py::test_authenticated_optional_default_requires_explicit_property_and_accepts_null"
     ],
-    "coverage": "partial",
-    "rationale": "Missing default is rejected by publication validator.",
-    "remaining": [
-      "Authenticated HTTP publication and explicit default:null accepted with nullable schema."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated publication rejects optional binding without explicit default and identifies B.v. The same graph updated with default:null and nullable binding/target schema publishes successfully.",
+    "remaining": []
   },
   {
     "id": "MAP13",
@@ -247,13 +235,11 @@
   {
     "id": "MAP15",
     "tests": [
-      "tests/test_acceptance_data.py::test_array_token_paths_and_out_of_range_policy"
+      "tests/test_acceptance_data_contracts.py::test_actual_n8n_explicit_nonadjacent_renamed_paths_constants_and_dynamic_types"
     ],
-    "coverage": "partial",
-    "rationale": "Exact token/shorthand paths, literal-dot/numeric keys, negative index rejection and out-of-range missing exception asserted.",
-    "remaining": [
-      "MAP13 needs actual worker/no-fanout oracle; MAP14 required/default behavior needs mapping oracle; MAP15 needs authenticated API."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated publish/admit and actual n8n map A literal-dot, nested and string0 keys with canonical paths [a.b],[a,b],[0-string], yielding exact7/8/9. A separate canonical integer0 path into the object fails before target process/attempt, proving object string keys are distinct from array indices.",
+    "remaining": []
   },
   {
     "id": "MAP16",
@@ -275,63 +261,59 @@
   },
   {
     "id": "MAP18",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "C still receives `{a:[1,2]}`; persisted input snapshot unchanged (required level W+N)"
-    ]
+    "tests": [
+      "tests/test_acceptance_data_contracts.py::test_actual_n8n_explicit_nonadjacent_renamed_paths_constants_and_dynamic_types"
+    ],
+    "coverage": "full",
+    "rationale": "Actual n8n fan-out binds identical constant {a:[1,2]} to two real worker inputs. One worker mutates its local first element to99; the other receives/returns unchanged1,2. Both persisted input records and immutable snapshot binding values remain1,2; independent workers run once.",
+    "remaining": []
   },
   {
     "id": "MAP19",
     "tests": [
-      "tests/test_workflows.py::test_known_mapping_type_mismatch_blocks_publication"
+      "tests/test_acceptance_data_contracts.py::test_authenticated_known_source_and_target_schema_mismatch_blocks_publication",
+      "tests/test_acceptance_data_contracts.py::test_actual_n8n_explicit_nonadjacent_renamed_paths_constants_and_dynamic_types"
     ],
-    "coverage": "partial",
-    "rationale": "Declared string-to-number mismatch blocks publication as incompatible.",
-    "remaining": [
-      "Authenticated API, dynamic mismatch before worker start and actual n8n."
-    ]
+    "coverage": "full",
+    "rationale": "Known A.x string versus B.input_schema number rejects authenticated publication with stable B.v and incompatible diagnostic even without binding.type. Dynamic string7 with unknown source schema executes actual n8n source but fails target input validation with field/type reason, zero target process/attempts and failed run; no numeric coercion.",
+    "remaining": []
   },
   {
     "id": "MAP20",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "Duplicate has new ID; source/config/inputs deep-copied; incoming edges copied; outgoing edges not copied; original consumers retain original source ID; edits to duplicate leave original unchanged (required level U+A)"
-    ]
+    "tests": [
+      "tests/test_acceptance_data_contracts.py::test_duplicate_node_model_and_authenticated_save_preserve_independent_bindings"
+    ],
+    "coverage": "full",
+    "rationale": "Executes production GraphModel.duplicate in actual Node, then authenticates public saves/reloads before and after duplicate edits. New stable ID, exact copied source/config/inputs, copied incoming edge, absent copied outgoing edge and original consumer sourceID all asserted. Nested duplicate config/path edits and source replacement leave original persisted node unchanged.",
+    "remaining": []
   },
   {
     "id": "MAP21",
     "tests": [
-      "tests/test_workflow_transfer.py::test_unknown_or_duplicate_node_ids_and_broken_edges_rejected"
+      "tests/test_acceptance_data_contracts.py::test_authenticated_invalid_graph_ids_reject_before_compilation"
     ],
-    "coverage": "partial",
-    "rationale": "Import validator rejects duplicate IDs and broken edges.",
-    "remaining": [
-      "Authenticated publish rejection and no graph dispatch oracle."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated draft/publication rejects duplicate A IDs and edge to MISSING with exact affected node_id plus diagnostic. No publication, no run and no workflow-runs directory prove no graph compilation/dispatch.",
+    "remaining": []
   },
   {
     "id": "MAP22",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "Reject duplicate target definition rather than last-write-wins data loss (required level U+A)"
-    ]
+    "tests": [
+      "tests/test_acceptance_data_contracts.py::test_authenticated_raw_duplicate_input_names_never_use_last_value"
+    ],
+    "coverage": "full",
+    "rationale": "Sends genuine raw JSON with duplicate inputs.v definitions valued7 and8 to authenticated workflow API. Request is rejected with structured duplicate diagnostic before any workflow or run persists, rather than accepting the parser last value.",
+    "remaining": []
   },
   {
     "id": "MAP23",
     "tests": [
-      "tests/test_workflow_execution_complete.py::test_credentials_encrypted_resolved_at_execution_masked_and_authorized"
+      "tests/test_acceptance_data_contracts.py::test_authenticated_invalid_credential_or_source_never_publishes",
+      "tests/test_acceptance_data_contracts.py::test_actual_n8n_authorized_context_credential_and_missing_context"
     ],
-    "coverage": "partial",
-    "rationale": "Credential current revision resolved with real worker, secrets masked, unauthorized workflow fails.",
-    "remaining": [
-      "Actual n8n, context and unknown-source/missing-reference tests."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated credential authoring/publication rejects missing and unauthorized references and unknown source type. Actual n8n resolves the authorized credential revision and only supported run/workflow/version context fields, verified by exact identities and secret comparison without exposing secret in node state. Unknown context fails with field/path diagnostic before business execution; authorized worker executes once.",
+    "remaining": []
   },
   {
     "id": "DATA01",
@@ -407,22 +389,20 @@
   {
     "id": "DATA08",
     "tests": [
-      "tests/test_workflows.py::test_token_paths_nullable_and_unsupported_schema"
+      "tests/test_acceptance_data_contracts.py::test_authenticated_unsupported_schema_keywords_reject_with_field"
     ],
-    "coverage": "partial",
-    "rationale": "Unsupported additionalProperties keyword rejected in schema helper.",
-    "remaining": [
-      "Authenticated publication error including field."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated draft/publication tests undeclared extra under additionalProperties:false, c under enum[a,b], and11 under minimum0/maximum10. Each unsupported schema keyword rejects publication422 with node B and field v; no publication/run admitted, so constrained invalid values cannot execute silently.",
+    "remaining": []
   },
   {
     "id": "DATA09",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "Initial subset rejects unsupported enum/range validation keywords at publication with field-level error; never silently accepts invalid constrained data (required level U+A)"
-    ]
+    "tests": [
+      "tests/test_acceptance_data_contracts.py::test_authenticated_unsupported_schema_keywords_reject_with_field"
+    ],
+    "coverage": "full",
+    "rationale": "Authenticated draft/publication tests undeclared extra under additionalProperties:false, c under enum[a,b], and11 under minimum0/maximum10. Each unsupported schema keyword rejects publication422 with node B and field v; no publication/run admitted, so constrained invalid values cannot execute silently.",
+    "remaining": []
   },
   {
     "id": "DATA10",
@@ -491,12 +471,13 @@
   {
     "id": "DATA16",
     "tests": [
-      "tests/test_workflow_external_sql.py::test_external_null_bind_and_empty_string_dialect_semantics"
+      "tests/test_workflow_external_sql.py::test_external_null_bind_and_empty_string_dialect_semantics",
+      "tests/test_acceptance_sql_boundaries.py::test_data16_sqlite_null_and_empty_string_stay_distinct_through_real_python"
     ],
     "coverage": "partial",
-    "rationale": "Actual opt-in PG/MY/OR worker validates native empty-string/null semantics.",
+    "rationale": "Dedicated actual SQLite rows NULL and empty text remain distinct through the real Python worker. Existing optional external receiver tests cover dialect null/empty semantics without full Python echo.",
     "remaining": [
-      "SQLite counterpart and SQL\u2192Python echo for each dialect."
+      "Actual PostgreSQL/MySQL/Oracle dedicated fixtures and SQL-to-Python echo remain; Oracle empty-string-is-NULL behavior must be recorded separately."
     ]
   },
   {
@@ -630,13 +611,13 @@
   {
     "id": "OUT12",
     "tests": [
-      "tests/test_workflow_execution_complete.py::test_artifact_crossnode_local_copy_and_checksum"
+      "tests/test_workflow_execution_complete.py::test_artifact_crossnode_local_copy_and_checksum",
+      "tests/test_acceptance_artifacts.py::test_con07_out12_concurrent_n8n_runs_isolate_equal_filenames_and_inputs",
+      "tests/test_acceptance_artifacts.py::test_out12_retry_cannot_accept_previous_attempt_artifact_or_output"
     ],
-    "coverage": "partial",
-    "rationale": "Actual source and consumer use node-local materialization.",
-    "remaining": [
-      "Concurrent runs/attempts with equal filenames and stale-file isolation byte oracle."
-    ]
+    "coverage": "full",
+    "rationale": "Concurrent real n8n runs have disjoint input/output/artifact directories with identical producer filenames. A real two-attempt n8n retry leaves an artifact only in attempt 1; attempt 2 fails collection rather than using that stale file, and no artifact is published.",
+    "remaining": []
   },
   {
     "id": "OUT13",
@@ -690,35 +671,34 @@
   {
     "id": "ART04",
     "tests": [
-      "tests/test_workflow_execution_complete.py::test_artifact_tampering_and_outside_run_rejected"
+      "tests/test_workflow_execution_complete.py::test_artifact_tampering_and_outside_run_rejected",
+      "tests/test_acceptance_artifacts.py::test_art04_05_06_real_producer_rejects_escape_without_reading_target"
     ],
-    "coverage": "partial",
-    "rationale": "Verified-file helper rejects outside-run path and checksum mismatch.",
-    "remaining": [
-      "Worker collection + authenticated download, traversal/symlink/cross-node variants and no outside access evidence."
-    ]
+    "coverage": "full",
+    "rationale": "Actual worker declares ../../outside.txt; collection rejects before the canary read hook fires, preserves outside metadata, fails the node/run, and authenticated run/download responses contain no outside bytes or absolute path.",
+    "remaining": []
   },
   {
     "id": "ART05",
     "tests": [
-      "tests/test_workflow_execution_complete.py::test_artifact_tampering_and_outside_run_rejected"
+      "tests/test_workflow_execution_complete.py::test_artifact_tampering_and_outside_run_rejected",
+      "tests/test_acceptance_artifacts.py::test_art04_05_06_real_producer_rejects_escape_without_reading_target",
+      "tests/test_acceptance_artifacts.py::test_art05_collected_file_replaced_by_outside_symlink_is_not_opened_or_served"
     ],
-    "coverage": "partial",
-    "rationale": "Verified-file helper rejects outside-run path and checksum mismatch.",
-    "remaining": [
-      "Worker collection + authenticated download, traversal/symlink/cross-node variants and no outside access evidence."
-    ]
+    "coverage": "full",
+    "rationale": "Actual worker outside symlink is rejected during collection. Separately a successfully collected file is replaced by an outside symlink with matching bytes/checksum; authenticated download rejects before reading the target and reveals no target data/path.",
+    "remaining": []
   },
   {
     "id": "ART06",
     "tests": [
-      "tests/test_workflow_execution_complete.py::test_artifact_tampering_and_outside_run_rejected"
+      "tests/test_workflow_execution_complete.py::test_artifact_tampering_and_outside_run_rejected",
+      "tests/test_acceptance_artifacts.py::test_art04_05_06_real_producer_rejects_escape_without_reading_target",
+      "tests/test_workflow_execution_complete.py::test_artifact_crossnode_local_copy_and_checksum"
     ],
-    "coverage": "partial",
-    "rationale": "Verified-file helper rejects outside-run path and checksum mismatch.",
-    "remaining": [
-      "Worker collection + authenticated download, traversal/symlink/cross-node variants and no outside access evidence."
-    ]
+    "coverage": "full",
+    "rationale": "Actual first node produces an artifact; second node symlinks to it under the same run and collection rejects before reading. Public run contains no second-node artifact or outside bytes. Authorized materialization remains covered by the existing cross-node copy test.",
+    "remaining": []
   },
   {
     "id": "ART07",
@@ -731,61 +711,60 @@
   },
   {
     "id": "ART08",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "Unique IDs; correct bytes returned for each; display name never file authorization key (required level W+A)"
-    ]
+    "tests": [
+      "tests/test_acceptance_artifacts.py::test_art08_duplicate_display_names_use_unique_ids_and_exact_download_bytes"
+    ],
+    "coverage": "full",
+    "rationale": "Two actual producer nodes emit same.txt with alpha/beta bytes; public listing has unique IDs and no host paths, both authenticated ID downloads return their exact bytes/checksums, and a display-name download key is rejected.",
+    "remaining": []
   },
   {
     "id": "ART09",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "403 or nondisclosing 404; never file bytes or absolute path (required level A)"
-    ]
+    "tests": [
+      "tests/test_acceptance_artifacts.py::test_art09_unauthorized_actor_cannot_download_known_artifact_or_cross_run"
+    ],
+    "coverage": "full",
+    "rationale": "Actual artifact remains inaccessible to anonymous and workflow-unapproved authenticated operator even with exact run/artifact IDs; responses expose neither file bytes nor absolute path. An artifact ID cannot be used with another run.",
+    "remaining": []
   },
   {
     "id": "ART10",
     "tests": [
-      "tests/test_workflow_execution_complete.py::test_artifact_input_total_quota_is_bounded"
+      "tests/test_workflow_execution_complete.py::test_artifact_input_total_quota_is_bounded",
+      "tests/test_acceptance_artifacts.py::test_art10_real_worker_inclusive_file_and_byte_quotas",
+      "tests/test_acceptance_artifacts.py::test_art12_expired_artifact_never_falls_back_to_same_named_new_run"
     ],
-    "coverage": "partial",
-    "rationale": "Materialized artifact aggregate quota rejected using bounded injected quota.",
-    "remaining": [
-      "Exact100/101 count and100MiB/+1 byte collection boundaries, cleanup policy."
-    ]
+    "coverage": "full",
+    "rationale": "Real producers create 100/101 files and sparse files of exactly 100 MiB/+1 byte. Inclusive limits collect exact size/checksum; overages explicitly fail. Worker files/logs are retained as diagnostics; independent real retention case verifies configured data cleanup and explicit expiry.",
+    "remaining": []
   },
   {
     "id": "ART11",
     "tests": [
-      "tests/test_workflow_execution_complete.py::test_artifact_tampering_and_outside_run_rejected"
+      "tests/test_workflow_execution_complete.py::test_artifact_tampering_and_outside_run_rejected",
+      "tests/test_acceptance_artifacts.py::test_art11_tampered_download_and_downstream_materialization_fail_closed"
     ],
-    "coverage": "partial",
-    "rationale": "Verified-file helper rejects outside-run path and checksum mismatch.",
-    "remaining": [
-      "Worker collection + authenticated download, traversal/symlink/cross-node variants and no outside access evidence."
-    ]
+    "coverage": "full",
+    "rationale": "Real producer artifact initially downloads correctly; same-length tampering produces checksum rejection in authenticated download and downstream materialization before a consumer attempt starts. Workflow fails, changed bytes are never served under old checksum.",
+    "remaining": []
   },
   {
     "id": "ART12",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "Explicit expired error; never replace with another run's similarly named file (required level A+N)"
-    ]
+    "tests": [
+      "tests/test_acceptance_artifacts.py::test_art12_expired_artifact_never_falls_back_to_same_named_new_run"
+    ],
+    "coverage": "full",
+    "rationale": "Actual n8n runs produce old/new distinct bytes with the same display filename. Direct deletion and real retention cleanup both yield explicit expired HTTP errors for the old ID; the new artifact stays correct, and an unsupported resume request cannot admit a replacement or substitute the newer file.",
+    "remaining": []
   },
   {
     "id": "ART13",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "Safe Content-Disposition filename; original safe display name retained; no header/path injection (required level A)"
-    ]
+    "tests": [
+      "tests/test_acceptance_artifacts.py::test_art13_download_filename_is_safe_while_display_name_is_preserved"
+    ],
+    "coverage": "full",
+    "rationale": "Real producers name artifacts with newline, quote, Unicode, forward and Windows separators. Authenticated HTTP downloads preserve exact bytes and original public display names; attachment filenames have no slash/backslash/control characters and headers contain no raw CR/LF.",
+    "remaining": []
   },
   {
     "id": "SQL01",
@@ -808,13 +787,11 @@
   {
     "id": "SQL03",
     "tests": [
-      "tests/test_workflow_sql_contract.py::test_bound_input_cannot_change_query"
+      "tests/test_acceptance_sql_boundaries.py::test_sql03_injection_value_does_not_change_template_or_full_orders_table"
     ],
-    "coverage": "partial",
-    "rationale": "Real SQLite injection string returns no rows, real bound positive control returns one.",
-    "remaining": [
-      "Independent full table-unchanged oracle."
-    ]
+    "coverage": "full",
+    "rationale": "Mandatory SQLite receiver executes the exact bound injection string against an unchanged template, returns zero rows, positive control selects A001, and an independent connection verifies all F-ORDERS rows plus zero mutation ledger entries.",
+    "remaining": []
   },
   {
     "id": "SQL04",
@@ -846,57 +823,47 @@
   {
     "id": "SQL07",
     "tests": [
-      "tests/test_workflow_sql_contract.py::test_query_mode_rejects_writes_and_attaching_host_file"
+      "tests/test_acceptance_sql_boundaries.py::test_sql07_query_connection_rejects_writes_independent_of_first_token"
     ],
-    "coverage": "partial",
-    "rationale": "Real SQLite DELETE and ATTACH denied, original rowCount remains3.",
-    "remaining": [
-      "INSERT/UPDATE/CTE/commented writes, PRAGMA/load_extension variants and no host escape proof."
-    ]
+    "coverage": "full",
+    "rationale": "Actual read-only SQLite connection rejects INSERT/UPDATE/DELETE, leading comment variants and CTE variants with database read-only errors. Independent full F-ORDERS/effect/mutation ledgers prove zero writes. This establishes the SQLite base; external dialect suffix cases require their own servers.",
+    "remaining": []
   },
   {
     "id": "SQL08",
     "tests": [
-      "tests/test_workflow_sql_contract.py::test_query_mode_rejects_writes_and_attaching_host_file"
+      "tests/test_acceptance_sql_boundaries.py::test_sql08_sqlite_escape_attempts_cannot_open_or_modify_host_canary"
     ],
-    "coverage": "partial",
-    "rationale": "Real SQLite DELETE and ATTACH denied, original rowCount remains3.",
-    "remaining": [
-      "INSERT/UPDATE/CTE/commented writes, PRAGMA/load_extension variants and no host escape proof."
-    ]
+    "coverage": "full",
+    "rationale": "Actual managed SQLite query connection denies ATTACH, VACUUM INTO, persistent PRAGMA mutations and unauthorized extension loading. Disposable outside canary remains byte-identical, no external database is created, F-ORDERS/mutation ledger remain unchanged, and read-only PRAGMA table_info is explicitly supported.",
+    "remaining": []
   },
   {
     "id": "SQL09",
     "tests": [
-      "tests/test_workflow_external_sql.py::test_external_write_commit_and_failed_second_statement_rollback"
+      "tests/test_acceptance_sql_boundaries.py::test_sql09_n8n_explicit_write_commits_effect001_once"
     ],
-    "coverage": "partial",
-    "rationale": "Actual opt-in external databases commit one update and roll back first statement when second fails.",
-    "remaining": [
-      "SQL09 actual n8n effect-001 insert and independent effect count; SQL10 mandatory SQLite exact insert rollback fixture."
-    ]
+    "coverage": "full",
+    "rationale": "Actual SQLite+n8n explicit parameterized write commits effect-001 once, reports affectedRows=1, preserves the idempotency-key run identity and produces exactly one independently read effect/mutation. SQLite base evidence does not substitute for external dialect suffix runs.",
+    "remaining": []
   },
   {
     "id": "SQL10",
     "tests": [
-      "tests/test_workflow_external_sql.py::test_external_write_commit_and_failed_second_statement_rollback"
+      "tests/test_acceptance_sql_boundaries.py::test_sql10_parameterized_statements_list_rolls_back_insert_on_later_failure"
     ],
-    "coverage": "partial",
-    "rationale": "Actual opt-in external databases commit one update and roll back first statement when second fails.",
-    "remaining": [
-      "SQL09 actual n8n effect-001 insert and independent effect count; SQL10 mandatory SQLite exact insert rollback fixture."
-    ]
+    "coverage": "full",
+    "rationale": "Actual SQLite statements list binds effect-001 and literal semicolon text, then fails on a missing table. Node/workflow fail and independent effect plus transactional mutation ledgers are empty; complete F-ORDERS is unchanged. External dialect suffix cases remain separate.",
+    "remaining": []
   },
   {
     "id": "SQL11",
     "tests": [
-      "tests/test_workflow_external_sql.py::test_external_write_commit_and_failed_second_statement_rollback"
+      "tests/test_acceptance_sql_boundaries.py::test_sql11_n8n_node_a_commit_survives_node_b_transaction_rollback"
     ],
-    "coverage": "partial",
-    "rationale": "Real external write commit survives a later independent failed transaction.",
-    "remaining": [
-      "Actual two-node n8n graph with A remains committed/B rollback/run failed."
-    ]
+    "coverage": "full",
+    "rationale": "Actual two-node SQLite+n8n graph commits A, then B inserts and fails its second statement. Workflow fails; independent effect/mutation ledgers retain only A and B rolls back. No cross-node transaction or external-dialect claim is inferred.",
+    "remaining": []
   },
   {
     "id": "SQL12",
@@ -912,24 +879,21 @@
   {
     "id": "SQL13",
     "tests": [
-      "tests/test_workflow_external_sql.py::test_external_real_timeout_is_bounded"
+      "tests/test_acceptance_sql_boundaries.py::test_sql13_n8n_sqlite_timeout_rolls_back_and_blocks_downstream",
+      "tests/test_acceptance_sql_boundaries.py::test_sqlite_explicit_cancellation_rolls_back_interrupted_transaction"
     ],
-    "coverage": "partial",
-    "rationale": "Actual driver query deadline bounded and follow-up query succeeds.",
-    "remaining": [
-      "Actual n8n timed_out/downstream blocked and transaction rollback/cancellation proof."
-    ]
+    "coverage": "full",
+    "rationale": "Actual SQLite recursive query hits a one-second deadline after a transaction insert: node/run timed_out, downstream not_run with no attempt, independent effect/mutation ledgers empty, and a fresh query succeeds. Separate real progress-handler cancellation also rolls back. This is the SQLite base; each external driver still requires its own timeout/rollback evidence.",
+    "remaining": []
   },
   {
     "id": "SQL14",
     "tests": [
-      "tests/test_workflow_execution_complete.py::test_sql_large_result_exports_full_dataset_for_downstream"
+      "tests/test_acceptance_sql_boundaries.py::test_sql14_twenty_thousand_rows_reach_python_with_checksum_and_paginated_preview"
     ],
-    "coverage": "partial",
-    "rationale": "Real SQLite\u2192Python direct execution preserves12000 rows beyond inline quota.",
-    "remaining": [
-      "Exact20000-row/checksum/preview pagination and actual n8n."
-    ]
+    "coverage": "full",
+    "rationale": "Actual SQLite+n8n transfers exactly 20,000 ordered rows through a dataset reference to Python; exact count/canonical checksum match. Authenticated first/middle/final 100-row pages carry total/offset/limit/has_more metadata; complete artifact download checksum and all rows match.",
+    "remaining": []
   },
   {
     "id": "SQL15",
@@ -966,21 +930,21 @@
   },
   {
     "id": "SQL18",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "Authorization error, no database connect attempt (required level A+F)"
-    ]
+    "tests": [
+      "tests/test_acceptance_sql_boundaries.py::test_sql18_unauthorized_workflow_rejected_before_database_connect"
+    ],
+    "coverage": "full",
+    "rationale": "Authenticated API limits a real SQLite connection to workflow A; B publication fails authorization. Revoking A after publication also rejects execution before its database connect spy fires; original F-ORDERS remains intact.",
+    "remaining": []
   },
   {
     "id": "SQL19",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "Explicit unavailable/blocked status, never generic SQL ready presented as that dialect ready (required level A+W)"
-    ]
+    "tests": [
+      "tests/test_acceptance_sql_boundaries.py::test_sql19_actual_absent_optional_drivers_are_unavailable_and_block_publication"
+    ],
+    "coverage": "full",
+    "rationale": "Real isolated Python import environment retains application dependencies but excludes psycopg/pymysql/oracledb; no detector/import mock. All three connection APIs report driver_available=false, connection tests fail safely, dialect-specific publication errors block execution, and no run is admitted.",
+    "remaining": []
   },
   {
     "id": "SQL20",
@@ -1024,12 +988,12 @@
   },
   {
     "id": "SQL24",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "Reject unmanaged path; no arbitrary host database opened (required level A+W)"
-    ]
+    "tests": [
+      "tests/test_acceptance_sql_boundaries.py::test_sql24_api_rejects_unmanaged_paths_before_opening_host_database"
+    ],
+    "coverage": "full",
+    "rationale": "Authenticated create/update reject path/file/database/url keys for absolute and traversal paths with managed-storage errors. Connection records are unchanged, no SQLite open targets the disposable host canary, and its bytes remain unchanged.",
+    "remaining": []
   },
   {
     "id": "SQL25",
@@ -1436,11 +1400,9 @@
     "tests": [
       "tests/test_workflow_execution_n8n_complete.py::test_actual_n8n_independent_roots_overlap"
     ],
-    "coverage": "partial",
-    "rationale": "Actual n8n two independent native workers return overlapping wall-clock intervals.",
-    "remaining": [
-      "Monotonic2s intervals and serial baseline total duration required; current test is1s and wall time."
-    ]
+    "coverage": "full",
+    "rationale": "Actual n8n runs two independent native processes sleeping2seconds with monotonic timestamps, then the same nodes as a serial dependency baseline. The independent worker intervals overlap and their measured execution window is shorter than the >=4second serial window. Both graphs persist actual execution IDs and one attempt per node; engine startup is excluded from the worker-window comparison.",
+    "remaining": []
   },
   {
     "id": "CON03",
@@ -1486,13 +1448,12 @@
   {
     "id": "CON07",
     "tests": [
-      "tests/test_workflow_execution_complete.py::test_artifact_crossnode_local_copy_and_checksum"
+      "tests/test_workflow_execution_complete.py::test_artifact_crossnode_local_copy_and_checksum",
+      "tests/test_acceptance_artifacts.py::test_con07_out12_concurrent_n8n_runs_isolate_equal_filenames_and_inputs"
     ],
-    "coverage": "partial",
-    "rationale": "Actual source and consumer use node-local materialization.",
-    "remaining": [
-      "Concurrent runs/attempts with equal filenames and stale-file isolation byte oracle."
-    ]
+    "coverage": "full",
+    "rationale": "Two real n8n executions use identical producer source/filenames and a real two-worker barrier to establish concurrent execution. Separate run/node/attempt input, output and artifact paths hold alpha/beta values; unique artifact-ID downloads return only the corresponding bytes.",
+    "remaining": []
   },
   {
     "id": "CON08",
@@ -1526,12 +1487,12 @@
   },
   {
     "id": "N03",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "Run never marked succeeded solely from exit0; failure/timeout and adapter log recorded (required level N+F)"
-    ]
+    "tests": [
+      "tests/test_acceptance_orchestration_faults.py::test_actual_n8n_exit_zero_without_finish_is_failed_with_effect_preserved"
+    ],
+    "coverage": "full",
+    "rationale": "Actual pinned n8n succeeds its business node and exits zero with a deliberately omitted terminal callback. The adapter records failure/log/execution identities, preserves the one committed output/effect, and refuses automatic re-execution.",
+    "remaining": []
   },
   {
     "id": "N04",
@@ -1563,24 +1524,20 @@
   {
     "id": "N07",
     "tests": [
-      "tests/test_acceptance_concurrency.py::test_twenty_admissions_twenty_callbacks_one_effect_and_safe_capabilities"
+      "tests/test_acceptance_orchestration_faults.py::test_capabilities_pending_nodes_and_terminal_replay_are_snapshot_scoped"
     ],
-    "coverage": "partial",
-    "rationale": "Real authenticated n8n test rejects nonexistent node identity and premature finish without invoking business work; forged source/run/version payload cannot replace admitted source.",
-    "remaining": [
-      "N07 needs wrong-run token and expired-version/execution capability variants."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated callbacks using another run token or absent node cannot mutate either snapshot. After actual n8n completion, old capability replays with injected source/run/version fields return only the original terminal result, with one independently counted invocation.",
+    "remaining": []
   },
   {
     "id": "N08",
     "tests": [
-      "tests/test_acceptance_concurrency.py::test_twenty_admissions_twenty_callbacks_one_effect_and_safe_capabilities"
+      "tests/test_acceptance_orchestration_faults.py::test_capabilities_pending_nodes_and_terminal_replay_are_snapshot_scoped"
     ],
-    "coverage": "partial",
-    "rationale": "Real authenticated n8n test rejects nonexistent node identity and premature finish without invoking business work; forged source/run/version payload cannot replace admitted source.",
-    "remaining": [
-      "Early finish response should explicitly assert pending list contents."
-    ]
+    "coverage": "full",
+    "rationale": "Early authenticated finish returns409 dependencies_pending and the exact pending node ID list, with no state mutation. Actual n8n later finishes only after the required node is terminal.",
+    "remaining": []
   },
   {
     "id": "N09",
@@ -1602,43 +1559,41 @@
   },
   {
     "id": "N11",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "Run failed with meaningful import log; no false queued indefinitely/success (required level N+F)"
-    ]
+    "tests": [
+      "tests/test_acceptance_orchestration_faults.py::test_actual_n8n_import_failure_is_terminal_and_has_diagnostics"
+    ],
+    "coverage": "full",
+    "rationale": "The real n8n import command receives a deliberately invalid nodes schema. Nonzero exit becomes terminal failure with import diagnostics within60seconds, with zero worker attempts/business effects.",
+    "remaining": []
   },
   {
     "id": "N12",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "n8n failure recorded; no node falsely succeeded; workflow fails/times out within deadline (required level N+F)"
-    ]
+    "tests": [
+      "tests/test_acceptance_orchestration_faults.py::test_actual_n8n_worker_transport_outage_fails_without_business_invocation"
+    ],
+    "coverage": "full",
+    "rationale": "Actual n8n claims an execution but worker-node callback URLs encounter an owned unavailable loopback port. It records orchestration failure/log/execution identities within60seconds; the node remains not_run with zero independent business calls.",
+    "remaining": []
   },
   {
     "id": "N13",
     "tests": [
-      "tests/test_workflow_execution_complete.py::test_recovery_terminates_only_verified_detached_worker"
+      "tests/test_acceptance_engine_recovery.py::test_owned_engine_component_death_preserves_effect_and_future_schedule",
+      "tests/test_acceptance_engine_recovery.py::test_recovery_reclaims_verified_worker_from_already_failed_run"
     ],
-    "coverage": "partial",
-    "rationale": "Detached genuine worker process with persisted identity is killed on recovery and run fails.",
-    "remaining": [
-      "Kill actual n8n/web after committed effect, restart reconciliation,independent no-replay counts and future scheduling."
-    ]
+    "coverage": "full",
+    "rationale": "Genuine isolated supervisor and actual n8n: three separate trials SIGKILL the owned per-run n8n, web child or coordinator worker after a worker fsyncs an independent business ledger and starts a child process. Restart reclaims the worker/child/n8n, records explicit failed/interrupted or uncertain outcome, preserves one attempt and the same graph execution/lease with exactly one n8n execution row, and reuses the original idempotency key without replay. A later scheduled occurrence at an explicitly supplied future scheduler instant executes actual n8n once with exact output; ledger remains one interrupted effect plus one deliberate future effect. Focused persisted-state regression proves failed-run records cannot strand verified detached workers. Power assertion disabled; no physical power or host clock/network changes.",
+    "remaining": []
   },
   {
     "id": "N14",
     "tests": [
-      "tests/test_workflow_execution_complete.py::test_recovery_terminates_only_verified_detached_worker"
+      "tests/test_acceptance_engine_recovery.py::test_owned_engine_component_death_preserves_effect_and_future_schedule",
+      "tests/test_acceptance_engine_recovery.py::test_recovery_reclaims_verified_worker_from_already_failed_run"
     ],
-    "coverage": "partial",
-    "rationale": "Detached genuine worker process with persisted identity is killed on recovery and run fails.",
-    "remaining": [
-      "Kill actual n8n/web after committed effect, restart reconciliation,independent no-replay counts and future scheduling."
-    ]
+    "coverage": "full",
+    "rationale": "Genuine isolated supervisor and actual n8n: three separate trials SIGKILL the owned per-run n8n, web child or coordinator worker after a worker fsyncs an independent business ledger and starts a child process. Restart reclaims the worker/child/n8n, records explicit failed/interrupted or uncertain outcome, preserves one attempt and the same graph execution/lease with exactly one n8n execution row, and reuses the original idempotency key without replay. A later scheduled occurrence at an explicitly supplied future scheduler instant executes actual n8n once with exact output; ledger remains one interrupted effect plus one deliberate future effect. Focused persisted-state regression proves failed-run records cannot strand verified detached workers. Power assertion disabled; no physical power or host clock/network changes.",
+    "remaining": []
   },
   {
     "id": "N15",
@@ -1661,24 +1616,20 @@
   {
     "id": "VER01",
     "tests": [
-      "tests/test_acceptance_data.py::test_actual_n8n_golden_variants"
+      "tests/test_acceptance_version_snapshots.py::test_actual_n8n_publication_and_test_snapshots_remain_immutable"
     ],
-    "coverage": "partial",
-    "rationale": "Actual admitted run retains published identity/source after draft edit.",
-    "remaining": [
-      "Publish V2 before callback; next default run V2; authenticated HTTP versions/hashes/history and original build."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated save/publish/admit plus three actual n8n graphs: an admitted V1 keeps marker3 despite V2 publication before callback; the next default run uses V2 marker9. A test snapshot keeps marker4 after another draft edit to99, does not replace V2, and emits no formal notification while both formal runs do enqueue notices. Original publications/digests/history remain exact, and independent counters show one invocation per run.",
+    "remaining": []
   },
   {
     "id": "VER02",
     "tests": [
-      "tests/test_acceptance_data.py::test_actual_n8n_golden_variants"
+      "tests/test_acceptance_version_snapshots.py::test_actual_n8n_publication_and_test_snapshots_remain_immutable"
     ],
-    "coverage": "partial",
-    "rationale": "Actual admitted run retains published identity/source after draft edit.",
-    "remaining": [
-      "Publish V2 before callback; next default run V2; authenticated HTTP versions/hashes/history and original build."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated save/publish/admit plus three actual n8n graphs: an admitted V1 keeps marker3 despite V2 publication before callback; the next default run uses V2 marker9. A test snapshot keeps marker4 after another draft edit to99, does not replace V2, and emits no formal notification while both formal runs do enqueue notices. Original publications/digests/history remain exact, and independent counters show one invocation per run.",
+    "remaining": []
   },
   {
     "id": "VER03",
@@ -1705,13 +1656,11 @@
   {
     "id": "VER05",
     "tests": [
-      "tests/test_workflow_execution_complete.py::test_node_only_explicit_inputs_and_frozen_draft"
+      "tests/test_acceptance_version_snapshots.py::test_actual_n8n_publication_and_test_snapshots_remain_immutable"
     ],
-    "coverage": "partial",
-    "rationale": "Node-only test freezes incomplete draft and executes selected worker with explicit inputs.",
-    "remaining": [
-      "Whole draft test via authenticated API/n8n; publication unchanged and notifications suppressed."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated save/publish/admit plus three actual n8n graphs: an admitted V1 keeps marker3 despite V2 publication before callback; the next default run uses V2 marker9. A test snapshot keeps marker4 after another draft edit to99, does not replace V2, and emits no formal notification while both formal runs do enqueue notices. Original publications/digests/history remain exact, and independent counters show one invocation per run.",
+    "remaining": []
   },
   {
     "id": "VER06",
@@ -1749,13 +1698,11 @@
   {
     "id": "API01",
     "tests": [
-      "tests/test_workflow_api_contract.py::test_draft_save_never_publishes_and_run_requires_publication"
+      "tests/test_acceptance_data_contracts.py::test_authenticated_unreachable_or_deleted_binding_is_preserved_and_rejected"
     ],
-    "coverage": "partial",
-    "rationale": "Authenticated unpublished admission returns structured code/message and no run.",
-    "remaining": [
-      "Invalid mapping publication with exact actionable node/field error."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated public draft/save/publication covers disconnected A\u2192B binding, future-source A binding B, and deletion of A while retaining B.v reference. Draft/readback preserve the broken binding. Publication422 includes exact unreachable_source or missing_source code plus affected stable node and v field; no publication or run admitted.",
+    "remaining": []
   },
   {
     "id": "API02",
@@ -1771,13 +1718,10 @@
   {
     "id": "API03",
     "tests": [
-      "tests/test_workflow_api_contract.py::test_workflow_catalogs_require_login",
-      "tests/test_workflow_api_contract.py::test_csrf_blocks_mutation_before_store_changes"
+      "tests/test_acceptance_auth_matrix.py::test_all_workflow_mutations_and_artifact_reads_enforce_auth_without_state_change"
     ],
-    "coverage": "partial",
-    "rationale": "Anonymous catalogs401 and create-without-CSRF403 preserve empty store.",
-    "remaining": [
-      "Create/edit/publish/run/cancel and artifact reads complete auth/CSRF no-mutation matrix."
-    ]
+    "coverage": "full",
+    "rationale": "Real authenticated API creates and reads a worker-produced artifact. Anonymous, missing-CSRF and cross-Origin create/edit/publish/run/cancel requests are denied with exact401/403; full persistent-record snapshots remain unchanged. Anonymous file download is denied without bytes.",
+    "remaining": []
   }
 ]

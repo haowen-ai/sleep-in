@@ -98,7 +98,9 @@ def test_actual_smtp_partial_recipient_refusal_is_not_reported_as_full_success(s
     assert smtp.delivered.wait(1) and len(smtp.received)==1
     assert smtp.attempted==['TO:<exact-recipient@example.invalid>','TO:<rejected@example.invalid>']
     notice=op.deliveries()[0]
-    assert notice['status']=='failed', 'Partially refused SMTP delivery must not claim full success'
+    assert notice['status']=='uncertain', 'A partial delivery must neither claim full success nor permit a whole-message retry'
     assert 'partial' in notice['error'].lower()
+    with pytest.raises(ValueError,match='uncertain'):
+        op.retry_delivery(notice['id'],1)
     with store.transaction() as tx:assert tx.get('workflow_run',original['id'])==original
     op.tick();assert len(smtp.received)==1

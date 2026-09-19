@@ -80,13 +80,12 @@
     "id": "SCH-009",
     "tests": [
       "tests/test_workflow_schedule_contract.py::test_fixed_schedule_oracles",
-      "tests/test_acceptance_browser.py::test_browser_schedule_locale_weekdays_and_validation"
+      "tests/test_acceptance_browser.py::test_browser_schedule_locale_weekdays_and_validation",
+      "tests/test_acceptance_browser_schedules.py::test_browser_weekday_protocol_and_chicago_locale_reload_are_exact"
     ],
-    "coverage": "partial",
-    "rationale": "Unit Monday/Wednesday dates and real browser weekday numeric protocol tested separately.",
-    "remaining": [
-      "Assert third September 28 preview and exact Monday/Wednesday UI [0,2] rather than browser Monday/Thursday fixture."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium checks Monday/Wednesday numeric protocol [0,2] and exact first three September21/23/28 dates against real API.",
+    "remaining": []
   },
   {
     "id": "SCH-010",
@@ -127,13 +126,12 @@
   {
     "id": "SCH-014",
     "tests": [
-      "tests/test_workflow_schedule_contract.py::test_once_completes_and_inclusive_start_end"
+      "tests/test_workflow_schedule_contract.py::test_once_completes_and_inclusive_start_end",
+      "tests/test_acceptance_browser_schedules.py::test_browser_expired_once_is_not_labelled_manual_and_never_replays"
     ],
-    "coverage": "partial",
-    "rationale": "Calculator returns no future occurrence after one-time due.",
-    "remaining": [
-      "Exercise expired once enable via API and browser; assert explicit expired notice and no silent run."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium enables and saves expired once, displays explicit expired/no-replay notice and empty preview after reload; subsequent controlled scheduler ticks create no run.",
+    "remaining": []
   },
   {
     "id": "SCH-015",
@@ -187,13 +185,12 @@
   {
     "id": "SCH-020",
     "tests": [
-      "tests/test_acceptance_browser.py::test_browser_schedule_locale_weekdays_and_validation"
+      "tests/test_acceptance_browser.py::test_browser_schedule_locale_weekdays_and_validation",
+      "tests/test_acceptance_browser_schedules.py::test_browser_weekday_protocol_and_chicago_locale_reload_are_exact"
     ],
-    "coverage": "partial",
-    "rationale": "Real browser EN/ZH preserves saved schedule and UTC previews using Shanghai.",
-    "remaining": [
-      "Repeat exact Chicago case with page reload and EN restoration; assert displayed local time plus unchanged next_run."
-    ]
+    "coverage": "full",
+    "rationale": "Saved Chicago07:00 schedule is displayed locally, switched EN to ZH, reloaded and restored EN; exact UTC previews, local input time, timezone, enabled flag and canonical schedule remain unchanged.",
+    "remaining": []
   },
   {
     "id": "SCH-021",
@@ -353,13 +350,12 @@
     "id": "SCH-037",
     "tests": [
       "tests/test_acceptance_schedule_security.py::test_schedule_invalid_api_values_are_specific_without_runs",
-      "tests/test_acceptance_browser.py::test_browser_schedule_locale_weekdays_and_validation"
+      "tests/test_acceptance_browser.py::test_browser_schedule_locale_weekdays_and_validation",
+      "tests/test_acceptance_browser_schedules.py::test_browser_invalid_form_matrix_rejects_enable_and_preserves_saved_state"
     ],
-    "coverage": "partial",
-    "rationale": "Every listed invalid value has structured specific API failure with no runs; browser only invalid bounds proven.",
-    "remaining": [
-      "Repeat entire invalid value matrix through real browser form controls."
-    ]
+    "coverage": "full",
+    "rationale": "Every listed invalid value is independently API-rejected and exercised in real Chromium preview/enable without runs or persisted enabling. Native-impossible boolean/25:00/day32 values use API-authored incomplete drafts; native numeric step validation also blocks invalid saving.",
+    "remaining": []
   },
   {
     "id": "SCH-038",
@@ -374,12 +370,12 @@
   {
     "id": "SCH-039",
     "tests": [
-      "tests/test_acceptance_schedule_security.py::test_sch039_naive_boundary_uses_selected_zone_first_fold_and_rejects_gap"
+      "tests/test_acceptance_schedule_security.py::test_sch039_naive_boundary_uses_selected_zone_first_fold_and_rejects_gap",
+      "tests/test_acceptance_browser_schedules.py::test_browser_local_dst_boundaries_persist_first_fold_and_reject_gap"
     ],
     "coverage": "partial",
-    "rationale": "API now persists explicit UTC instants and first DST fold, rejects nonexistent boundary with actionable error.",
+    "rationale": "API and real Chromium parse naive boundary inputs in selected New York zone, persist explicit first-fold UTC instants and display matching previews; nonexistent boundary is rejected with actionable error and no persisted mutation.",
     "remaining": [
-      "Real browser local boundary entry/preview still required.",
       "Original oracle says skip nonexistent boundary; implementation rejects it rather than silently choosing a different instant. Resolve intended boundary semantics without changing historical oracle."
     ]
   },
@@ -611,15 +607,11 @@
   {
     "id": "SEC-004",
     "tests": [
-      "tests/test_local_integration.py::test_local_bootstrap_rejects_rebinding_and_proxy",
-      "tests/test_local_integration.py::test_local_bootstrap_rejects_nonloopback_peer",
-      "tests/test_acceptance_lifecycle.py::test_mac_au07_exact_origin_authority_rejected_without_state_changes"
+      "tests/test_acceptance_auth_matrix.py::test_internal_execution_routes_reject_forwarded_external_requests_before_effects"
     ],
-    "coverage": "partial",
-    "rationale": "Host/forwarded/foreign origin/nonloopback bootstrap and mutations blocked.",
-    "remaining": [
-      "Explicit internal trigger endpoint matrix under forwarded/external Host/nonloopback peers remains to be asserted."
-    ]
+    "coverage": "full",
+    "rationale": "Actual local HTTP middleware rejects claim/submit/status/execute/finish/tick with valid internal capabilities under external/wrong-port Host, Forwarded/X-Forwarded headers, foreign Origin and nonloopback peers. All database records stay identical, no worker directory exists, and direct loopback authenticated status remains available.",
+    "remaining": []
   },
   {
     "id": "SEC-005",

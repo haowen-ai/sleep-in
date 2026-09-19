@@ -47,7 +47,7 @@ jobs:
 
   workflow-integration:
     runs-on: ubuntu-24.04
-    timeout-minutes: 35
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -78,7 +78,7 @@ jobs:
           if shutil.which('gradle'): print('SLEEP_IN_TEST_GRADLE=' + shutil.which('gradle'))
           PY
       - name: Verify actual graphs and supervisor lifecycle
-        run: python -m pytest -q tests/test_workflows_n8n.py tests/test_workflow_execution_n8n_complete.py tests/test_runtime_language_matrix.py tests/test_runtime_packs.py tests/test_runtime_projects.py tests/test_local_supervisor_integration.py tests/test_acceptance_data.py tests/test_acceptance_data_edges.py tests/test_acceptance_branches.py tests/test_acceptance_concurrency.py tests/test_acceptance_schedule_security.py tests/test_acceptance_schedule_security_closure.py tests/test_acceptance_lifecycle.py tests/test_acceptance_release_edges.py tests/test_acceptance_admission_recovery.py tests/test_acceptance_storage.py tests/test_acceptance_delivery.py -ra --junitxml=integration-results.xml
+        run: python -m pytest -q tests/test_workflows_n8n.py tests/test_workflow_execution_n8n_complete.py tests/test_runtime_language_matrix.py tests/test_runtime_packs.py tests/test_runtime_projects.py tests/test_local_supervisor_integration.py tests/test_acceptance_data.py tests/test_acceptance_data_edges.py tests/test_acceptance_branches.py tests/test_acceptance_concurrency.py tests/test_acceptance_schedule_security.py tests/test_acceptance_schedule_security_closure.py tests/test_acceptance_lifecycle.py tests/test_acceptance_release_edges.py tests/test_acceptance_admission_recovery.py tests/test_acceptance_storage.py tests/test_acceptance_delivery.py tests/test_acceptance_data_contracts.py tests/test_acceptance_local_recovery.py tests/test_acceptance_json.py tests/test_acceptance_artifacts.py tests/test_acceptance_orchestration_faults.py tests/test_acceptance_auth_matrix.py tests/test_acceptance_sql_boundaries.py tests/test_acceptance_engine_recovery.py tests/test_acceptance_version_snapshots.py -ra --junitxml=integration-results.xml
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -190,7 +190,7 @@ jobs:
       - name: Verify actual browser against a fresh local application
         env:
           SLEEP_IN_BROWSER_TEST: "1"
-        run: python -m pytest -q tests/test_acceptance_browser.py --junitxml=browser-results.xml
+        run: python -m pytest -q tests/test_acceptance_browser.py tests/test_acceptance_browser_mapping.py tests/test_acceptance_browser_schedules.py --junitxml=browser-results.xml
       - uses: actions/upload-artifact@v4
         if: always()
         with:

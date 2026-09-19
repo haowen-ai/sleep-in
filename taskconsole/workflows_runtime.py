@@ -105,7 +105,7 @@ def validate_schema(schema):
     if unsupported: raise ValueError('Unsupported schema keyword: '+','.join(sorted(unsupported)))
     expected=schema.get('type',[])
     variants=expected if isinstance(expected,list) else [expected]
-    if any(v not in SCHEMA_TYPES for v in variants): raise ValueError('Unsupported schema type')
+    if any(not isinstance(v,str) or v not in SCHEMA_TYPES for v in variants): raise ValueError('Unsupported schema type')
     if 'required' in schema and (not isinstance(schema['required'],list) or any(not isinstance(v,str) for v in schema['required'])): raise ValueError('required must be field names')
     if 'properties' in schema:
         if not isinstance(schema['properties'],dict): raise ValueError('properties must be an object')

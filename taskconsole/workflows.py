@@ -24,11 +24,12 @@ IDENTIFIER=re.compile(r'^[A-Za-z0-9_-]{1,100}$')
 
 
 class WorkflowError(ValueError):
-    def __init__(self,message,code='workflow_invalid',node_id=None,field=None):
+    def __init__(self,message,code='workflow_invalid',node_id=None,field=None,*,pending=None):
         super().__init__(message)
         self.detail={'code':code,'message':message}
         if node_id:self.detail['node_id']=node_id
         if field:self.detail['field']=field
+        if pending is not None:self.detail['pending']=pending
 
 
 def need(tx,kind,key):
@@ -97,15 +98,21 @@ class WorkflowService(ExecutionMixin):
 
     def validate(self,wf,publication=False):
         errors=[]
-        def error(message,node_id=None,field=None):errors.append(WorkflowError(message,node_id=node_id,field=field).detail)
+        def error(message,node_id=None,field=None,code='workflow_invalid'):errors.append(WorkflowError(message,code,node_id=node_id,field=field).detail)
         nodes=wf.get('nodes',[]);edges=wf.get('edges',[])
         if not isinstance(nodes,list) or not isinstance(edges,list):return [WorkflowError('Nodes and edges must be arrays').detail]
         if not nodes:error('Add at least one node')
         if len(nodes)>50:error('Initial graph limit is 50 nodes')
         ids=[n.get('id') for n in nodes if isinstance(n,dict)]
         if len(ids)!=len(nodes) or any(not isinstance(i,str) or not IDENTIFIER.fullmatch(i) for i in ids):error('Nodes require valid stable IDs');return errors
-        if len(ids)!=len(set(ids)):error('Duplicate node IDs');return errors
-        if any(not isinstance(e,dict) or e.get('source') not in ids or e.get('target') not in ids for e in edges):error('Edge references a missing node');return errors
+        if len(ids)!=len(set(ids)):
+            error('Duplicate node ID: '+next(i for i in ids if ids.count(i)>1),next(i for i in ids if ids.count(i)>1));return errors
+        for edge in edges:
+            if not isinstance(edge,dict):error('Edge must be an object');return errors
+            for endpoint in ['source','target']:
+                if edge.get(endpoint) not in ids:
+                    missing=edge.get(endpoint)
+                    error('Edge references a missing node: '+str(missing),missing if isinstance(missing,str) else None);return errors
         try:upstream=ancestors(nodes,edges)
         except WorkflowError as exc:return [exc.detail]
         profiles={r['language']:r for r in runtimes()} if publication else {}
@@ -121,41 +128,78 @@ class WorkflowService(ExecutionMixin):
                     except ValueError as exc:error(str(exc),edge['source'])
         for node in nodes:
             nid=node['id'];kind=node.get('kind');config=node.get('config',{})
+            if not isinstance(kind,str):error('Choose a supported language',nid);continue
             if kind not in LANGUAGES and not (kind=='custom' and config.get('runtime_version_id')):error('Choose a supported language',nid)
             if not isinstance(config,dict):error('Node configuration must be an object',nid);continue
             if config.get('migration_requires_runtime') and not (config.get('runtime_version_id') or wf.get('settings',{}).get('runtime_defaults',{}).get(kind)):error('Migrated dependencies require an explicit runtime version',nid)
             incoming=[e for e in edges if e['target']==nid]
-            if len(incoming)>1 and config.get('join') not in {'all','any'}:error('Multiple predecessors require an explicit join',nid)
+            if len(incoming)>1 and config.get('join') not in ('all','any'):error('Multiple predecessors require an explicit join',nid)
             try:retry_policy(node)
             except ValueError as exc:error(str(exc),nid)
-            if config.get('join','all') not in {'all','any'}:error('Unknown join policy',nid)
-            if config.get('merge','named') not in {'named','append'}:error('Unknown merge mode',nid)
+            if config.get('join','all') not in ('all','any'):error('Unknown join policy',nid)
+            if config.get('merge','named') not in ('named','append'):error('Unknown merge mode',nid)
             if not config.get('project_id') and (not isinstance(node.get('source',''),str) or not node.get('source','').strip()):error('Source is required',nid)
-            try:validate_schema(node.get('outputs',{}));validate_schema(node.get('input_schema',{}))
-            except ValueError as exc:error(str(exc),nid)
+            for schema_key in ['outputs','input_schema']:
+                schema=node.get(schema_key,{})
+                try:validate_schema(schema)
+                except ValueError as exc:
+                    # Locate the named property while retaining the schema validator's diagnostic.
+                    def invalid_field(value,prefix=''):
+                        if not isinstance(value,dict):return prefix
+                        for key,child in value.get('properties',{}).items() if isinstance(value.get('properties',{}),dict) else []:
+                            try:validate_schema(child)
+                            except ValueError:return invalid_field(child,prefix+'.'+key if prefix else key)
+                        if 'items' in value:
+                            try:validate_schema(value['items'])
+                            except ValueError:return invalid_field(value['items'],prefix)
+                        return prefix
+                    error(str(exc),nid,invalid_field(schema) or schema_key)
             mappings=node.get('inputs',{})
             if not isinstance(mappings,dict):error('Inputs must be a named object',nid);continue
             for field,binding in mappings.items():
                 if not isinstance(binding,dict):error('Input binding must be an object',nid,field);continue
                 source=binding.get('source')
-                if source not in {'constant','parameter','node','none','context','artifact','credential'}:error('Unsupported input source',nid,field)
+                if not isinstance(source,str) or source not in {'constant','parameter','node','none','context','artifact','credential'}:
+                    error('Unsupported input source',nid,field);continue
                 if source=='credential':
                     with self.store.transaction() as tx:credential=tx.get('workflow_credential',binding.get('credential_id',''))
                     if not credential:error('Choose a credential reference',nid,field)
                     elif credential.get('allowed_workflows') and wf.get('id') not in credential['allowed_workflows']:error('Credential not authorized for workflow',nid,field)
                 if source=='artifact' and not isinstance(binding.get('name'),str):error('Choose an artifact name',nid,field)
-                if source in {'node','artifact'} and binding.get('node_id') not in upstream[nid]:error('Input source must be a reachable upstream node',nid,field)
+                if source in {'node','artifact'}:
+                    if binding.get('node_id') not in ids:error('Input source node is missing: '+str(binding.get('node_id')),nid,field,code='missing_source')
+                    elif binding.get('node_id') not in upstream[nid]:error('Input source must be a reachable upstream node',nid,field,code='unreachable_source')
                 if binding.get('optional') and 'default' not in binding:error('Optional input requires an explicit default',nid,field)
-                if source=='node' and 'type' in binding:
+                if source=='node':
                     parent=next((n for n in nodes if n['id']==binding.get('node_id')),None)
                     schema=parent.get('outputs',{}) if parent else {}
-                    for token in path_tokens(binding.get('path')):
-                        schema=schema.get('items',{}) if isinstance(token,int) or schema.get('type')=='array' else schema.get('properties',{}).get(token,{})
-                    offered=schema.get('type')
-                    requested=binding['type']
-                    offered=offered if isinstance(offered,list) else [offered] if offered else []
-                    requested=requested if isinstance(requested,list) else [requested]
-                    if any(t not in requested and not (t=='integer' and 'number' in requested) for t in offered):error('Upstream and input types are incompatible',nid,field)
+                    try:
+                        validate_schema(schema)
+                        validate_schema(node.get('input_schema',{}))
+                        for token in path_tokens(binding.get('path')):
+                            if not isinstance(schema,dict):schema={};break
+                            types=schema.get('type',[]);types=types if isinstance(types,list) else [types]
+                            if types and not any(t in {'object','array'} for t in types):
+                                raise ValueError('Input source path cannot traverse declared '+','.join(types)+' schema')
+                            containers=set(types)&{'object','array'}
+                            if containers=={'array'}:
+                                if not (type(token) is int or isinstance(binding.get('path'),str) and isinstance(token,str) and token.isdigit()):
+                                    raise ValueError('Input source path requires an array index')
+                                schema=schema.get('items',{})
+                            elif containers=={'object'} or not types:
+                                if type(token) is int and containers=={'object'}:raise ValueError('Input source path requires an object key')
+                                schema=schema.get('properties',{}).get(token,{})
+                            else:schema={}
+                        offered=schema.get('type') if isinstance(schema,dict) else None
+                        target=node.get('input_schema',{})
+                        target=target.get('properties',{}).get(field,{}) if isinstance(target,dict) else {}
+                        for requested in [binding.get('type'),target.get('type') if isinstance(target,dict) else None]:
+                            if requested is None:continue
+                            available=offered if isinstance(offered,list) else [offered] if offered else []
+                            accepted=requested if isinstance(requested,list) else [requested]
+                            if any(t not in accepted and not (t=='integer' and 'number' in accepted) for t in available):
+                                error('Upstream and input types are incompatible: '+str(offered)+' -> '+str(requested),nid,field)
+                    except ValueError as exc:error(str(exc),nid,field)
                 try:
                     path_tokens(binding.get('path'))
                     if 'type' in binding:validate_schema({'type':binding['type']})
@@ -215,7 +259,7 @@ class WorkflowService(ExecutionMixin):
         with self.store.transaction() as tx:wf=need(tx,'workflow',wid)
         validate_operating_policies(self.store,wf)
         errors=self.validate(wf,True)
-        if errors:raise WorkflowError(errors[0]['message'],node_id=errors[0].get('node_id'),field=errors[0].get('field'))
+        if errors:raise WorkflowError(errors[0]['message'],errors[0]['code'],node_id=errors[0].get('node_id'),field=errors[0].get('field'))
         from .workflows_packs import prepare_node
         snapshot=copy.deepcopy(wf)
         for index,node in enumerate(snapshot['nodes']):
@@ -423,12 +467,13 @@ class WorkflowService(ExecutionMixin):
         with self.store.transaction() as tx:
             run=need(tx,'workflow_run',rid)
             if run['status'] not in ACTIVE:return run
-            if any(n['status'] in {'running','dispatching'} for n in run['nodes'].values()):raise WorkflowError('Nodes still running','dependencies_pending')
+            pending=[nid for nid,n in run['nodes'].items() if n['status'] not in NODE_TERMINAL]
+            if any(n['status'] in {'running','dispatching'} for n in run['nodes'].values()):raise WorkflowError('Nodes still running','dependencies_pending',pending=pending)
             if run['status']=='cancelling':
                 for n in run['nodes'].values():
                     if n['status']=='queued':n.update(status='cancelled',finished_at=stamp())
                 run['status']='cancelled'
-            elif any(n['status']=='queued' for n in run['nodes'].values()):raise WorkflowError('Nodes are not terminal','dependencies_pending')
+            elif any(n['status']=='queued' for n in run['nodes'].values()):raise WorkflowError('Nodes are not terminal','dependencies_pending',pending=pending)
             else:
                 states=run['nodes'];failed=[nid for nid,n in states.items() if n['status'] in {'failed','timed_out','not_run','cancelled'}]
                 tolerated=all(any(e['source']==nid for e in run['snapshot']['edges']) and all(not e.get('required',True) for e in run['snapshot']['edges'] if e['source']==nid) for nid in failed)
@@ -650,12 +695,15 @@ def register_workflow_routes(app,store,require):
     @app.get('/api/workflow-runs/{rid}/artifacts/{aid}')
     def artifact(rid:str,aid:str,request:Request):
         run=service.get_run(rid);auth(request,run['workflow_id'])
+        if run.get('data_expired'):raise WorkflowError('Artifact expired under the run retention policy','not_found')
         item=next((a for a in run['artifacts'] if a['id']==aid),None)
         if not item:raise WorkflowError('Artifact not found','not_found')
         file=Path(item['path']).resolve();root=(store.path/'workflow-runs'/rid).resolve()
         if not file.is_relative_to(root) or not file.is_file():raise WorkflowError('Artifact missing or expired','not_found')
         if hashlib.sha256(file.read_bytes()).hexdigest()!=item['sha256']:raise WorkflowError('Artifact checksum changed')
-        return FileResponse(file,filename=Path(item['name']).name,media_type=item['mediaType'])
+        filename=re.sub(r'[\x00-\x1f\x7f]','_',str(item['name']).replace('\\','/').rsplit('/',1)[-1])
+        if filename in {'','.','..'}:filename='artifact'
+        return FileResponse(file,filename=filename,media_type=item['mediaType'])
 
     @app.get('/api/workflow-credentials')
     def credentials(request:Request):

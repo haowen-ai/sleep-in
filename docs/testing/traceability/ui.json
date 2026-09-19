@@ -58,14 +58,12 @@
     "id": "UI-G06",
     "tests": [
       "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_mapping_adds_dependency_and_rejects_cycles_without_mutation",
-      "tests/test_workflow_fixed_layout.py::FixedLayoutTests::test_existing_graph_reflows_downward_without_changing_data"
+      "tests/test_workflow_fixed_layout.py::FixedLayoutTests::test_existing_graph_reflows_downward_without_changing_data",
+      "tests/test_acceptance_browser_mapping.py::test_browser_nonadjacent_sql_source_is_selected_by_id_not_neighbor"
     ],
-    "coverage": "partial",
-    "rationale": "Model source bindings create explicit dependencies independently of obsolete coordinates. Only the free-movement step is superseded; source-selection/runtime requirements remain.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Execute actual source picker and n8n graph with unrelated middle node; assert exact target input and dependency snapshot."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium creates consumer before an unrelated JavaScript node and the SQL source, explicitly selects the SQL field by stable ID, and persists only SQL-to-consumer dependency. Actual n8n delivers the three exact F-ORDERS rows, never the unrelated node marker; independent file counters prove one consumer and unrelated-node invocation. Fixed-downward layout supersedes only the free-position/move step; source selection remains independent of creation order and neighboring nodes.",
+    "remaining": []
   },
   {
     "id": "UI-G07",
@@ -145,64 +143,56 @@
     "tests": [
       "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_unused_upstream_is_never_injected_and_binding_removal_keeps_order",
       "tests/test_workflows.py::test_mapping_order_only_and_explicit_field",
-      "tests/test_workflows.py::test_failed_required_order_edge_blocks_constant_consumer"
+      "tests/test_workflows.py::test_failed_required_order_edge_blocks_constant_consumer",
+      "tests/test_acceptance_browser_mapping.py::test_browser_no_upstream_mapping_keeps_order_but_never_injects_data"
     ],
-    "coverage": "partial",
-    "rationale": "Model verifies removing mappings keeps edges, empty input and false constant; workers verify explicit input and failed order edge blocking.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Run exact SQL→Python empty and hello-constant variants, slow predecessor timing, failed predecessor and disconnected independence with real n8n."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium removes the existing SQL output binding, verifies the no-input explanation, then runs empty inputs and a hello constant. Actual n8n also exercises a costly recursive SQL predecessor, failed SQL predecessor, and edge removal. Timestamps prove dependency ordering, failed required predecessor blocks execution, and disconnection restores independence. Persisted inputs remain exact with no optional fallback; an independent file counter records exactly four consumer invocations across five runs.",
+    "remaining": []
   },
   {
     "id": "UI-M03",
     "tests": [
-      "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_unused_upstream_is_never_injected_and_binding_removal_keeps_order"
+      "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_unused_upstream_is_never_injected_and_binding_removal_keeps_order",
+      "tests/test_acceptance_browser_mapping.py::test_browser_independent_nodes_do_not_inherit_visual_neighbor_data"
     ],
-    "coverage": "partial",
-    "rationale": "Input preview has no implicit upstream inheritance; this model test retains an edge and is only supporting evidence for independent roots.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Execute independent roots with token marker and constant label; inspect absence of edge/data leak and one invocation per admitted node."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium configures a constant on the middle node of three independent roots and inspects the persisted empty dependency graph. Actual n8n gives the consumer only its declared label, never the neighboring token; durable snapshot has no edges and independent per-node file counters are each one. No parallelism or relative ordering is inferred.",
+    "remaining": []
   },
   {
     "id": "UI-M04",
     "tests": [
       "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_mixed_input_types_optional_missing_and_present_null",
-      "tests/test_workflows.py::test_missing_optional_uses_default_required_blocks_process"
+      "tests/test_workflows.py::test_missing_optional_uses_default_required_blocks_process",
+      "tests/test_acceptance_browser_mapping.py::test_browser_optional_missing_field_and_existing_empty_array_are_distinct"
     ],
-    "coverage": "partial",
-    "rationale": "Model distinguishes missing from present null; real worker uses explicit missing-field fallback and blocks required missing input.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Configure optional array fallback via UI, persist/reload it, and distinguish missing versus actual empty array in real run inspection."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium authors optional array mappings and different explicit fallbacks, saves/reloads them, and runs real n8n twice. A prior nonempty source sample becomes visibly stale before the source omits rows; the new consumer gets the configured empty fallback, while an actual empty array preserves its value instead of the differing fallback. Per-field provenance and bilingual UI sample-origin notes distinguish fallback from present data; exact current-run sample attribution and independent invocation counts are checked.",
+    "remaining": []
   },
   {
     "id": "UI-M05",
     "tests": [
       "tests/test_workflows.py::test_present_values_do_not_use_optional_default",
-      "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_mixed_input_types_optional_missing_and_present_null"
+      "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_mixed_input_types_optional_missing_and_present_null",
+      "tests/test_acceptance_browser_mapping.py::test_browser_present_false_zero_null_and_empty_values_never_use_fallback",
+      "tests/test_acceptance_browser_mapping.py::test_browser_type_invalid_fallback_and_runtime_null_never_execute_consumer"
     ],
-    "coverage": "partial",
-    "rationale": "All parameterized worker variants cover null,false,zero,empty string,array; model also covers present null. Function selector deliberately includes all five worker variants.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Add existing empty-object variant and null-incompatible declared-type failure; show representative real browser execution."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium authors all six optional bindings from JavaScript to Python with a visibly different fallback, saves/reloads, and actual n8n preserves [], {}, null, 0, false and empty string exactly. An independent counter verifies one consumer invocation. A separate uncertain-schema null-to-array case fails before execution instead of using its valid array fallback.",
+    "remaining": []
   },
   {
     "id": "UI-M06",
     "tests": [
-      "tests/test_workflows.py::test_missing_optional_uses_default_required_blocks_process"
+      "tests/test_workflows.py::test_missing_optional_uses_default_required_blocks_process",
+      "tests/test_acceptance_browser_mapping.py::test_browser_required_missing_output_fails_before_consumer_side_effect",
+      "tests/test_acceptance_browser_mapping.py::test_browser_declared_scalar_source_cannot_publish_object_field_binding"
     ],
-    "coverage": "partial",
-    "rationale": "Real worker fails required missing field and records no process start.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Check declared-schema-known missing field at publication, exact target-field error and fixture side-effect counter remains zero."
-    ]
+    "coverage": "full",
+    "rationale": "Actual n8n source success with missing summary produces a precise consumer/field/source error before the consumer process starts, with an independent side-effect counter remaining zero; real Chromium opens the error. A separate UI schema edit makes the source a declared scalar, so impossible object-field traversal is rejected at publication with a link to the consumer and no publication. Unknown/open schema paths remain subject to runtime validation.",
+    "remaining": []
   },
   {
     "id": "UI-M07",
@@ -222,14 +212,12 @@
     "tests": [
       "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_mixed_input_types_optional_missing_and_present_null",
       "tests/test_workflows.py::test_optional_without_default_rejected_and_params_mapped",
-      "tests/test_acceptance_browser.py::test_browser_locale_preserves_unsaved_graph_source_and_mapping"
+      "tests/test_acceptance_browser.py::test_browser_locale_preserves_unsaved_graph_source_and_mapping",
+      "tests/test_acceptance_browser_mapping.py::test_browser_constants_parameters_and_sql_output_coexist_with_override"
     ],
-    "coverage": "partial",
-    "rationale": "Model verifies upstream array, parameter and false constant together; worker verifies explicit parameter resolution.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Configure/persist/run all five exact fields with invocation override and prove unbound threshold exclusion in actual n8n input."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium configures and reloads all five distinct mappings on the SQL/Python/JavaScript template. A real published n8n invocation overrides region and threshold: Python receives the exact SQL rows, West, numeric 2, boolean false and demo array, while unbound threshold is absent. Python summary and JavaScript input remain correct; an independent Python counter and durable n8n identity verify execution.",
+    "remaining": []
   },
   {
     "id": "UI-M09",
@@ -245,14 +233,12 @@
     "id": "UI-M10",
     "tests": [
       "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_rename_keeps_binding_delete_exposes_broken_mapping_undo_restores",
-      "tests/test_workflows.py::test_template_executes_complete_rows_once"
+      "tests/test_workflows.py::test_template_executes_complete_rows_once",
+      "tests/test_acceptance_browser_mapping.py::test_browser_unicode_duplicate_names_keep_ids_and_prior_run_snapshot"
     ],
-    "coverage": "partial",
-    "rationale": "Model rename preserves stable node references; worker publication test retains earlier captured source after edits.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Rename with Unicode/duplicate display names; inspect picker disambiguation, exact runtime input and immutable prior run labels/source."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium renames SQL and Python to the same Unicode label, saves and inspects ID-disambiguated source options and unchanged binding IDs. Actual n8n still produces the exact summary and report input; independent Python/JavaScript counters are two across prior and renamed runs. Prior run UI retains captured names, and direct durable snapshot comparison proves immutable publication and prior source content are unchanged.",
+    "remaining": []
   },
   {
     "id": "UI-M11",
@@ -282,14 +268,12 @@
   {
     "id": "UI-M13",
     "tests": [
-      "tests/test_workflows.py::test_known_mapping_type_mismatch_blocks_publication"
+      "tests/test_workflows.py::test_known_mapping_type_mismatch_blocks_publication",
+      "tests/test_acceptance_browser_mapping.py::test_browser_type_invalid_fallback_and_runtime_null_never_execute_consumer"
     ],
-    "coverage": "partial",
-    "rationale": "Backend rejects known string-to-number mapping mismatch at publication.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Cover exact rowCount→array error, invalid fallback type, runtime uncertain schema validation and field/type error linkage without coercion."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium maps SQL integer rowCount into expected array and verifies target/field plus offered/requested types in validation; publish and draft test are rejected. An invalid string fallback is also rejected. Actual n8n repeats array validation when source schema is unknown and returns null, producing a precise type failure with no coercion and zero consumer side effects.",
+    "remaining": []
   },
   {
     "id": "UI-L01",
@@ -366,14 +350,12 @@
     "id": "UI-S01",
     "tests": [
       "tests/test_workflow_api_contract.py::test_preview_returns_structured_errors_and_fixed_oracle",
-      "tests/test_workflows_n8n.py::test_actual_n8n_branch_merge_no_input_and_scheduled_occurrence"
+      "tests/test_workflows_n8n.py::test_actual_n8n_branch_merge_no_input_and_scheduled_occurrence",
+      "tests/test_acceptance_browser_schedules.py::test_browser_weekday_form_summary_admits_published_template_with_real_n8n"
     ],
-    "coverage": "partial",
-    "rationale": "API preview checks fixed weekdays oracle; n8n integration exercises interval occurrence rather than the exact requested weekday journey.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Set exact weekdays 07:30 Asia/Shanghai, inspect natural summary/five occurrences and save/reload; dispatch exact controlled weekday via n8n with publication evidence."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium sets weekdays 07:30 Asia/Shanghai, previews five labeled dates and Monday-Friday summary, saves/reloads, then controlled scheduler admission executes the captured publication with actual n8n and durable execution evidence.",
+    "remaining": []
   },
   {
     "id": "UI-S02",
@@ -381,13 +363,13 @@
       "tests/test_workflow_schedule_contract.py::test_fixed_schedule_oracles",
       "tests/test_workflow_schedule_contract.py::test_once_completes_and_inclusive_start_end",
       "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_named_schedule_creation_is_disabled_independent_and_keeps_timezone",
-      "tests/test_acceptance_browser.py::test_browser_schedule_locale_weekdays_and_validation"
+      "tests/test_acceptance_browser.py::test_browser_schedule_locale_weekdays_and_validation",
+      "tests/test_acceptance_browser_schedules.py::test_browser_all_schedule_forms_roundtrip_without_stale_kind_fields"
     ],
     "coverage": "partial",
-    "rationale": "All schedule-oracle parameter variants cover canonical server forms, multi-time input and selected timezone; named-trigger model preserves independent disabled schedules.",
+    "rationale": "Real Chromium exercises every specified form and interval unit, canonical save/reload, stale-kind field exclusion, manual/once preview, multi-time deduplication and no Cron input.",
     "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Exercise each form and kind switch, stale-field exclusion, manual/once presentation, required controls, multi-time and persisted preview equivalence."
+      "Required-field semantics for every visible control, especially empty interval anchor and empty clock, remain unverified; ordinary schedule inputs do not all declare native required attributes."
     ]
   },
   {
@@ -396,53 +378,48 @@
       "tests/test_workflow_schedule_contract.py::test_bad_forms_rejected",
       "tests/test_workflow_schedule_contract.py::test_invalid_timezone_is_validation_error",
       "tests/test_workflows.py::test_enabled_named_triggers_require_publication_and_valid_schedule",
-      "tests/test_acceptance_browser.py::test_browser_schedule_locale_weekdays_and_validation"
+      "tests/test_acceptance_browser.py::test_browser_schedule_locale_weekdays_and_validation",
+      "tests/test_acceptance_browser_schedules.py::test_browser_invalid_form_matrix_rejects_enable_and_preserves_saved_state",
+      "tests/test_acceptance_browser_schedules.py::test_browser_invalid_schedule_preview_clears_old_occurrences_without_server_mutation",
+      "tests/test_acceptance_browser_schedules.py::test_browser_delayed_and_out_of_order_previews_cannot_replace_current_form"
     ],
-    "coverage": "partial",
-    "rationale": "All invalid server form variants, invalid timezone and unpublished/invalid trigger enablement are rejected.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Check every case value via preview/save/enable, accessible specific errors, no fabricated state and preserved valid edits."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium and independent API cover invalid interval, weekdays, month-day, clock, zone, bounds and once date; native validation where applicable, accessible specific preview errors, no mutation/enabling/runs, preserved valid name on correction, and unpublished refusal. Native-impossible values are loaded as incomplete API-authored drafts and rejected through UI preview/enable. Delayed or out-of-order previews cannot overwrite current form results.",
+    "remaining": []
   },
   {
     "id": "UI-S04",
     "tests": [
       "tests/test_workflow_schedule_contract.py::test_fixed_schedule_oracles",
       "tests/test_workflow_schedule_contract.py::test_once_completes_and_inclusive_start_end",
-      "tests/test_workflow_schedule_contract.py::test_past_end_without_start_is_expired_not_invalid"
+      "tests/test_workflow_schedule_contract.py::test_past_end_without_start_is_expired_not_invalid",
+      "tests/test_acceptance_browser_schedules.py::test_browser_month_bounds_and_dst_previews_match_controlled_dispatch",
+      "tests/test_acceptance_browser_schedules.py::test_browser_expired_once_is_not_labelled_manual_and_never_replays"
     ],
-    "coverage": "partial",
-    "rationale": "All fixed schedule variants include missing day31, leap month-end and bounds/expired once calculations.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Cover specified February 2029 and April dispatch oracles as well as 2028; compare admitted occurrences and honest fewer-than-five UI."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium preview and actual controlled scheduler admission agree for missing April day31, February 2028/2029 month-end, inclusive bounds with two displayed occurrences, and expired once with explicit notice and no replay.",
+    "remaining": []
   },
   {
     "id": "UI-S05",
     "tests": [
-      "tests/test_workflow_schedule_contract.py::test_fixed_schedule_oracles"
+      "tests/test_workflow_schedule_contract.py::test_fixed_schedule_oracles",
+      "tests/test_acceptance_browser_schedules.py::test_browser_month_bounds_and_dst_previews_match_controlled_dispatch"
     ],
-    "coverage": "partial",
-    "rationale": "All fixed schedule variants include Chicago 2026 gap/fold instants; exact New York 2027 fixture and dispatch/UI are not covered.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Run New York 2027-03-14/11-07 preview+dispatch, no duplicate, timezone offsets and identical bilingual instants."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium and controlled scheduler use exact New York 2027 transition dates: spring02:30 skipped, autumn01:30 first occurrence only, duplicate admission suppressed, IANA zone and offsets visible, EN/ZH preview instants equal.",
+    "remaining": []
   },
   {
     "id": "UI-S06",
     "tests": [
       "tests/test_workflows.py::test_template_executes_complete_rows_once",
-      "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_save_ack_keeps_form_references_and_does_not_clean_later_edits"
+      "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_save_ack_keeps_form_references_and_does_not_clean_later_edits",
+      "tests/test_acceptance_browser_schedules.py::test_browser_pause_edit_publish_and_reenable_keeps_admitted_version"
     ],
-    "coverage": "partial",
-    "rationale": "Worker test preserves frozen publication source and UI save acknowledgement preserves dirty revision; pause/re-enable lifecycle is not proved.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Execute v1 running/pause/v2 edit+publish/re-enable under controlled clock; no pause backlog and no premature enabled state."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium pauses enabled v1, preserves admitted v1 through source editing, publication v2 and re-enable; controlled paused date admits nothing, future date runs v2 exactly once using actual n8n, no backlog burst. Unsaved enable checkbox leaves persisted enabled false; execution IDs and independent invocation counter verify two runs.",
+    "remaining": []
   },
   {
     "id": "UI-R01",

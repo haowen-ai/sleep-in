@@ -10,6 +10,16 @@ This revision adds authenticated real-graph data oracles, browser editing/retry 
 
 Both PRDs now present the current fixed-downward, Mac-first flow consistently. Formal Apple signing/notarization is still unavailable for this preview. Ad-hoc package build/self-tests remain local preview evidence. Physical background/power trials and software cases with partial or missing exact oracles remain open; promotion has not been evaluated as a completed-release activity.
 
+### Checkpoint CI and follow-up verification
+
+Source `857139220eb7b818eed894d6969ace06d7434129` was tested in [the acceptance-branch run](https://github.com/haowenchen0811/sleep-in/actions/runs/35387223595). Real n8n integration passed **297 tests with 3 fixture skips**, the PostgreSQL/MySQL/Oracle job passed **32 tests**, the real Chromium job passed **15 tests**, and fresh Compose passed. The complete default regression had **575 passed, 159 skipped, 1 failed**: an older partial-SMTP-delivery assertion expected a retryable failure instead of the new uncertain outcome. This run is therefore **not green and not release-ready**. Counts overlap.
+
+The follow-up preserves the stricter no-duplicate-mail contract: partial delivery is uncertain, cannot retry the entire message, and does not change the business run. All 19 notification/SMTP tests pass locally after updating that old assertion. Additional local acceptance covers mapping, nullable schema validation, duplicate JSON fields, file isolation/expiry, browser inputs and actual n8n orchestration faults. These later changes require their own complete CI revision; the checkpoint result must not be represented as evidence for them.
+
+The next verification candidate adds 10 actual-browser mapping cases and 10 schedule cases, including stale/out-of-order preview responses, explicit expired-once feedback, natural schedule summaries, DST offsets and publication isolation. Six recovery cases use actual owned-process interruption or verified detached workers; cleanup preserves terminal outcome history and does not replay uncertain effects. SQLite cancellation/timeout reports the correct outcome after transaction rollback. JSON guards reject duplicate keys, non-finite values and invalid Unicode before persistence; artifact downloads enforce authorization, retention and safe filenames. These focused suites passed locally; complete regression and CI results must still be associated with this candidate's own source revision.
+
+Reviewed mapping coverage is now **527 full, 112 partial, 33 manual and 2 superseded entries**. These are coverage classifications, not pass counts. The rebuilt Apple-silicon preview passed Swift compilation, ad-hoc signature verification, resource self-test and comparison of all 64 packaged source files. It remains an unnotarized local preview; no login-item registration, power assertion, reboot or external notification was performed by that build.
+
 ## Pre-closure acceptance audit — 2026-09-18
 
 Source `47f6e905a142315c0c26267f635d69354bf1949f` has [four successful CI jobs](https://github.com/haowenchen0811/sleep-in/actions/runs/35373110451): default regression **396 passed, 96 skipped**; integration **100 passed**; external SQL **29 passed**; clean Compose scheduled graph/artifact/bootstrap checks passed. Counts overlap. At that revision the 364-case design index had no per-case execution trace, and Mac physical/distribution gates remained open. Therefore this was **not complete PRD acceptance or an all-designed-cases-passed claim**. See the [historical audit](ACCEPTANCE-AUDIT-2026-09-18.md).
@@ -36,7 +46,7 @@ Component evidence already obtained:
 - Real loopback SMTP tests exercise exact recipients, secret masking, partial refusal and failure isolation. Local HTTP fixtures exercise webhook delivery. No notification was sent to an external recipient.
 - Mac package: Swift compilation, resource self-test and ad-hoc code-signature verification. Isolated fixtures exercise update validation, backup, stop/start exclusion and rollback.
 
-## Final GitHub Actions verification — 2026-09-18
+## Historical GitHub Actions verification — source 38dcfb6
 
 [All four jobs passed](https://github.com/haowenchen0811/sleep-in/actions/runs/35322543880) for source commit `38dcfb65f09e08e0c3ada8cadc9f2d21998ddf53`:
 

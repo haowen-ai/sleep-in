@@ -173,11 +173,17 @@ def execute_sql(store,node,inputs,workflow_id,cancelled=lambda:False):
     timeout=config.get('timeout',30)
     if type(timeout) is not int or not 1<=timeout<=3600:raise ValueError('SQL timeout must be 1..3600 seconds')
     db=connect(store,connection,write,timeout=timeout)
+    interrupted=None
     try:
         if connection['dialect']=='sqlite':
             import time
             deadline=time.monotonic()+int(config.get('timeout',30))
-            db.set_progress_handler(lambda:int(cancelled() or time.monotonic()>deadline),1000)
+            def progress():
+                nonlocal interrupted
+                if cancelled():interrupted='cancelled'
+                elif time.monotonic()>deadline:interrupted='timed_out'
+                return int(interrupted is not None)
+            db.set_progress_handler(progress,1000)
         rows=[];columns=[];affected=0
         for statement in statements:
             if cancelled():raise ValueError('cancelled')
@@ -210,8 +216,11 @@ def execute_sql(store,node,inputs,workflow_id,cancelled=lambda:False):
         if write:db.commit()
         else:db.rollback()
         return {'status':'succeeded','output':{'schemaVersion':1,'data':data,'artifacts':[]},'stdout':'','stderr':'','credential_revision':connection['revision']}
-    except BaseException:
+    except BaseException as exc:
         try:db.rollback()
         except Exception:pass
+        if connection['dialect']=='sqlite' and isinstance(exc,sqlite3.OperationalError) and getattr(exc,'sqlite_errorcode',None)==sqlite3.SQLITE_INTERRUPT and interrupted:
+            return {'status':interrupted,'error':'SQL deadline exceeded' if interrupted=='timed_out' else 'SQL cancelled',
+                'stdout':'','stderr':'','credential_revision':connection['revision']}
         raise
     finally:db.close()

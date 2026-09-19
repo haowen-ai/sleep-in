@@ -3,6 +3,7 @@ import hashlib
 import ipaddress
 import hmac
 import json
+import math
 import os
 import re
 import shutil
@@ -23,6 +24,33 @@ from .service import audit, validate_manifest, valid_variable_name, task_data, e
 
 def fail(status,code,message):
     raise HTTPException(status,detail={'code':code,'message':message})
+
+
+class DuplicateJSONField(ValueError):
+    pass
+
+
+def unique_json_object(pairs):
+    result={}
+    for key,value in pairs:
+        if key in result:raise DuplicateJSONField('Duplicate JSON field: '+json.dumps(key[:120],ensure_ascii=True))
+        result[key]=value
+    return result
+
+
+def finite_json_number(value):
+    number=float(value)
+    if not math.isfinite(number):raise ValueError('JSON numbers must be finite')
+    return number
+
+
+def validate_json_text(value):
+    pending=[value]
+    while pending:
+        item=pending.pop()
+        if isinstance(item,str):item.encode('utf-8')
+        elif isinstance(item,dict):pending.extend(item.keys());pending.extend(item.values())
+        elif isinstance(item,list):pending.extend(item)
 
 
 def initialize(store):
@@ -82,6 +110,25 @@ def create_app(state_dir=None,database_url=None):
         if request.method not in {'GET','HEAD','OPTIONS'} and request.headers.get('origin'):
             if request.headers['origin']!=request.url.scheme+'://'+request.headers.get('host',''):
                 return JSONResponse({'detail':{'code':'csrf','message':'Cross-origin request rejected'}},status_code=403)
+        media_type=request.headers.get('content-type','application/json').split(';',1)[0].strip().lower()
+        if request.method not in {'GET','HEAD','OPTIONS'} and (media_type=='application/json' or media_type.endswith('+json')):
+            body=bytearray()
+            async for chunk in request.stream():
+                if len(body)+len(chunk)>26*1048576:
+                    return JSONResponse({'detail':{'code':'too_large','message':'Request exceeds 26 MiB'}},status_code=413)
+                body.extend(chunk)
+            # Starlette's cached request replays this bounded body to FastAPI.
+            request._body=bytes(body)
+            try:
+                decoded=json.loads(request._body,object_pairs_hook=unique_json_object,parse_float=finite_json_number,parse_constant=finite_json_number)
+                validate_json_text(decoded)
+            except DuplicateJSONField as exc:
+                return JSONResponse({'detail':{'code':'duplicate_json_field','message':str(exc)}},status_code=400)
+            except (json.JSONDecodeError,UnicodeDecodeError):pass  # FastAPI reports its normal JSON validation error.
+            except ValueError:
+                return JSONResponse({'detail':{'code':'invalid_json','message':'JSON value exceeds supported limits'}},status_code=400)
+            except RecursionError:
+                return JSONResponse({'detail':{'code':'invalid_json','message':'JSON nesting is too deep'}},status_code=400)
         response=await call_next(request)
         response.headers['X-Content-Type-Options']='nosniff'
         response.headers['X-Frame-Options']='DENY'

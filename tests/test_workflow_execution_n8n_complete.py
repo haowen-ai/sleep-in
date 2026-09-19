@@ -67,9 +67,21 @@ def test_actual_n8n_cancel_waiting_process_prevents_downstream(live):
 
 def test_actual_n8n_independent_roots_overlap(live):
     from taskconsole.workflows_n8n import execute_graph
-    svc=live;source='import time\ndef main(inputs):\n start=time.time()\n time.sleep(1)\n return {"start":start,"end":time.time()}'
+    svc=live;source='import time\ndef main(inputs):\n start=time.monotonic()\n time.sleep(2)\n return {"start":start,"end":time.monotonic()}'
     graph={'name':'Actual concurrency','timeout':90,'nodes':[{'id':nid,'kind':'python','source':source,'inputs':{},'config':{}} for nid in ('a','b')],'edges':[]}
     wf=svc.save(graph);svc.publish(wf['id']);run=svc.admit(wf['id']);execute_graph(svc,run['id']);result=svc.get_run(run['id'])
     assert result['status']=='succeeded',result.get('adapter_log')
     a=result['nodes']['a']['output']['data'];b=result['nodes']['b']['output']['data']
     assert max(a['start'],b['start'])<min(a['end'],b['end']),'Independent root processes did not overlap'
+    assert min(a['end']-a['start'],b['end']-b['start'])>=2
+    parallel_window=max(a['end'],b['end'])-min(a['start'],b['start'])
+    graph['name']='Actual serial baseline';graph['edges']=[{'source':'a','target':'b'}]
+    serial=svc.save(graph);svc.publish(serial['id']);baseline=svc.admit(serial['id']);execute_graph(svc,baseline['id'])
+    baseline=svc.get_run(baseline['id']);assert baseline['status']=='succeeded',baseline.get('adapter_log')
+    left=baseline['nodes']['a']['output']['data'];right=baseline['nodes']['b']['output']['data']
+    assert right['start']>=left['end']
+    serial_window=right['end']-left['start']
+    assert serial_window>=4 and parallel_window<serial_window,(parallel_window,serial_window)
+    for recorded in (result,baseline):
+        assert recorded['n8n_execution_id'] and recorded['graph_execution_id']
+        assert all(len(node['attempts'])==1 for node in recorded['nodes'].values())

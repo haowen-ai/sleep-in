@@ -374,13 +374,12 @@
   {
     "id": "MAC-BG-14",
     "tests": [
-      "tests/test_mac_complete.py::test_native_next_schedule_is_read_only_and_disabled_triggers_are_ignored"
+      "tests/test_mac_complete.py::test_native_next_schedule_is_read_only_and_disabled_triggers_are_ignored",
+      "tests/test_acceptance_local_recovery.py::test_mac_bg14_repeated_real_health_probes_have_no_business_effects"
     ],
-    "coverage": "partial",
-    "rationale": "next_scheduled leaves database bytes unchanged; full health/status endpoint mutation/effect ledger still required.",
-    "remaining": [
-      "next_scheduled leaves database bytes unchanged; full health/status endpoint mutation/effect ledger still required."
-    ]
+    "coverage": "full",
+    "rationale": "Real fresh loopback supervisor with published three-node example and SQL/file/network canaries: 24 health/component/status probe cycles preserve business records, zero admissions, zero business-table writes and zero file/HTTP effects. SQLite triggers observe every console mutation; only documented worker heartbeat/cleanup metadata may change.",
+    "remaining": []
   },
   {
     "id": "MAC-PW-01",
@@ -481,23 +480,23 @@
   {
     "id": "MAC-RC-01",
     "tests": [
-      "tests/test_local_supervisor_integration.py::test_crash_restart_changes_generation_and_reclaims_children"
+      "tests/test_local_supervisor_integration.py::test_crash_restart_changes_generation_and_reclaims_children",
+      "tests/test_acceptance_local_recovery.py::test_mac_rc01_supervisor_sigkill_reclaims_owned_workers_without_replaying_effect"
     ],
-    "coverage": "partial",
-    "rationale": "Actual supervisor SIGKILL/restart changes generation/PID, restores worker and records gap; independent orphan/effect inventory remains.",
-    "remaining": [
-      "Actual supervisor SIGKILL/restart changes generation/PID, restores worker and records gap; independent orphan/effect inventory remains."
-    ]
+    "coverage": "full",
+    "rationale": "Actual isolated supervisor SIGKILL after a real n8n node commits one ledger effect. Old supervisor, wrappers, coordinator worker, n8n adapter and node worker exit; unrelated process survives. Restart retains running preference, records downtime, acquires a new generation, reuses exactly one replacement, deduplicates the interrupted run and completes an independent three-node run without replaying the effect. Physical power assertion is explicitly disabled as required by this integration case.",
+    "remaining": []
   },
   {
     "id": "MAC-RC-02",
     "tests": [
-      "tests/test_workflow_execution_complete.py::test_recovery_terminates_only_verified_detached_worker"
+      "tests/test_acceptance_engine_recovery.py::test_owned_engine_component_death_preserves_effect_and_future_schedule",
+      "tests/test_acceptance_engine_recovery.py::test_recovery_reclaims_verified_worker_from_already_failed_run"
     ],
     "coverage": "partial",
-    "rationale": "Verified detached worker cleanup covered; separately kill actual app/worker/n8n during effectful run and inspect health/endstates remains.",
+    "rationale": "All three real isolated process-death trials now execute against the actual supervisor/n8n after a durable independent effect. App/worker deaths produce degraded/stopped service; restart safely cleans owned business worker/child/adapter, closes interrupted attempt state, prevents effect/graph replay and completes a later scheduled actual n8n run. Per-run n8n death exposes failed/uncertain run status while installed CLI and coordinator remain healthy. These are actual software integration trials with power assertion disabled, not simulated PID or physical power claims.",
     "remaining": [
-      "Verified detached worker cleanup covered; separately kill actual app/worker/n8n during effectful run and inspect health/endstates remains."
+      "Original MAC-RC-02 requires required health to become degraded for every trial; per-run n8n death currently leaves service availability ready while exposing the failure in the run. A distinct run-engine health signal or an explicit design clarification is still required."
     ]
   },
   {
@@ -567,11 +566,13 @@
   },
   {
     "id": "MAC-RC-09",
-    "tests": [],
+    "tests": [
+      "tests/test_acceptance_local_recovery.py::test_mac_rc09_loopback_outage_preserves_supervisor_and_local_work"
+    ],
     "coverage": "partial",
-    "rationale": "Controlled unavailable network-source workflow alongside local successful run and supervisor continuity not yet executed.",
+    "rationale": "Real supervisor/n8n with controlled loopback source unavailability: affected run fails once while the three-node local example succeeds; supervisor PID/generation/children and worker readiness remain. Source restoration does not replay the failed key; only explicit new admission succeeds, with independent file and receiver ledgers. Power assertions remain disabled in this safe integration fixture.",
     "remaining": [
-      "Controlled unavailable network-source workflow alongside local successful run and supervisor continuity not yet executed."
+      "Actual operator-authorized network/VPN toggle and physical assertion observation on the designated test Mac remain for the M execution level; no host network or power state was changed."
     ]
   },
   {
