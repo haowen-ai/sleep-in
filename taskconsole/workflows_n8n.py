@@ -105,8 +105,9 @@ def execute_graph(service,rid):
                 with store.transaction() as tx:
                     current=tx.get('workflow_run',rid);current['adapter_pid']=proc.pid;tx.put('workflow_run',current)
                 while proc.poll() is None:
+                    service._cancelled(rid)
                     current=service.get_run(rid)
-                    timeout=time.monotonic()-started>run['timeout']+30
+                    timeout=time.monotonic()-started>run['timeout']
                     if current['status'] in {'cancelling','cancelled','timed_out'} or timeout:
                         if timeout:
                             with store.transaction() as tx:
@@ -233,7 +234,10 @@ def worker_loop(service):
             service.tick()
             from .workflows_operations import WorkflowOperations
             WorkflowOperations(service.store).tick()
-            if ready:service.dispatch_pending()
+            # Accepted runs must settle even when the engine disappears. The
+            # adapter records the actionable command error without executing
+            # any node; keeping them queued would imply they can still run.
+            service.dispatch_pending()
         except Exception as exc:
             with service.store.transaction() as tx:tx.put('workflow_event',{'id':uid(),'reason':'worker_tick_failed','message':str(exc),'created_at':stamp()})
         stopping.wait(2)

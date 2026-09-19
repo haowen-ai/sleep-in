@@ -96,7 +96,7 @@ class WorkflowFrontendTests(unittest.TestCase):
     def test_operator_editor_does_not_request_admin_credential_metadata(self):
         self.run_js("""
         const {setup}=await import('./tests/workflow_ui_harness.mjs');const ctx=setup();ctx.admin=()=>false;
-        ctx.request=async path=>{assert.notEqual(path,'/api/workflow-credentials');return path==='/api/workflows/demo'?{id:'demo',name:'Public',nodes:[],edges:[]}:[];};
+        ctx.request=async path=>{assert.equal(['/api/workflow-credentials','/api/runtime-profiles','/api/source-projects'].includes(path),false);return path==='/api/workflows/demo'?{id:'demo',name:'Public',nodes:[],edges:[]}:[];};
         const ui=await import('./taskconsole/static/workflows.js');ui.initWorkflowUI(ctx);await ui.renderWorkflowRoute('/workflows/demo');assert.ok(ctx.root.textContent.includes('Editor'));
         """)
 

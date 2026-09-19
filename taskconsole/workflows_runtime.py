@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import shutil
 import signal
+import selectors
 import sqlite3
 import subprocess
 import sys
@@ -120,6 +121,15 @@ def check_schema(value,schema,path='output'):
     variants=expected if isinstance(expected,list) else [expected] if expected else []
     if variants and not any(isinstance(value,SCHEMA_TYPES[v]) and not (v in {'number','integer'} and isinstance(value,bool)) for v in variants):
         raise ValueError(f'{path}: expected {expected}')
+    metadata=schema.get('metadata',{})
+    if isinstance(value,str) and isinstance(metadata,dict) and metadata.get('logicalType')=='timestamp':
+        from datetime import datetime
+        import re
+        try:
+            if not re.fullmatch(r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})',value):raise ValueError('missing zone')
+            if datetime.fromisoformat(value.replace('Z','+00:00')).utcoffset() is None:raise ValueError('missing zone')
+        except ValueError:
+            raise ValueError(f'{path}: expected timezone-qualified ISO timestamp') from None
     if isinstance(value,dict):
         for key in schema.get('required',[]):
             if key not in value: raise ValueError(f'{path}: missing required {key}')
@@ -181,13 +191,13 @@ def run_script(node,inputs,directory,root,cancelled=lambda:False):
             source='import importlib\nmain=importlib.import_module('+repr(module)+').main'
         elif project:
             script=project_dir/project['entrypoint']
-        script.write_text(source if node.get("config",{}).get("entry_mode")=="file" else source+'\n\nif __name__ == "__main__":\n import json,os,inspect,asyncio\n _result=main(json.load(open(os.environ["SLEEP_IN_INPUT_FILE"])))\n if inspect.isawaitable(_result): _result=asyncio.run(_result)\n if not isinstance(_result,dict): raise ValueError("main must return an object")\n _result={"schemaVersion":1,"data":_result,"artifacts":[]}\n with open(os.environ["SLEEP_IN_OUTPUT_FILE"],"w") as _f: json.dump(_result,_f,allow_nan=False)\n')
+        script.write_text(source if node.get("config",{}).get("entry_mode")=="file" else source+'\n\nif __name__ == "__main__":\n import json,os,inspect,asyncio\n _result=main(json.load(open(os.environ["SLEEP_IN_INPUT_FILE"])))\n if inspect.isawaitable(_result): _result=asyncio.run(_result)\n if not isinstance(_result,dict): raise ValueError("main must return an object")\n def _nonportable(value): raise ValueError("Nonportable output; use JSON or artifact instead of "+type(value).__name__)\n _result={"schemaVersion":1,"data":_result,"artifacts":[]}\n with open(os.environ["SLEEP_IN_OUTPUT_FILE"],"w") as _f: json.dump(_result,_f,allow_nan=False,default=_nonportable)\n')
         argv=[node.get('_runtime',{}).get('executable') or executable(lang),str(script)]
     elif lang=='javascript':
         esm=node.get('config',{}).get('module_format',profile.get('module_format','cjs'))=='esm' or bool(project and project['entrypoint'].endswith('.mjs'))
         script=(project_dir/project['entrypoint']).parent/('__sleepin_main.mjs' if esm else '__sleepin_main.cjs') if project else project_dir/('__sleepin_main.mjs' if esm else '__sleepin_main.cjs')
         helpers='import * as __sleepin_fs from "node:fs";\n' if esm else ''
-        trailer='\n;(async()=>{'+('' if esm else 'const __sleepin_fs=require("fs");')+'const result=await (typeof main==="function"?main:module.exports.main)(JSON.parse(__sleepin_fs.readFileSync(process.env.SLEEP_IN_INPUT_FILE,"utf8")));if(!result || typeof result!=="object" || Array.isArray(result))throw Error("main must return an object");__sleepin_fs.writeFileSync(process.env.SLEEP_IN_OUTPUT_FILE,JSON.stringify({schemaVersion:1,data:result,artifacts:[]},(key,value)=>{if(typeof value==="number"&&!Number.isFinite(value))throw Error("Non-finite JSON number");if(typeof value==="undefined")throw Error("Undefined is not JSON data");return value}));})().catch(e=>{console.error(e);process.exit(1)});'
+        trailer='\n;(async()=>{'+('' if esm else 'const __sleepin_fs=require("fs");')+'const result=await (typeof main==="function"?main:module.exports.main)(JSON.parse(__sleepin_fs.readFileSync(process.env.SLEEP_IN_INPUT_FILE,"utf8")));if(!result || typeof result!=="object" || Array.isArray(result))throw Error("main must return an object");const seen=new Set();function portable(value){if(["undefined","function","symbol","bigint"].includes(typeof value))throw Error("Nonportable output; use JSON or artifact");if(value===null||typeof value!=="object")return;if(typeof value.toJSON==="function")throw Error("Nonportable custom serialization; use JSON or artifact");if(seen.has(value))throw Error("Nonportable cyclic output; use JSON or artifact");if(!Array.isArray(value)&&Object.getPrototypeOf(value)!==Object.prototype&&Object.getPrototypeOf(value)!==null)throw Error("Nonportable native output; use JSON or artifact");seen.add(value);for(const key of Object.keys(value))portable(value[key]);seen.delete(value);}portable(result);__sleepin_fs.writeFileSync(process.env.SLEEP_IN_OUTPUT_FILE,JSON.stringify({schemaVersion:1,data:result,artifacts:[]},(key,value)=>{if(typeof value==="number"&&!Number.isFinite(value))throw Error("Non-finite JSON number");if(typeof value==="undefined")throw Error("Undefined is not JSON data");return value}));})().catch(e=>{console.error(e);process.exit(1)});'
         if node.get('config',{}).get('entry_mode')=='file':script.write_text(source)
         elif esm:script.write_text(helpers+source+trailer)
         else:script.write_text(source+trailer)
@@ -198,32 +208,69 @@ def run_script(node,inputs,directory,root,cancelled=lambda:False):
     if not argv[0]: raise ValueError(f'{lang} runtime unavailable')
     timeout=min(max(int(node.get('config',{}).get('timeout',300)),1),3600)
     started=time.monotonic()
-    with (directory/'stdout.txt').open('w') as stdout, (directory/'stderr.txt').open('w') as stderr:
-        proc=subprocess.Popen(argv,cwd=project_dir,env=env,stdout=stdout,stderr=stderr,start_new_session=True,**subprocess_lock_options())
+    captures={name:{'bytes_seen':0,'tail':b''} for name in ('stdout','stderr')}
+    limit=1048576;tail_limit=100000;draining_since=None
+    with (directory/'stdout.txt').open('wb') as stdout, (directory/'stderr.txt').open('wb') as stderr, selectors.DefaultSelector() as streams:
+        targets={'stdout':stdout,'stderr':stderr}
+        proc=subprocess.Popen(argv,cwd=project_dir,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True,**subprocess_lock_options())
+        for name,pipe in [('stdout',proc.stdout),('stderr',proc.stderr)]:
+            os.set_blocking(pipe.fileno(),False);streams.register(pipe,selectors.EVENT_READ,name)
         reason=None
         try:
             if callable(node.get('_on_process')):node['_on_process'](proc.pid)
-            while proc.poll() is None:
-                if cancelled():reason='cancelled'
-                elif time.monotonic()-started>timeout:reason='timed_out'
-                elif sum(p.stat().st_size for p in directory.rglob('*') if p.is_file())>110*1024*1024:reason='output quota exceeded'
-                if reason:
-                    try:os.killpg(proc.pid,signal.SIGTERM)
-                    except ProcessLookupError:pass
-                    try:proc.wait(timeout=2)
-                    except subprocess.TimeoutExpired:
+            while proc.poll() is None or streams.get_map():
+                if proc.poll() is None:
+                    if cancelled():reason='cancelled'
+                    elif time.monotonic()-started>timeout:reason='timed_out'
+                    elif sum(p.stat().st_size for p in directory.rglob('*') if p.is_file())>110*1024*1024:reason='output quota exceeded'
+                    if reason:
+                        try:os.killpg(proc.pid,signal.SIGTERM)
+                        except ProcessLookupError:pass
+                        try:proc.wait(timeout=2)
+                        except subprocess.TimeoutExpired:
+                            try:os.killpg(proc.pid,signal.SIGKILL)
+                            except ProcessLookupError:pass
+                            proc.wait()
+                else:
+                    # Descendants belong to the task; they cannot retain the log
+                    # pipes and continue unmanaged after their worker exits.
+                    if draining_since is None:
+                        draining_since=time.monotonic()
+                        try:os.killpg(proc.pid,signal.SIGTERM)
+                        except ProcessLookupError:pass
+                    elif time.monotonic()-draining_since>.5:
                         try:os.killpg(proc.pid,signal.SIGKILL)
                         except ProcessLookupError:pass
-                        proc.wait()
-                    break
-                time.sleep(.05)
+                for key,_ in streams.select(.05):
+                    try:chunk=os.read(key.fileobj.fileno(),65536)
+                    except BlockingIOError:continue
+                    if not chunk:
+                        streams.unregister(key.fileobj);key.fileobj.close();continue
+                    capture=captures[key.data];target=targets[key.data]
+                    remaining=max(0,limit-capture['bytes_seen'])
+                    if remaining:target.write(chunk[:remaining])
+                    capture['bytes_seen']+=len(chunk)
+                    capture['tail']=(capture['tail']+chunk)[-tail_limit:]
+                if draining_since is not None and time.monotonic()-draining_since>2:
+                    for key in list(streams.get_map().values()):streams.unregister(key.fileobj);key.fileobj.close()
         finally:
-            if proc.poll() is None:
-                try:os.killpg(proc.pid,signal.SIGKILL)
-                except ProcessLookupError:pass
-                proc.wait()
+            # A child can close both inherited streams and ignore TERM after
+            # its parent exits. Reclaim the owned group even when neither the
+            # leader nor its log pipes remain alive.
+            try:os.killpg(proc.pid,signal.SIGKILL)
+            except ProcessLookupError:pass
+            if proc.poll() is None:proc.wait()
+            for key in list(streams.get_map().values()):streams.unregister(key.fileobj);key.fileobj.close()
+            for name,capture in captures.items():
+                target=targets[name]
+                if capture['bytes_seen']>limit:
+                    target.seek(limit-tail_limit-200)
+                    target.write(f"\n[Log truncated: {capture['bytes_seen']} bytes produced; final output follows]\n".encode())
+                    target.write(capture['tail']);target.truncate()
+                target.flush()
             if callable(node.get('_on_process_exit')):node['_on_process_exit']()
-    logs={name:(directory/(name+'.txt')).read_text(errors='replace')[-100000:] for name in ('stdout','stderr')}
+    logs={name:read_log_tail(directory/(name+'.txt')) for name in ('stdout','stderr')}
+    logs['log_capture']={name:{'bytes_seen':value['bytes_seen'],'bytes_stored':(directory/(name+'.txt')).stat().st_size,'truncated':value['bytes_seen']>limit} for name,value in captures.items()}
     if reason or proc.returncode: return {**logs,'status':reason if reason in {'cancelled','timed_out'} else 'failed','error':reason or f'Process exited {proc.returncode}'}
     try:
         if not out.exists():
@@ -246,3 +293,12 @@ def run_script(node,inputs,directory,root,cancelled=lambda:False):
     except Exception as exc:
         raise WorkerOutputError(str(exc),logs) from exc
     return {**logs,'status':'succeeded','output':output}
+
+
+def read_log_tail(path,limit=100000):
+    """Bound log-reading memory independently from the worker's file quota."""
+    with path.open('rb') as stream:
+        size=stream.seek(0,os.SEEK_END)
+        stream.seek(max(0,size-limit))
+        text=stream.read(limit).decode('utf-8',errors='replace')
+    return (f'[Log truncated: showing the last {limit} bytes of {size}]\n' if size>limit else '')+text

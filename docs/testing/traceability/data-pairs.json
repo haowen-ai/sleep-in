@@ -2788,5 +2788,14 @@
     "coverage": "full",
     "rationale": "Opt-in actual n8n graph uses disposable PostgreSQL/MySQL/Oracle F-ORDERS text tables, real native source/summary workers and parameter-bound SQL receivers. Exact source/target rows,all inputs,summary,count,independent business calls and graph/publication identity are asserted. External environment availability is a separate execution result; not asserted as locally passed.",
     "remaining": []
+  },
+  {
+    "id": "ART02-SPILL",
+    "tests": [
+      "tests/test_acceptance_data_portability.py::test_exact_inclusive_inline_boundary_spills_complete_data"
+    ],
+    "coverage": "full",
+    "rationale": "Real native worker returns exact measured payloads. Exactly1048576 bytes remains inline;1048577 creates data_ref with exact bytes, SHA256 and size; no truncation. Supersedes conflicting historical ART02 rejection wording per PRD A05.",
+    "remaining": []
   }
 ]

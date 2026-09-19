@@ -99,7 +99,7 @@
       "tests/test_acceptance_data_contracts.py::test_actual_n8n_seven_language_chain_retains_types_and_sql_bootstrap"
     ],
     "coverage": "full",
-    "rationale": "Authenticated publication/admission executes one real SQLite\u2192Python\u2192JavaScript\u2192Shell\u2192Java\u2192C\u2192C++ n8n chain. Python receives and asserts the exact SQLite bootstrap rows plus F-TYPES; each subsequent script receives and echoes the complete F-TYPES payload with Unicode, null, false, nested arrays and precision strings unchanged. Runtime packs build actual toolchains; Shell uses declared native sed byte-preserving fixture extraction, Java/C/C++ use constrained native envelope parsers. Independent SQL calls and native append counters equal1; every boundary timestamp and pinned language identity asserted.",
+    "rationale": "Authenticated publication/admission executes one real SQLite→Python→JavaScript→Shell→Java→C→C++ n8n chain. Python receives and asserts the exact SQLite bootstrap rows plus F-TYPES; each subsequent script receives and echoes the complete F-TYPES payload with Unicode, null, false, nested arrays and precision strings unchanged. Runtime packs build actual toolchains; Shell uses declared native sed byte-preserving fixture extraction, Java/C/C++ use constrained native envelope parsers. Independent SQL calls and native append counters equal1; every boundary timestamp and pinned language identity asserted.",
     "remaining": []
   },
   {
@@ -117,7 +117,7 @@
       "tests/test_acceptance_data_contracts.py::test_actual_n8n_explicit_nonadjacent_renamed_paths_constants_and_dynamic_types"
     ],
     "coverage": "full",
-    "rationale": "Authenticated publish/admit and actual n8n execute A.x=7\u2192B.v and A\u2192B\u2192C with C directly bound to nonadjacent A.x. A display name is renamed while ID stays A. Both B/C inputs and outputs equal exactly {v:7}, C starts after B finishes, and independent business counters are1.",
+    "rationale": "Authenticated publish/admit and actual n8n execute A.x=7→B.v and A→B→C with C directly bound to nonadjacent A.x. A display name is renamed while ID stays A. Both B/C inputs and outputs equal exactly {v:7}, C starts after B finishes, and independent business counters are1.",
     "remaining": []
   },
   {
@@ -126,7 +126,7 @@
       "tests/test_acceptance_data_contracts.py::test_authenticated_unreachable_or_deleted_binding_is_preserved_and_rejected"
     ],
     "coverage": "full",
-    "rationale": "Authenticated public draft/save/publication covers disconnected A\u2192B binding, future-source A binding B, and deletion of A while retaining B.v reference. Draft/readback preserve the broken binding. Publication422 includes exact unreachable_source or missing_source code plus affected stable node and v field; no publication or run admitted.",
+    "rationale": "Authenticated public draft/save/publication covers disconnected A→B binding, future-source A binding B, and deletion of A while retaining B.v reference. Draft/readback preserve the broken binding. Publication422 includes exact unreachable_source or missing_source code plus affected stable node and v field; no publication or run admitted.",
     "remaining": []
   },
   {
@@ -135,7 +135,7 @@
       "tests/test_acceptance_data_contracts.py::test_actual_n8n_explicit_nonadjacent_renamed_paths_constants_and_dynamic_types"
     ],
     "coverage": "full",
-    "rationale": "Authenticated publish/admit and actual n8n execute A.x=7\u2192B.v and A\u2192B\u2192C with C directly bound to nonadjacent A.x. A display name is renamed while ID stays A. Both B/C inputs and outputs equal exactly {v:7}, C starts after B finishes, and independent business counters are1.",
+    "rationale": "Authenticated publish/admit and actual n8n execute A.x=7→B.v and A→B→C with C directly bound to nonadjacent A.x. A display name is renamed while ID stays A. Both B/C inputs and outputs equal exactly {v:7}, C starts after B finishes, and independent business counters are1.",
     "remaining": []
   },
   {
@@ -144,7 +144,7 @@
       "tests/test_acceptance_data_contracts.py::test_authenticated_unreachable_or_deleted_binding_is_preserved_and_rejected"
     ],
     "coverage": "full",
-    "rationale": "Authenticated public draft/save/publication covers disconnected A\u2192B binding, future-source A binding B, and deletion of A while retaining B.v reference. Draft/readback preserve the broken binding. Publication422 includes exact unreachable_source or missing_source code plus affected stable node and v field; no publication or run admitted.",
+    "rationale": "Authenticated public draft/save/publication covers disconnected A→B binding, future-source A binding B, and deletion of A while retaining B.v reference. Draft/readback preserve the broken binding. Publication422 includes exact unreachable_source or missing_source code plus affected stable node and v field; no publication or run admitted.",
     "remaining": []
   },
   {
@@ -162,7 +162,7 @@
       "tests/test_acceptance_data_contracts.py::test_actual_n8n_explicit_nonadjacent_renamed_paths_constants_and_dynamic_types"
     ],
     "coverage": "full",
-    "rationale": "Authenticated publish/admit and actual n8n execute A.x=7\u2192B.v and A\u2192B\u2192C with C directly bound to nonadjacent A.x. A display name is renamed while ID stays A. Both B/C inputs and outputs equal exactly {v:7}, C starts after B finishes, and independent business counters are1.",
+    "rationale": "Authenticated publish/admit and actual n8n execute A.x=7→B.v and A→B→C with C directly bound to nonadjacent A.x. A display name is renamed while ID stays A. Both B/C inputs and outputs equal exactly {v:7}, C starts after B finishes, and independent business counters are1.",
     "remaining": []
   },
   {
@@ -171,7 +171,7 @@
       "tests/test_acceptance_data_contracts.py::test_authenticated_unreachable_or_deleted_binding_is_preserved_and_rejected"
     ],
     "coverage": "full",
-    "rationale": "Authenticated public draft/save/publication covers disconnected A\u2192B binding, future-source A binding B, and deletion of A while retaining B.v reference. Draft/readback preserve the broken binding. Publication422 includes exact unreachable_source or missing_source code plus affected stable node and v field; no publication or run admitted.",
+    "rationale": "Authenticated public draft/save/publication covers disconnected A→B binding, future-source A binding B, and deletion of A while retaining B.v reference. Draft/readback preserve the broken binding. Publication422 includes exact unreachable_source or missing_source code plus affected stable node and v field; no publication or run admitted.",
     "remaining": []
   },
   {
@@ -213,24 +213,21 @@
   {
     "id": "MAP13",
     "tests": [
-      "tests/test_acceptance_data.py::test_array_token_paths_and_out_of_range_policy"
+      "tests/test_acceptance_data_portability.py::test_required_false_empty_values_and_array_paths_are_whole_once"
     ],
-    "coverage": "partial",
-    "rationale": "Exact token/shorthand paths, literal-dot/numeric keys, negative index rejection and out-of-range missing exception asserted.",
-    "remaining": [
-      "MAP13 needs actual worker/no-fanout oracle; MAP14 required/default behavior needs mapping oracle; MAP15 needs authenticated API."
-    ]
+    "coverage": "full",
+    "rationale": "Canonical rows/1/id and shorthand rows.1.id both resolve integer2; complete rows array is passed together with scalar mappings to one independently counted native process.",
+    "remaining": []
   },
   {
     "id": "MAP14",
     "tests": [
-      "tests/test_acceptance_data.py::test_array_token_paths_and_out_of_range_policy"
+      "tests/test_acceptance_data_portability.py::test_negative_and_missing_array_indexes_have_no_python_wraparound",
+      "tests/test_acceptance_data_portability.py::test_out_of_range_required_fails_optional_uses_explicit_default"
     ],
-    "coverage": "partial",
-    "rationale": "Exact token/shorthand paths, literal-dot/numeric keys, negative index rejection and out-of-range missing exception asserted.",
-    "remaining": [
-      "MAP13 needs actual worker/no-fanout oracle; MAP14 required/default behavior needs mapping oracle; MAP15 needs authenticated API."
-    ]
+    "coverage": "full",
+    "rationale": "Negative canonical/shorthand indexes fail without Python wrapping; out-of-range required binding prevents the process and optional binding records explicit default9.",
+    "remaining": []
   },
   {
     "id": "MAP15",
@@ -243,12 +240,12 @@
   },
   {
     "id": "MAP16",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "Plain data property safely handled or explicitly rejected; no prototype mutation/expression evaluation (required level U+W)"
-    ]
+    "tests": [
+      "tests/test_acceptance_data_portability.py::test_prototype_and_code_text_keys_remain_plain_native_javascript_data"
+    ],
+    "coverage": "full",
+    "rationale": "Tokenized __proto__, constructor and code-text keys resolve as literal own data in actual JavaScript; exact echo, unchanged Object.prototype and no evaluated global sentinel asserted.",
+    "remaining": []
   },
   {
     "id": "MAP17",
@@ -318,35 +315,29 @@
   {
     "id": "DATA01",
     "tests": [
-      "tests/test_runtime_language_matrix.py::test_actual_n8n_fixed_pair_design"
+      "tests/test_acceptance_data_portability.py::test_marked_decimal_integer_timestamp_python_javascript_java_chain"
     ],
-    "coverage": "partial",
-    "rationale": "Actual n8n F-TYPES script-pair echo compares decoded JSON exactly including decimal/large integer strings, timezone, Unicode and nested data.",
-    "remaining": [
-      "DATA10 requires explicit Python\u2192JS\u2192Java chain; DATA18 artifact download UTF-8 byte comparison; schema logical metadata not asserted."
-    ]
+    "coverage": "full",
+    "rationale": "Full F-TYPES crosses real Python→JavaScript→Java on actual n8n with exact deep equality, marked string schemas, and independent one-call counters.",
+    "remaining": []
   },
   {
     "id": "DATA02",
     "tests": [
-      "tests/test_acceptance_data.py::test_present_values_and_nullable_schema_cross_worker"
+      "tests/test_acceptance_data_portability.py::test_empty_and_nullable_schema_real_worker_once"
     ],
-    "coverage": "partial",
-    "rationale": "Null,false,0,empty string,array,object preserved by schema check and actual helper process.",
-    "remaining": [
-      "Required mapping with defaults and independent invocation count not asserted for every value."
-    ]
+    "coverage": "full",
+    "rationale": "Array schema validates empty rows; actual native echo succeeds with exact [] and independent counter1.",
+    "remaining": []
   },
   {
     "id": "DATA03",
     "tests": [
-      "tests/test_acceptance_data.py::test_present_values_and_nullable_schema_cross_worker"
+      "tests/test_acceptance_data_portability.py::test_empty_and_nullable_schema_real_worker_once"
     ],
-    "coverage": "partial",
-    "rationale": "Null,false,0,empty string,array,object preserved by schema check and actual helper process.",
-    "remaining": [
-      "Required mapping with defaults and independent invocation count not asserted for every value."
-    ]
+    "coverage": "full",
+    "rationale": "Required nil property with string/null union validates present null and actual native echo preserves null.",
+    "remaining": []
   },
   {
     "id": "DATA04",
@@ -360,13 +351,11 @@
   {
     "id": "DATA05",
     "tests": [
-      "tests/test_acceptance_data.py::test_present_values_and_nullable_schema_cross_worker"
+      "tests/test_acceptance_data_portability.py::test_required_false_empty_values_and_array_paths_are_whole_once"
     ],
-    "coverage": "partial",
-    "rationale": "Null,false,0,empty string,array,object preserved by schema check and actual helper process.",
-    "remaining": [
-      "Required mapping with defaults and independent invocation count not asserted for every value."
-    ]
+    "coverage": "full",
+    "rationale": "0,false,empty string,array,object are all required upstream bindings in a real worker; exact input/output equality and one invocation prove none become absence/default.",
+    "remaining": []
   },
   {
     "id": "DATA06",
@@ -407,35 +396,29 @@
   {
     "id": "DATA10",
     "tests": [
-      "tests/test_runtime_language_matrix.py::test_actual_n8n_fixed_pair_design"
+      "tests/test_acceptance_data_portability.py::test_marked_decimal_integer_timestamp_python_javascript_java_chain"
     ],
-    "coverage": "partial",
-    "rationale": "Actual n8n F-TYPES script-pair echo compares decoded JSON exactly including decimal/large integer strings, timezone, Unicode and nested data.",
-    "remaining": [
-      "DATA10 requires explicit Python\u2192JS\u2192Java chain; DATA18 artifact download UTF-8 byte comparison; schema logical metadata not asserted."
-    ]
+    "coverage": "full",
+    "rationale": "Exact marked decimal string9007199254740993.01 crosses directly Python→JavaScript→Java under actual n8n without rounding.",
+    "remaining": []
   },
   {
     "id": "DATA11",
     "tests": [
-      "tests/test_runtime_language_matrix.py::test_actual_n8n_fixed_pair_design"
+      "tests/test_runtime_language_matrix.py::test_actual_n8n_fixed_pair_design[types-0]"
     ],
-    "coverage": "partial",
-    "rationale": "Actual n8n F-TYPES script-pair echo compares decoded JSON exactly including decimal/large integer strings, timezone, Unicode and nested data.",
-    "remaining": [
-      "DATA10 requires explicit Python\u2192JS\u2192Java chain; DATA18 artifact download UTF-8 byte comparison; schema logical metadata not asserted."
-    ]
+    "coverage": "full",
+    "rationale": "All36 ordered script-language pairs execute actual n8n with producer/consumer marked string schemas and exact full F-TYPES equality, including9007199254740993 as string. Native call counters and attempts assert once.",
+    "remaining": []
   },
   {
     "id": "DATA12",
     "tests": [
-      "tests/test_workflow_sql_contract.py::test_numeric_precision_and_timezone_values_are_explicit"
+      "tests/test_acceptance_data_portability.py::test_unsafe_integer_is_rejected_before_native_javascript_invocation"
     ],
-    "coverage": "partial",
-    "rationale": "Driver-normalization helper returns unsafe integers as exact strings.",
-    "remaining": [
-      "Unmarked unsafe numeric output destined for JS must be rejected with actionable message through validator and real worker."
-    ]
+    "coverage": "full",
+    "rationale": "Unit portable check and actual producer output reject integer9007199254740993 with schema-marked-string instruction; JS descendant is not_run and independent effect sentinel absent.",
+    "remaining": []
   },
   {
     "id": "DATA13",
@@ -443,71 +426,72 @@
       "tests/test_acceptance_data_edges.py::test_actual_n8n_invalid_outputs_block_every_required_descendant"
     ],
     "coverage": "full",
-    "rationale": "Real n8n executes absent required output, malformedJSON/invalidUTF8, NaN/\u00b1Infinity, valid-file-exit1, invalid schema, missing artifact, Python exception and rejected JS Promise. Each fails with preserved diagnostics; descendants have no attempts/effects. Exit1 trace and Python/JS stderr messages are checked.",
+    "rationale": "Real n8n executes absent required output, malformedJSON/invalidUTF8, NaN/±Infinity, valid-file-exit1, invalid schema, missing artifact, Python exception and rejected JS Promise. Each fails with preserved diagnostics; descendants have no attempts/effects. Exit1 trace and Python/JS stderr messages are checked.",
     "remaining": []
   },
   {
     "id": "DATA14",
     "tests": [
-      "tests/test_runtime_language_matrix.py::test_actual_n8n_fixed_pair_design"
+      "tests/test_acceptance_data_portability.py::test_marked_decimal_integer_timestamp_python_javascript_java_chain",
+      "tests/test_acceptance_data_portability.py::test_timestamp_logical_contract_preserves_valid_offset_and_utc"
     ],
-    "coverage": "partial",
-    "rationale": "Actual n8n F-TYPES script-pair echo compares decoded JSON exactly including decimal/large integer strings, timezone, Unicode and nested data.",
-    "remaining": [
-      "DATA10 requires explicit Python\u2192JS\u2192Java chain; DATA18 artifact download UTF-8 byte comparison; schema logical metadata not asserted."
-    ]
+    "coverage": "full",
+    "rationale": "Actual n8n preserves exact offset timestamp across Python/JS/Java; U+W also accept/preserve matching explicit UTC Z representation.",
+    "remaining": []
   },
   {
     "id": "DATA15",
     "tests": [
-      "tests/test_workflow_sql_contract.py::test_numeric_precision_and_timezone_values_are_explicit"
+      "tests/test_acceptance_data_portability.py::test_timestamp_logical_contract_rejects_missing_zone_and_invalid_date",
+      "tests/test_acceptance_data_portability.py::test_timestamp_logical_contract_preserves_valid_offset_and_utc"
     ],
-    "coverage": "partial",
-    "rationale": "Naive Python datetime from SQL normalization helper rejected with timezone error.",
-    "remaining": [
-      "Timezone-qualified string schema validation and actual worker path."
-    ]
+    "coverage": "full",
+    "rationale": "Documented metadata.logicalType=timestamp enforces real ISO date/time with explicit zone in unit and native output validation; zone-less/invalid date rejected, offset and Z preserved.",
+    "remaining": []
   },
   {
     "id": "DATA16",
     "tests": [
       "tests/test_workflow_external_sql.py::test_external_null_bind_and_empty_string_dialect_semantics",
-      "tests/test_acceptance_sql_boundaries.py::test_data16_sqlite_null_and_empty_string_stay_distinct_through_real_python"
+      "tests/test_acceptance_sql_boundaries.py::test_data16_sqlite_null_and_empty_string_stay_distinct_through_real_python",
+      "tests/test_acceptance_external_sql_edges.py::test_sql15_sql16_actual_decimal_null_unicode_temporal_rows_reach_python_and_javascript"
     ],
     "coverage": "partial",
-    "rationale": "Dedicated actual SQLite rows NULL and empty text remain distinct through the real Python worker. Existing optional external receiver tests cover dialect null/empty semantics without full Python echo.",
+    "rationale": "Existing actual SQLite query→Python evidence distinguishes NULL and empty text. Dedicated external PostgreSQL/MySQL/Oracle fixture now stores NULL and empty string in separate rows and asserts exact native n8n Python/JS echo, with Oracle empty-text-as-NULL expectation. External variants remain locally BLOCKED_ENV pending real CI execution.",
     "remaining": [
-      "Actual PostgreSQL/MySQL/Oracle dedicated fixtures and SQL-to-Python echo remain; Oracle empty-string-is-NULL behavior must be recorded separately."
+      "Run the dedicated PostgreSQL/MySQL/Oracle null/empty-row Python echo variants successfully in disposable CI services; test code alone is not D evidence."
     ]
   },
   {
     "id": "DATA17",
-    "tests": [],
+    "tests": [
+      "tests/test_acceptance_data_portability.py::test_helpers_reject_native_objects_before_opaque_conversion",
+      "tests/test_acceptance_data_portability.py::test_plain_object_custom_serializer_cannot_hide_nonportable_values"
+    ],
     "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
+    "rationale": "Actual Python bytes/native objects and JS Buffer/native class/enumerable or hidden toJSON are rejected before opaque conversion with JSON/artifact guidance.",
     "remaining": [
-      "Clear nonportable output error; recommend JSON or artifact, never opaque stringification (required level W)"
+      "Actual pandas DataFrame worker oracle not yet executed; Java has explicit JSON file protocol and no native-object helper, so historical Java-helper prerequisite needs explicit design reconciliation."
     ]
   },
   {
     "id": "DATA18",
     "tests": [
-      "tests/test_runtime_language_matrix.py::test_actual_n8n_fixed_pair_design"
+      "tests/test_acceptance_data_portability.py::test_marked_decimal_integer_timestamp_python_javascript_java_chain",
+      "tests/test_acceptance_data_portability.py::test_two_mebibyte_data_reference_preview_download_and_downstream_are_complete"
     ],
-    "coverage": "partial",
-    "rationale": "Actual n8n F-TYPES script-pair echo compares decoded JSON exactly including decimal/large integer strings, timezone, Unicode and nested data.",
-    "remaining": [
-      "DATA10 requires explicit Python\u2192JS\u2192Java chain; DATA18 artifact download UTF-8 byte comparison; schema logical metadata not asserted."
-    ]
+    "coverage": "full",
+    "rationale": "Combining e+U0301 and emoji survive actual native chain; real n8n 2MiB dataset download equals complete UTF-8 bytes, exact downstream checksum/rows and no replacement characters.",
+    "remaining": []
   },
   {
     "id": "DATA19",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "Deterministic documented depth/count acceptance or explicit limit error; no crash/hang (required level U+W)"
-    ]
+    "tests": [
+      "tests/test_acceptance_data_portability.py::test_depth100_and_ten_thousand_properties_are_deterministic"
+    ],
+    "coverage": "full",
+    "rationale": "Documented bounded support for100-level nesting and10000 properties is checked in unit schema/portable validation and real native worker with full equality under quota.",
+    "remaining": []
   },
   {
     "id": "OUT01",
@@ -542,7 +526,7 @@
       "tests/test_acceptance_data_edges.py::test_actual_n8n_invalid_outputs_block_every_required_descendant"
     ],
     "coverage": "full",
-    "rationale": "Real n8n executes absent required output, malformedJSON/invalidUTF8, NaN/\u00b1Infinity, valid-file-exit1, invalid schema, missing artifact, Python exception and rejected JS Promise. Each fails with preserved diagnostics; descendants have no attempts/effects. Exit1 trace and Python/JS stderr messages are checked.",
+    "rationale": "Real n8n executes absent required output, malformedJSON/invalidUTF8, NaN/±Infinity, valid-file-exit1, invalid schema, missing artifact, Python exception and rejected JS Promise. Each fails with preserved diagnostics; descendants have no attempts/effects. Exit1 trace and Python/JS stderr messages are checked.",
     "remaining": []
   },
   {
@@ -560,7 +544,7 @@
       "tests/test_acceptance_data_edges.py::test_actual_n8n_invalid_outputs_block_every_required_descendant"
     ],
     "coverage": "full",
-    "rationale": "Real n8n executes absent required output, malformedJSON/invalidUTF8, NaN/\u00b1Infinity, valid-file-exit1, invalid schema, missing artifact, Python exception and rejected JS Promise. Each fails with preserved diagnostics; descendants have no attempts/effects. Exit1 trace and Python/JS stderr messages are checked.",
+    "rationale": "Real n8n executes absent required output, malformedJSON/invalidUTF8, NaN/±Infinity, valid-file-exit1, invalid schema, missing artifact, Python exception and rejected JS Promise. Each fails with preserved diagnostics; descendants have no attempts/effects. Exit1 trace and Python/JS stderr messages are checked.",
     "remaining": []
   },
   {
@@ -596,7 +580,7 @@
       "tests/test_acceptance_data_edges.py::test_actual_n8n_invalid_outputs_block_every_required_descendant"
     ],
     "coverage": "full",
-    "rationale": "Real n8n executes absent required output, malformedJSON/invalidUTF8, NaN/\u00b1Infinity, valid-file-exit1, invalid schema, missing artifact, Python exception and rejected JS Promise. Each fails with preserved diagnostics; descendants have no attempts/effects. Exit1 trace and Python/JS stderr messages are checked.",
+    "rationale": "Real n8n executes absent required output, malformedJSON/invalidUTF8, NaN/±Infinity, valid-file-exit1, invalid schema, missing artifact, Python exception and rejected JS Promise. Each fails with preserved diagnostics; descendants have no attempts/effects. Exit1 trace and Python/JS stderr messages are checked.",
     "remaining": []
   },
   {
@@ -649,24 +633,20 @@
   {
     "id": "ART02",
     "tests": [
-      "tests/test_workflow_execution_n8n_complete.py::test_actual_n8n_retry_artifact_and_complete_large_mapping"
+      "tests/test_acceptance_data_portability.py::test_exact_inclusive_inline_boundary_spills_complete_data"
     ],
-    "coverage": "partial",
-    "rationale": "Real n8n transfers full >1MiB structured data to consumer (12000 rows), retaining data_ref.",
-    "remaining": [
-      "ART02 1MiB inclusive/+1 error contract conflicts with current externalization behavior and needs explicit approved reconciliation; ART03 exact2MiB/full checksum/100-row preview API oracle."
-    ]
+    "coverage": "superseded",
+    "rationale": "Historical +1 rejection conflicts with controlling PRD.md:135 and PRD.zh-CN.md:A05 complete-reference requirement. Explicit replacement ART02-SPILL preserves inclusive inline threshold and verifies complete spill; EXECUTION-API documents UTF-8 data-object measurement. Original case text retained.",
+    "remaining": []
   },
   {
     "id": "ART03",
     "tests": [
-      "tests/test_workflow_execution_n8n_complete.py::test_actual_n8n_retry_artifact_and_complete_large_mapping"
+      "tests/test_acceptance_data_portability.py::test_two_mebibyte_data_reference_preview_download_and_downstream_are_complete"
     ],
-    "coverage": "partial",
-    "rationale": "Real n8n transfers full >1MiB structured data to consumer (12000 rows), retaining data_ref.",
-    "remaining": [
-      "ART02 1MiB inclusive/+1 error contract conflicts with current externalization behavior and needs explicit approved reconciliation; ART03 exact2MiB/full checksum/100-row preview API oracle."
-    ]
+    "coverage": "full",
+    "rationale": "Exact2MiB service-serialized data spills to complete node-local JSON; actual n8n downstream full-byte count/checksum and all201 rows match; authenticated preview pages100/100/1 expose total/has_more and full download bytes match.",
+    "remaining": []
   },
   {
     "id": "ART04",
@@ -706,7 +686,7 @@
       "tests/test_acceptance_data_edges.py::test_actual_n8n_invalid_outputs_block_every_required_descendant"
     ],
     "coverage": "full",
-    "rationale": "Real n8n executes absent required output, malformedJSON/invalidUTF8, NaN/\u00b1Infinity, valid-file-exit1, invalid schema, missing artifact, Python exception and rejected JS Promise. Each fails with preserved diagnostics; descendants have no attempts/effects. Exit1 trace and Python/JS stderr messages are checked.",
+    "rationale": "Real n8n executes absent required output, malformedJSON/invalidUTF8, NaN/±Infinity, valid-file-exit1, invalid schema, missing artifact, Python exception and rejected JS Promise. Each fails with preserved diagnostics; descendants have no attempts/effects. Exit1 trace and Python/JS stderr messages are checked.",
     "remaining": []
   },
   {
@@ -868,12 +848,13 @@
   {
     "id": "SQL12",
     "tests": [
-      "tests/test_workflow_external_sql.py::test_external_connection_write_permission_is_enforced"
+      "tests/test_workflow_external_sql.py::test_external_connection_write_permission_is_enforced",
+      "tests/test_acceptance_external_sql_edges.py::test_sql12_actual_read_only_principal_cannot_write_even_when_connection_flag_allows"
     ],
     "coverage": "partial",
-    "rationale": "Application write_enabled=false rejects write before effects.",
+    "rationale": "Dedicated real database principal receives SELECT only; test requires successful read-only readiness, exact per-driver permission failure on write despite application write_enabled, unchanged effect count and no credential disclosure. Local external D execution is BLOCKED_ENV: no Docker/database listeners; test implementation is not acceptance evidence until CI completes.",
     "remaining": [
-      "Actual database read-only role credentials, not application permission flag."
+      "Run all PostgreSQL/MySQL/Oracle variants against the disposable CI database fixtures and inspect successful assertions; local SQLite or mocked drivers cannot satisfy D."
     ]
   },
   {
@@ -898,34 +879,37 @@
   {
     "id": "SQL15",
     "tests": [
-      "tests/test_workflow_external_sql.py::test_external_null_unicode_decimal_and_unsafe_integer"
+      "tests/test_workflow_external_sql.py::test_external_null_unicode_decimal_and_unsafe_integer",
+      "tests/test_acceptance_external_sql_edges.py::test_sql15_sql16_actual_decimal_null_unicode_temporal_rows_reach_python_and_javascript"
     ],
     "coverage": "partial",
-    "rationale": "Actual external query returns precise strings,big integer,null,Unicode.",
+    "rationale": "Dedicated PostgreSQL/MySQL/Oracle actual n8n SQL→Python/JS test asserts decimal9007199254740993.01 and unsafe integer remain exact schema-marked strings without numeric conversion. Local external D execution is BLOCKED_ENV: no Docker/database listeners; test implementation is not acceptance evidence until CI completes.",
     "remaining": [
-      "Actual n8n SQL\u2192Python/JS and date/time/timezone fixtures/schema logical metadata."
+      "Run all PostgreSQL/MySQL/Oracle variants against the disposable CI database fixtures and inspect successful assertions; local SQLite or mocked drivers cannot satisfy D."
     ]
   },
   {
     "id": "SQL16",
     "tests": [
-      "tests/test_workflow_external_sql.py::test_external_null_unicode_decimal_and_unsafe_integer"
+      "tests/test_workflow_external_sql.py::test_external_null_unicode_decimal_and_unsafe_integer",
+      "tests/test_acceptance_external_sql_edges.py::test_sql15_sql16_actual_decimal_null_unicode_temporal_rows_reach_python_and_javascript"
     ],
     "coverage": "partial",
-    "rationale": "Actual external query returns precise strings,big integer,null,Unicode.",
+    "rationale": "Dedicated actual external SQL→Python/JS test includes Unicode, NULL, native DATE/timestamp storage and explicit timezone projections where the dialect lacks portable aware datetime results; normalized instant, metadata and downstream equality are asserted. Local external D execution is BLOCKED_ENV: no Docker/database listeners; test implementation is not acceptance evidence until CI completes.",
     "remaining": [
-      "Actual n8n SQL\u2192Python/JS and date/time/timezone fixtures/schema logical metadata."
+      "Run all PostgreSQL/MySQL/Oracle variants against the disposable CI database fixtures and inspect successful assertions; local SQLite or mocked drivers cannot satisfy D."
     ]
   },
   {
     "id": "SQL17",
     "tests": [
-      "tests/test_workflow_connection_rotation.py::test_published_run_uses_current_connection_revision_and_authorization"
+      "tests/test_workflow_connection_rotation.py::test_published_run_uses_current_connection_revision_and_authorization",
+      "tests/test_acceptance_external_sql_edges.py::test_sql17_actual_password_rotation_after_publication_uses_new_authorized_revision"
     ],
     "coverage": "partial",
-    "rationale": "Published SQLite workflow resolves updated revision at execution and enforces scope.",
+    "rationale": "Dedicated unique database-user fixture rotates only its disposable password after publication, requires stale-auth failure, authorized new revision success and API graph/run/export/log secret scans. Local external D execution is BLOCKED_ENV: no Docker/database listeners; test implementation is not acceptance evidence until CI completes.",
     "remaining": [
-      "Real external authentication rotation/new password use/stale failure and API secrecy assertions."
+      "Run all PostgreSQL/MySQL/Oracle variants against the disposable CI database fixtures and inspect successful assertions; local SQLite or mocked drivers cannot satisfy D."
     ]
   },
   {
@@ -957,11 +941,15 @@
   },
   {
     "id": "SQL21",
-    "tests": [],
+    "tests": [
+      "tests/test_acceptance_external_sql_edges.py::test_sql21_external_actual_commit_and_pre_statement_disconnect",
+      "tests/test_acceptance_external_sql_edges.py::test_sql21_local_real_commit_transport_boundary",
+      "tests/test_acceptance_external_sql_edges.py::test_local_sql_commit_teardown_failure_preserves_business_outcome"
+    ],
     "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
+    "rationale": "Actual SQLite+n8n RED→GREEN proves pre-statement disconnect retries only under explicit policy, while actual commit followed by lost acknowledgement is nonretryable with one effect/attempt and review reason. Dedicated same-fault trials for all three external drivers are prepared. Local external D execution is BLOCKED_ENV: no Docker/database listeners; test implementation is not acceptance evidence until CI completes.",
     "remaining": [
-      "Before statement: safe failure/retry if explicit. After uncertain commit: no automatic replay; operation remains one or unknown with review reason (required level D+F+N)"
+      "Run all PostgreSQL/MySQL/Oracle variants against the disposable CI database fixtures and inspect successful assertions; local SQLite or mocked drivers cannot satisfy D."
     ]
   },
   {
@@ -1061,13 +1049,11 @@
   {
     "id": "BR07",
     "tests": [
-      "tests/test_workflows.py::test_failed_required_order_edge_blocks_constant_consumer"
+      "tests/test_acceptance_retry_cancel.py::test_default_one_attempt_effect_and_constant_only_descendant_blocked"
     ],
-    "coverage": "partial",
-    "rationale": "Real worker failure blocks constant-input descendant with exact not_run reason.",
-    "remaining": [
-      "Actual n8n invocation."
-    ]
+    "coverage": "full",
+    "rationale": "Actual n8n required source fails after effect1. Constant-only descendant remains not_run with blocked_by_failed_dependency and zero native calls; workflow fails.",
+    "remaining": []
   },
   {
     "id": "BR08",
@@ -1182,13 +1168,11 @@
   {
     "id": "BR20",
     "tests": [
-      "tests/test_workflow_execution_n8n_complete.py::test_actual_n8n_cancel_waiting_process_prevents_downstream"
+      "tests/test_acceptance_retry_cancel.py::test_cancel_live_child_and_completed_sibling_never_runs_join"
     ],
-    "coverage": "partial",
-    "rationale": "Actual n8n running Python cancelled and downstream has zero attempts.",
-    "remaining": [
-      "Child process death and cancelling-while-live transition; branch/join cancellation variant."
-    ]
+    "coverage": "full",
+    "rationale": "Actual sibling succeeds while other native branch and child remain running; authenticated whole-run cancellation stops owned processes before cancelled terminal and join has zero calls.",
+    "remaining": []
   },
   {
     "id": "FAIL01",
@@ -1196,7 +1180,7 @@
       "tests/test_acceptance_data_edges.py::test_actual_n8n_invalid_outputs_block_every_required_descendant"
     ],
     "coverage": "full",
-    "rationale": "Real n8n executes absent required output, malformedJSON/invalidUTF8, NaN/\u00b1Infinity, valid-file-exit1, invalid schema, missing artifact, Python exception and rejected JS Promise. Each fails with preserved diagnostics; descendants have no attempts/effects. Exit1 trace and Python/JS stderr messages are checked.",
+    "rationale": "Real n8n executes absent required output, malformedJSON/invalidUTF8, NaN/±Infinity, valid-file-exit1, invalid schema, missing artifact, Python exception and rejected JS Promise. Each fails with preserved diagnostics; descendants have no attempts/effects. Exit1 trace and Python/JS stderr messages are checked.",
     "remaining": []
   },
   {
@@ -1205,7 +1189,7 @@
       "tests/test_acceptance_data_edges.py::test_actual_n8n_invalid_outputs_block_every_required_descendant"
     ],
     "coverage": "full",
-    "rationale": "Real n8n executes absent required output, malformedJSON/invalidUTF8, NaN/\u00b1Infinity, valid-file-exit1, invalid schema, missing artifact, Python exception and rejected JS Promise. Each fails with preserved diagnostics; descendants have no attempts/effects. Exit1 trace and Python/JS stderr messages are checked.",
+    "rationale": "Real n8n executes absent required output, malformedJSON/invalidUTF8, NaN/±Infinity, valid-file-exit1, invalid schema, missing artifact, Python exception and rejected JS Promise. Each fails with preserved diagnostics; descendants have no attempts/effects. Exit1 trace and Python/JS stderr messages are checked.",
     "remaining": []
   },
   {
@@ -1214,7 +1198,7 @@
       "tests/test_acceptance_data_edges.py::test_actual_n8n_invalid_outputs_block_every_required_descendant"
     ],
     "coverage": "full",
-    "rationale": "Real n8n executes absent required output, malformedJSON/invalidUTF8, NaN/\u00b1Infinity, valid-file-exit1, invalid schema, missing artifact, Python exception and rejected JS Promise. Each fails with preserved diagnostics; descendants have no attempts/effects. Exit1 trace and Python/JS stderr messages are checked.",
+    "rationale": "Real n8n executes absent required output, malformedJSON/invalidUTF8, NaN/±Infinity, valid-file-exit1, invalid schema, missing artifact, Python exception and rejected JS Promise. Each fails with preserved diagnostics; descendants have no attempts/effects. Exit1 trace and Python/JS stderr messages are checked.",
     "remaining": []
   },
   {
@@ -1229,13 +1213,11 @@
   {
     "id": "FAIL05",
     "tests": [
-      "tests/test_workflows.py::test_workflow_deadline_stops_running_process"
+      "tests/test_acceptance_retry_cancel.py::test_node_one_second_timeout_stops_process_tree_and_blocks_late_output"
     ],
-    "coverage": "partial",
-    "rationale": "Actual sleeping Python process ends within3s under1s workflow deadline, node/run timed_out.",
-    "remaining": [
-      "Actual n8n multi-node deadline, child descendant termination and no-late-output admission."
-    ]
+    "coverage": "full",
+    "rationale": "Actual n8n node timeout1s stops a10s sleeping worker and its SIGTERM-resistant child, preserves timed_out node/run, rejects later output and blocks required descendant with no invocation.",
+    "remaining": []
   },
   {
     "id": "FAIL06",
@@ -1259,83 +1241,75 @@
   },
   {
     "id": "FAIL08",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "Process stopped or logs bounded per declared policy; no unbounded disk growth; truncation marked and structured data not truncated (required level W)"
-    ]
+    "tests": [
+      "tests/test_acceptance_execution_limits.py::test_native_verbose_worker_keeps_both_log_files_bounded"
+    ],
+    "coverage": "full",
+    "rationale": "Native worker produces over 6 MiB per stream. Each stored file stays at most 1 MiB, returned tails explicitly mark truncation and retain final markers, while structured output remains complete.",
+    "remaining": []
   },
   {
     "id": "RET01",
     "tests": [
-      "tests/test_runtime_language_matrix.py::test_actual_n8n_fixed_pair_design"
+      "tests/test_acceptance_retry_cancel.py::test_default_one_attempt_effect_and_constant_only_descendant_blocked"
     ],
-    "coverage": "partial",
-    "rationale": "Actual n8n failed source has exactly one independent business-call counter and target zero attempts/calls.",
-    "remaining": [
-      "F-EFFECT operation-key side-effect count, including SQL failure boundary."
-    ]
+    "coverage": "full",
+    "rationale": "Real authenticated n8n default-policy failure records one attempt and independent effect-001 exactly once; constant-only required descendant has no invocation.",
+    "remaining": []
   },
   {
     "id": "RET02",
     "tests": [
-      "tests/test_workflow_execution_n8n_complete.py::test_actual_n8n_retry_artifact_and_complete_large_mapping"
+      "tests/test_acceptance_retry_cancel.py::test_explicit_retry_has_fresh_files_distinct_logs_and_one_consumer[2]"
     ],
-    "coverage": "partial",
-    "rationale": "Actual n8n retries safe transient failure once, records failed/succeeded attempts and complete consumer output.",
-    "remaining": [
-      "Three attempts with distinct logs/times, downstream independent call count; stale first-attempt output fixture."
-    ]
+    "coverage": "full",
+    "rationale": "Actual n8n retries transient file-protocol failures twice then succeeds on attempt3; independent ledger1/2/3, distinct stdout/stderr/times and backoff, one final output/artifact, one consumer are asserted.",
+    "remaining": []
   },
   {
     "id": "RET03",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "No retry for deterministic validation/build error; clear policy reason (required level U+N)"
-    ]
+    "tests": [
+      "tests/test_acceptance_execution_limits.py::test_actual_n8n_deterministic_output_failure_never_retries_business"
+    ],
+    "coverage": "full",
+    "rationale": "Schema-invalid output and malformed envelope under max3 explicitly report invalid_output/retryable=false; actual n8n invokes once, preserves logs, blocks downstream; node-status check confirms no retry eligibility.",
+    "remaining": []
   },
   {
     "id": "RET04",
     "tests": [
-      "tests/test_workflows_n8n.py::test_duplicate_callback_never_emits_running_completion_marker"
+      "tests/test_acceptance_retry_cancel.py::test_lost_authenticated_callback_response_replay_never_repeats_effect"
     ],
-    "coverage": "partial",
-    "rationale": "Two real HTTP callbacks concurrently observe one native attempt and succeeded response.",
-    "remaining": [
-      "CON04 exactly20 concurrent requests and independent business/effect counter; RET04 actual n8n lost-response fault and replay."
-    ]
+    "coverage": "full",
+    "rationale": "Real authenticated HTTP connection reset after fsynced effect but before response delivery; server completes once, repeat callback returns persisted success, actual n8n observes same immutable result with one independent business call.",
+    "remaining": []
   },
   {
     "id": "RET05",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "Never automatic replay of uncertain effect; run failed/needs review, effect count1; uncertainty visible (required level W/D+N+F)"
-    ]
+    "tests": [
+      "tests/test_acceptance_engine_recovery.py::test_owned_engine_component_death_preserves_effect_and_future_schedule"
+    ],
+    "coverage": "full",
+    "rationale": "Actual isolated supervisor/n8n/app/coordinator process kills occur after independent fsynced effect and before finish. Restart reconciles uncertainty, retains one attempt/graph/effect and idempotency identity, cleans owned descendants and permits later scheduled occurrence without replay.",
+    "remaining": []
   },
   {
     "id": "RET06",
     "tests": [
-      "tests/test_workflow_execution_n8n_complete.py::test_actual_n8n_retry_artifact_and_complete_large_mapping"
+      "tests/test_acceptance_retry_cancel.py::test_explicit_retry_has_fresh_files_distinct_logs_and_one_consumer[1]"
     ],
-    "coverage": "partial",
-    "rationale": "Actual n8n retries safe transient failure once, records failed/succeeded attempts and complete consumer output.",
-    "remaining": [
-      "Three attempts with distinct logs/times, downstream independent call count; stale first-attempt output fixture."
-    ]
+    "coverage": "full",
+    "rationale": "First failed attempt leaves valid stale output and same-name artifact; second native attempt asserts files initially absent in its own directory, writes distinct result, and only its exact output/artifact reaches one n8n consumer. Both files/logs/attempts remain inspectable.",
+    "remaining": []
   },
   {
     "id": "RET07",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "New run ID with pinned version policy, fresh input snapshot and effect key policy; original remains immutable (required level A+N)"
-    ]
+    "tests": [
+      "tests/test_acceptance_retry_cancel.py::test_explicit_full_rerun_pins_requested_version_and_fresh_effect_key"
+    ],
+    "coverage": "full",
+    "rationale": "Authenticated explicit rerun after V2 publication selects original V1, receives new run/idempotency identity and fresh params/business effect key. Two actual n8n graphs yield independent effect ledger and exact V1 output; original completed record remains unchanged; retrying new admission key does not duplicate.",
+    "remaining": []
   },
   {
     "id": "RET08",
@@ -1349,33 +1323,30 @@
   {
     "id": "CAN01",
     "tests": [
-      "tests/test_workflows.py::test_cancel_before_node_prevents_side_effect"
+      "tests/test_acceptance_retry_cancel.py::test_queued_cancel_then_actual_late_graph_and_callbacks_have_zero_effect"
     ],
-    "coverage": "partial",
-    "rationale": "Queued cancellation prevents direct node execution.",
-    "remaining": [
-      "Authenticated cancel then actual n8n dispatch callback and independent zero-effect oracle."
-    ]
+    "coverage": "full",
+    "rationale": "Queued run is cancelled through authenticated API before any node starts; its preexisting compiled graph is then imported/executed by genuine isolated n8n CLI. Callback trace/one execution row prove late graph delivery; run and node stay cancelled with zero attempts/effects.",
+    "remaining": []
   },
   {
     "id": "CAN02",
     "tests": [
-      "tests/test_workflow_execution_n8n_complete.py::test_actual_n8n_cancel_waiting_process_prevents_downstream"
+      "tests/test_acceptance_retry_cancel.py::test_cancel_live_child_and_completed_sibling_never_runs_join",
+      "tests/test_acceptance_retry_cancel.py::test_cancel_stops_ignoring_child_even_when_parent_exits_on_term"
     ],
-    "coverage": "partial",
-    "rationale": "Actual n8n running Python cancelled and downstream has zero attempts.",
-    "remaining": [
-      "Child process death and cancelling-while-live transition; branch/join cancellation variant."
-    ]
+    "coverage": "full",
+    "rationale": "Actual n8n cancel returns cancelling while native parent/child are alive, then terminal only after both stop. Includes SIGTERM-resistant descendants with inherited or closed stdio and exiting parent; downstream join has no business invocation.",
+    "remaining": []
   },
   {
     "id": "CAN03",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "One consistent terminal state; cancellation cannot become success after confirmed stop; no duplicate output/effect (required level W+N+F)"
-    ]
+    "tests": [
+      "tests/test_acceptance_retry_cancel.py::test_cancel_races_complete_output_barrier_without_success_or_duplicate"
+    ],
+    "coverage": "full",
+    "rationale": "Three real n8n barrier races cover immediate,3ms and held process exit after valid output. Cancellation/prior-success winner stays consistent, confirmed cancelling cannot become success, replay is immutable, and independent effect counter stays1.",
+    "remaining": []
   },
   {
     "id": "CAN04",
@@ -1701,7 +1672,7 @@
       "tests/test_acceptance_data_contracts.py::test_authenticated_unreachable_or_deleted_binding_is_preserved_and_rejected"
     ],
     "coverage": "full",
-    "rationale": "Authenticated public draft/save/publication covers disconnected A\u2192B binding, future-source A binding B, and deletion of A while retaining B.v reference. Draft/readback preserve the broken binding. Publication422 includes exact unreachable_source or missing_source code plus affected stable node and v field; no publication or run admitted.",
+    "rationale": "Authenticated public draft/save/publication covers disconnected A→B binding, future-source A binding B, and deletion of A while retaining B.v reference. Draft/readback preserve the broken binding. Publication422 includes exact unreachable_source or missing_source code plus affected stable node and v field; no publication or run admitted.",
     "remaining": []
   },
   {

@@ -2,7 +2,7 @@
 
 The original `../case-index.json` is a design inventory, not a passing-test list. Its 364 cases are mapped by `data.json`, `schedule-security.json`, `ui.json` and `lifecycle.json`.
 
-`data-pair-design.json` explicitly expands another 310 combinations that were specified in the data design but missing from the original inventory: baseline, order-only, empty, types, failed predecessor and artifact language pairs, plus external database directions. `data-pairs.json` maps these exact oracles. There are **674 designed entries**, not 674 independent pytest functions; batched real graphs may cover multiple entries.
+`data-pair-design.json` explicitly expands another 310 combinations that were specified in the data design but missing from the original inventory: baseline, order-only, empty, types, failed predecessor and artifact language pairs, plus external database directions. `data-pairs.json` maps these exact oracles. The explicit `ART02-SPILL` replacement preserves the complete automatic-spill requirement while the historical conflicting `ART02` oracle remains superseded. There are **675 designed entries**, not 675 independent pytest functions; batched real graphs may cover multiple entries.
 
 Every mapping includes exact pytest selectors, reviewed coverage and specific remaining assertions. `full` describes test coverage, **not a passing outcome**. Actual result files determine passed, skipped or failed. Partial coverage cannot become a pass even when its referenced unit tests succeed. Superseded entries preserve the user's replacement requirement; they are never counted as passing tests. Manual means physical/operator evidence, not an excuse for unwritten automated tests.
 

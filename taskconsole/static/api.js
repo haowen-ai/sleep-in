@@ -12,7 +12,7 @@ export async function api(path, options = {}) {
   const data = options.responseType === 'blob' && response.ok ? await response.blob() : type.includes('json') ? await response.json() : await response.text();
   if (!response.ok) {
     const detail = data?.detail || {};
-    throw {status: response.status, code: detail.code || 'generic', message: detail.message || ''};
+    throw {status: response.status, code: detail.code || 'generic', message: detail.message || '', ...(typeof detail.node_id==='string'?{node_id:detail.node_id}:{}), ...(typeof detail.field==='string'?{field:detail.field}:{})};
   }
   return data;
 }

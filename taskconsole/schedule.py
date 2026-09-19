@@ -128,8 +128,9 @@ def workflow_next_runs(spec, timezone_name, after, count=5):
         every = spec.get('every')
         if type(every) is not int or not 1 <= every <= 525600: raise ValueError('Interval must be positive')
         if spec.get('unit','minutes') not in {'minutes','hours'}: raise ValueError('Invalid interval unit')
+        if not spec.get('anchor'): raise ValueError('Starting anchor is required for an interval schedule')
         step = timedelta(minutes=every * (60 if spec.get('unit') == 'hours' else 1))
-        base = parse(spec['anchor']) if spec.get('anchor') else start
+        base = parse(spec['anchor'])
         lower = max(after,start-timedelta(microseconds=1))
         first = base + step * max(0, (lower-base)//step+1)
         return [x for n in range(count) if (x := first+step*n) and (not end or x<=end)]

@@ -94,7 +94,7 @@ class ExecutionMixin:
         if nid not in run['nodes']:raise WorkflowError('Node not found','not_found')
         state=run['nodes'][nid];node=next(n for n in run['snapshot']['nodes'] if n['id']==nid)
         limit,delay=retry_policy(node)
-        eligible=(state['status']=='failed' and state.get('process_started') and len(state['attempts'])<limit and run['status'] in {'queued','running'} and state.get('reason')!='interrupted_unknown_effect')
+        eligible=(state['status']=='failed' and state.get('process_started') and state.get('retryable') is not False and len(state['attempts'])<limit and run['status'] in {'queued','running'} and state.get('reason')!='interrupted_unknown_effect')
         ready=eligible and (now()-datetime.fromisoformat(state['finished_at'])).total_seconds()>=delay
         return {'node_id':nid,'status':state['status'],'terminal':state['status'] in NODE_TERMINAL and not eligible,'retry_ready':bool(ready),'attempt':len(state['attempts'])}
 

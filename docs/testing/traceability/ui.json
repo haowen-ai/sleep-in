@@ -128,15 +128,13 @@
   {
     "id": "UI-M01B",
     "tests": [
-      "tests/test_workflows.py::test_template_exact_summary_and_empty_rows"
+      "tests/test_workflows.py::test_template_exact_summary_and_empty_rows",
+      "tests/test_acceptance_browser_repair.py::test_browser_205_rows_and_empty_preview_keep_complete_n8n_inputs",
+      "tests/test_acceptance_browser.py::test_browser_field_picker_executes_exact_sql_python_js_with_real_n8n"
     ],
-    "coverage": "partial",
-    "rationale": "Direct real workers verify baseline 3/30.75 and empty SQL result summaries; this does not prove 205-row UI pagination.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Run the exact 205-row fixture with distinct last sentinel and complete downstream count/payload.",
-      "Inspect displayed ranges/totals, last-page navigation, empty input and exactly-once counters under real n8n."
-    ]
+    "coverage": "full",
+    "rationale": "Actual n8n executes ordered SQL205 rows; Chromium pages exact ranges1–100/101–200/201–205 and final sentinel, while Python receives the entire exact SQL payload and reports205/final sentinel. Empty SQL receives orders[] and displays honest0–0/0. Independent Python file counter proves one invocation per run, durable n8n execution IDs verify both runs; existing exact G1 browser test preserves baseline3/30.75.",
+    "remaining": []
   },
   {
     "id": "UI-M02",
@@ -243,14 +241,12 @@
   {
     "id": "UI-M11",
     "tests": [
-      "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_rename_keeps_binding_delete_exposes_broken_mapping_undo_restores"
+      "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_rename_keeps_binding_delete_exposes_broken_mapping_undo_restores",
+      "tests/test_acceptance_browser_repair.py::test_browser_delete_source_undo_and_explicit_rebind_preserve_other_inputs"
     ],
-    "coverage": "partial",
-    "rationale": "Model retains downstream broken binding after source deletion and restores IDs/references via undo.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Persist incomplete draft, block publish with target/field, explicitly rebind selected mapping and verify API/persisted intent."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium deletes the SQL source without silently deleting its downstream mapping, saves the broken draft, blocks publication with field information, restores exact source identity/configuration and bindings by Undo, then explicitly rebinds only orders to a same-named replacement SQL node and verifies persistence and unchanged other inputs.",
+    "remaining": []
   },
   {
     "id": "UI-M12",
@@ -364,13 +360,12 @@
       "tests/test_workflow_schedule_contract.py::test_once_completes_and_inclusive_start_end",
       "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_named_schedule_creation_is_disabled_independent_and_keeps_timezone",
       "tests/test_acceptance_browser.py::test_browser_schedule_locale_weekdays_and_validation",
-      "tests/test_acceptance_browser_schedules.py::test_browser_all_schedule_forms_roundtrip_without_stale_kind_fields"
+      "tests/test_acceptance_browser_schedules.py::test_browser_all_schedule_forms_roundtrip_without_stale_kind_fields",
+      "tests/test_acceptance_browser_repair.py::test_browser_schedule_required_controls_block_empty_values_without_mutation"
     ],
-    "coverage": "partial",
-    "rationale": "Real Chromium exercises every specified form and interval unit, canonical save/reload, stale-kind field exclusion, manual/once preview, multi-time deduplication and no Cron input.",
-    "remaining": [
-      "Required-field semantics for every visible control, especially empty interval anchor and empty clock, remain unverified; ordinary schedule inputs do not all declare native required attributes."
-    ]
+    "coverage": "full",
+    "rationale": "Existing real-browser matrix saves/reloads every kind, interval unit, canonical preview and multi-time form without stale-kind fields. New browser test verifies required every/anchor/time/date/timezone controls, server preview refusal, blocked save without persisted mutation, and optional single time when explicit multiple times exist. Root API tests require a persisted interval anchor to prevent phase drift.",
+    "remaining": []
   },
   {
     "id": "UI-S03",
@@ -426,80 +421,70 @@
     "tests": [
       "tests/test_workflow_api_contract.py::test_draft_save_never_publishes_and_run_requires_publication",
       "tests/test_workflows.py::test_invalid_cycle_and_mapping_block_publication",
-      "tests/test_workflows.py::test_template_executes_complete_rows_once"
+      "tests/test_workflows.py::test_template_executes_complete_rows_once",
+      "tests/test_acceptance_browser_repair.py::test_browser_saved_validation_survives_reopen_and_targets_repair",
+      "tests/test_acceptance_browser_repair.py::test_browser_publication_only_error_keeps_node_target"
     ],
-    "coverage": "partial",
-    "rationale": "API separates draft/run publication gate; backend stores invalid drafts and rejects invalid publication; earlier run source snapshot survives editing.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Persist missing connection/runtime/binding variants, field-linked repair, valid immutable version, and saved/published/runtime-ready UI distinctions."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium reopens invalid connection/binding drafts with persistent node/field error links, selects the affected Inputs panel, blocks invalid publication, repairs explicit mappings and connection, and publishes an immutable version. Publication-only runtime errors retain their node target. Saved, published, node-runtime Ready and later unsaved edits are separately asserted; existing API snapshot test covers publication immutability.",
+    "remaining": []
   },
   {
     "id": "UI-R02",
     "tests": [
       "tests/test_workflows.py::test_draft_admission_does_not_nest_store_transactions",
       "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_real_editor_node_test_uses_explicit_inputs_and_runtime_selection",
-      "tests/test_acceptance_browser.py::test_browser_node_test_explicit_input_and_stale_sample_with_real_n8n"
+      "tests/test_acceptance_browser.py::test_browser_node_test_explicit_input_and_stale_sample_with_real_n8n",
+      "tests/test_acceptance_browser_execution.py::test_browser_draft_test_freezes_marker4_before_later_edit"
     ],
-    "coverage": "partial",
-    "rationale": "Draft admission flag and isolated node-test action are supporting coverage only; neither reproduces full marker4 workflow test race.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Execute test snapshot marker4 while editing again, inspect queued versus final status and prior publication; verify real-effect wording and suppressed formal notifications."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium runs the full G1 SQL/Python/JS draft with marker4 behind an explicit local gate, edits to marker9 before releasing it, and proves captured4 executes once while publicationv1 and unsaved9 remain. API acceptance is queued, history identifies Draft test, source UI states real effects, formal notification records remain absent and durable n8n snapshot/execution identity confirms the frozen source.",
+    "remaining": []
   },
   {
     "id": "UI-R03",
     "tests": [
       "tests/test_workflow_api_contract.py::test_published_run_dedupe_snapshot_and_cancel",
-      "tests/test_acceptance_ui.py::AcceptanceUITests::test_published_run_retry_after_lost_response_reuses_admission_key"
+      "tests/test_acceptance_ui.py::AcceptanceUITests::test_published_run_retry_after_lost_response_reuses_admission_key",
+      "tests/test_acceptance_browser_execution.py::test_browser_published_run_retains_unsaved_marker_and_executes_v1"
     ],
-    "coverage": "partial",
-    "rationale": "HTTP test proves captured published snapshot unaffected by later saved draft; DOM published action performs no save/publish and retains retry identity.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Run exact unsaved marker9 versus published marker3 fixture via n8n; counter once, publication v1 and unsaved editor retained."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium executes full published G1 marker3 while marker9 remains unsaved and editable. Exact publication ID, output3, unchanged persisted source, one run, independent Python invocation counter and durable actual n8n snapshot prove no implicit save/publication or duplicate invocation.",
+    "remaining": []
   },
   {
     "id": "UI-R04",
     "tests": [
       "tests/test_workflows_n8n.py::test_actual_n8n_sql_python_javascript_graph",
-      "tests/test_acceptance_browser.py::test_browser_field_picker_executes_exact_sql_python_js_with_real_n8n"
+      "tests/test_acceptance_browser.py::test_browser_field_picker_executes_exact_sql_python_js_with_real_n8n",
+      "tests/test_acceptance_browser_execution.py::test_browser_missing_engine_fails_actionably_without_local_fallback",
+      "tests/test_acceptance_browser_execution.py::test_browser_logs_attempts_download_and_reload_stay_with_exact_run"
     ],
-    "coverage": "partial",
-    "rationale": "Real n8n test checks execution identity, output, attempts and artifact bytes; requires configured engine or reports skip.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Execute missing-executable variant through actual engine path and assert actionable failed UI, no fake success/fallback or indefinite running."
-    ]
+    "coverage": "full",
+    "rationale": "Actual G1 n8n succeeds with outputs, per-node single attempts, independent Python/JS counters and durable execution IDs. A genuinely nonexistent configured n8n executable now produces actionable failed UI and persisted failure after reload, zero node attempts/counter, no local fallback and no indefinite queued state.",
+    "remaining": []
   },
   {
     "id": "UI-R05",
     "tests": [
       "tests/test_workflows_n8n.py::test_actual_n8n_sql_python_javascript_graph",
-      "tests/test_acceptance_browser.py::test_browser_field_picker_executes_exact_sql_python_js_with_real_n8n"
+      "tests/test_acceptance_browser.py::test_browser_field_picker_executes_exact_sql_python_js_with_real_n8n",
+      "tests/test_acceptance_browser_execution.py::test_browser_logs_attempts_download_and_reload_stay_with_exact_run"
     ],
-    "coverage": "partial",
-    "rationale": "Real engine test validates report bytes and exact run-node output, but no browser history/download lifecycle.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Inspect each run/node/attempt stdout/stderr/input/output and failure focus; refresh/navigation persistence and authorized download byte/checksum checks."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium refreshes an active G1 run, navigates history to the exact ID, expands each node and its attempt, checks distinct per-node stdout/stderr and structured output, downloads exact report bytes/checksum, rejects unauthenticated download, and retains terminal status on reload. Prior failed-run detail opens with its own readable error; previous failure text does not leak into current run.",
+    "remaining": []
   },
   {
     "id": "UI-R06",
     "tests": [
       "tests/test_workflows.py::test_failed_required_order_edge_blocks_constant_consumer",
-      "tests/test_workflows.py::test_workflow_deadline_stops_running_process"
+      "tests/test_workflows.py::test_workflow_deadline_stops_running_process",
+      "tests/test_acceptance_browser_execution.py::test_browser_failure_schema_and_timeout_block_javascript_after_reload"
     ],
-    "coverage": "partial",
-    "rationale": "Actual Python failure blocks dependent worker; real process exceeds workflow timeout and reports timed_out within bound.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Execute exact G1 exception/invalid-schema/node-timeout cases with zero JS counter; inspect reloaded textual status/icons and precise errors."
-    ]
+    "coverage": "full",
+    "rationale": "Three actual-n8n G1 browser variants cover Python exception, invalid count output schema despite exit0, and node timeout. Precise failed/timed_out UI survives reload; source detail is visibly open, downstream JS has zero attempts and an independent side-effect file remains absent.",
+    "remaining": []
   },
   {
     "id": "UI-R07",
@@ -510,39 +495,36 @@
       "tests/test_acceptance_ui.py::AcceptanceUITests::test_uncertain_admission_keeps_identity_after_authentication_rejection",
       "tests/test_acceptance_browser.py::test_browser_invalid_lost_admission_recovers_after_atomic_retirement",
       "tests/test_acceptance_ui.py::AcceptanceUITests::test_uncertain_invalid_admission_retires_before_corrected_request",
-      "tests/test_acceptance_ui.py::AcceptanceUITests::test_admission_resolution_loss_retains_identity_and_admitted_result_opens_run"
+      "tests/test_acceptance_ui.py::AcceptanceUITests::test_admission_resolution_loss_retains_identity_and_admitted_result_opens_run",
+      "tests/test_acceptance_browser_run_feedback.py::test_browser_pending_admission_is_visible_and_retry_preserves_identity",
+      "tests/test_acceptance_browser_run_feedback.py::test_browser_storage_disabled_refresh_recovers_one_actual_effect"
     ],
-    "coverage": "partial",
-    "rationale": "Real browser fault injection forwards the first request to the actual API then loses its response. Refresh/re-entry retries the exact stored request/key and produces one durable run. Model callback tests preserve uncertain identity after authentication failure and rotate it only after confirmed admission. A second real-browser pre-admission fault proves invalid parameters recover through authenticated atomic identity retirement, UI correction, reload and a new admission; delayed old-key request is rejected. Model verifies lost resolution responses retain identity and resolved existing runs are displayed.",
-    "remaining": [
-      "Prove concurrent double-click/pending-button affordance and one actual n8n side effect under this exact network-fault fixture; current browser fault tests prove admission count without starting a worker.",
-      "Verify an explicit visible pending/retry action and reload behavior when sessionStorage is unavailable; current fallback retains identity only in memory."
-    ]
+    "coverage": "full",
+    "rationale": "Actual Chromium double-click and committed-but-lost response leave one admission. Disabled buttons and visible recovery preserve the exact request across refresh even with sessionStorage disabled; real n8n completes that same run with one independently counted script effect.",
+    "remaining": []
   },
   {
     "id": "UI-R08",
     "tests": [
       "tests/test_workflow_api_contract.py::test_published_run_dedupe_snapshot_and_cancel",
-      "tests/test_workflows.py::test_cancel_before_node_prevents_side_effect"
+      "tests/test_workflows.py::test_cancel_before_node_prevents_side_effect",
+      "tests/test_acceptance_browser_execution.py::test_browser_cancel_active_and_queued_preserves_prior_effects"
     ],
-    "coverage": "partial",
-    "rationale": "HTTP queued cancellation and cancellation-before-worker block further side effects; active-process/browser cancellation sequence needs evidence.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Cancel actual long-running and queued n8n runs, inspect cancelling until process acknowledgement, prior retained effects and terminal/reloaded controls."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium cancels an actually running n8n Python process after its independent effect counter is written. HTTP acknowledgement is cancelling until terminal cancellation, downstream has zero attempts, prior effect remains. Separate queued run receives cancelled acknowledgement with zero attempts; reload removes Cancel controls for both.",
+    "remaining": []
   },
   {
     "id": "UI-R09",
     "tests": [
       "tests/test_workflow_api_contract.py::test_operator_cannot_author_publish_test_or_read_credentials",
-      "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_operator_editor_does_not_request_admin_credential_metadata"
+      "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_operator_editor_does_not_request_admin_credential_metadata",
+      "tests/test_acceptance_browser_execution.py::test_browser_operator_runs_published_but_cannot_author"
     ],
     "coverage": "partial",
-    "rationale": "Actual authenticated API denies operator mutations and DOM avoids fetching admin credentials.",
+    "rationale": "Actual operator browser opens editor without admin-only metadata requests, sees disabled source and no author/publish/test actions, receives403 for direct workflow/connection/runtime mutations, and executes published G1 through actual n8n. Frontend regression forbids credentials/runtime-profile/source-project admin reads.",
     "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Inspect operator affordances and published run; use genuinely unavailable Java/C/C++ fixtures to verify readiness reasons, publication block and repair guidance."
+      "Use genuinely unavailable Java/C/C++ controlled toolchain fixtures to inspect runtime-center reason, publication refusal and repair guidance."
     ]
   },
   {
@@ -564,13 +546,14 @@
       "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_guided_template_tests_before_publish_and_enables_only_after_success",
       "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_guided_failed_test_never_publishes_or_enables",
       "tests/test_workflows_n8n.py::test_actual_n8n_sql_python_javascript_graph",
-      "tests/test_acceptance_browser.py::test_browser_field_picker_executes_exact_sql_python_js_with_real_n8n"
+      "tests/test_acceptance_browser.py::test_browser_field_picker_executes_exact_sql_python_js_with_real_n8n",
+      "tests/test_acceptance_browser_execution.py::test_browser_template_instances_are_independent_and_export_omits_connection",
+      "tests/test_acceptance_browser_execution.py::test_browser_settings_export_downloads_portable_template"
     ],
     "coverage": "partial",
-    "rationale": "DOM guide orders test before publish/enable and stops on failure; real n8n template produces expected synthetic artifact.",
+    "rationale": "Real Chromium creates two independent template instances, edits one without changing the other or catalog, executes the unmodified G1 through actual n8n, explicitly rebinds its SQL node to a separately provisioned managed SQLite connection, and downloads portable export without connection ID/run history/encrypted secrets.",
     "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Clone twice and compare scoped IDs/independent edits, explicitly replace with provisioned real connection and verify secret-free export if present."
+      "Execute the replacement using a separately provisioned non-SQLite test connection; current browser fixture proves managed-SQLite rebind/save only and makes no external-dialect runtime claim."
     ]
   },
   {
@@ -588,14 +571,13 @@
   {
     "id": "UI-A01",
     "tests": [
-      "tests/test_local_integration.py::test_local_first_login_changes_hide_hint_and_revoke_session"
+      "tests/test_local_integration.py::test_local_first_login_changes_hide_hint_and_revoke_session",
+      "tests/test_acceptance_browser_repair.py::test_browser_default_account_exact_fill_is_conditional_and_never_submits",
+      "tests/test_acceptance_browser.py::test_browser_password_change_hides_default_card_in_two_sessions"
     ],
-    "coverage": "partial",
-    "rationale": "Actual loopback HTTP bootstrap supplies eligible local account and real login succeeds.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Inspect conditional card with/without supplied credentials, click-fill exact values without submission, bilingual labels and unchanged existing accounts."
-    ]
+    "coverage": "full",
+    "rationale": "Fresh Chinese-browser context starts in English; actual server-supplied username/password are filled exactly without a login request, EN/ZH card/action labels switch, and explicit login succeeds. A comparison bootstrap without local_account leaves empty fields/card absent. Existing real password-change browser fixture proves actual server absence and unchanged-account authentication behavior.",
+    "remaining": []
   },
   {
     "id": "UI-A02",

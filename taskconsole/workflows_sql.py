@@ -174,14 +174,21 @@ def execute_sql(store,node,inputs,workflow_id,cancelled=lambda:False):
     if type(timeout) is not int or not 1<=timeout<=3600:raise ValueError('SQL timeout must be 1..3600 seconds')
     db=connect(store,connection,write,timeout=timeout)
     interrupted=None
+    committing=False
     try:
         if connection['dialect']=='sqlite':
             import time
             deadline=time.monotonic()+int(config.get('timeout',30))
+            next_cancel_check=time.monotonic()+.05
             def progress():
-                nonlocal interrupted
-                if cancelled():interrupted='cancelled'
-                elif time.monotonic()>deadline:interrupted='timed_out'
+                nonlocal interrupted,next_cancel_check
+                current=time.monotonic()
+                if current>=deadline:interrupted='timed_out'
+                elif current>=next_cancel_check:
+                    # Cancellation consults the transactional state store. Polling
+                    # it on every 1,000 VM opcodes can dominate useful SQL work.
+                    next_cancel_check=current+.05
+                    if cancelled():interrupted='cancelled'
                 return int(interrupted is not None)
             db.set_progress_handler(progress,1000)
         rows=[];columns=[];affected=0
@@ -213,14 +220,25 @@ def execute_sql(store,node,inputs,workflow_id,cancelled=lambda:False):
         if len(json.dumps(data,ensure_ascii=False,allow_nan=False).encode())>quota:raise ValueError('SQL output exceeds dataset quota')
         portable(data);check_schema(data,node.get('outputs'))
         if cancelled():raise ValueError('cancelled')
-        if write:db.commit()
+        if write:
+            committing=True
+            db.commit()
+            committing=False
         else:db.rollback()
         return {'status':'succeeded','output':{'schemaVersion':1,'data':data,'artifacts':[]},'stdout':'','stderr':'','credential_revision':connection['revision']}
     except BaseException as exc:
         try:db.rollback()
         except Exception:pass
+        if committing and isinstance(exc,Exception):
+            return {'status':'failed','retryable':False,'reason':'commit_outcome_uncertain',
+                'error':'SQL commit outcome is uncertain; inspect database effects before a new run',
+                'stdout':'','stderr':'','credential_revision':connection['revision']}
         if connection['dialect']=='sqlite' and isinstance(exc,sqlite3.OperationalError) and getattr(exc,'sqlite_errorcode',None)==sqlite3.SQLITE_INTERRUPT and interrupted:
             return {'status':interrupted,'error':'SQL deadline exceeded' if interrupted=='timed_out' else 'SQL cancelled',
                 'stdout':'','stderr':'','credential_revision':connection['revision']}
         raise
-    finally:db.close()
+    finally:
+        # Teardown cannot invalidate an acknowledged commit or replace the
+        # non-retryable classification of an unacknowledged one.
+        try:db.close()
+        except Exception:pass

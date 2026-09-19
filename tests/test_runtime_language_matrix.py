@@ -203,11 +203,14 @@ def test_actual_n8n_fixed_pair_design(matrix,monkeypatch,variant,source_group):
         if variant=='fail':
             setup=copy.deepcopy(prepared[('sql','producer')]);setup['source']='CREATE TABLE IF NOT EXISTS pair_effects(operation_key TEXT)';setup['config']['mode']='write'
             execute_sql(store,setup,{},'fixture')
+        portable_schema={'type':'object','properties':{key:{'type':'string','metadata':{'logicalType':logical}} for key,logical in [('decimal','decimal'),('largeInteger','integer'),('timestamp','timestamp')]},'required':['decimal','largeInteger','timestamp']}
         for language in sources:
             sid='source_'+language
             source=fixture_program(language,'fail' if variant=='fail' else 'emit',FTYPES if variant=='types' else {'rows':[] if variant=='empty' else ORDERS}) if language!='sql' else ('SELECT * FROM deliberately_absent_table' if variant=='fail' else 'SELECT order_id,amount,region FROM orders '+('WHERE 1=0' if variant=='empty' else 'ORDER BY order_id'))
             if variant=='artifact':source=fixture_artifact_program(language,'producer')
-            nodes.append(make(language,sid,source))
+            producer=make(language,sid,source)
+            if variant=='types':producer['outputs']=copy.deepcopy(portable_schema)
+            nodes.append(producer)
             for target in targets:
                 nid=language+'_to_'+target
                 if target=='sql':
@@ -216,7 +219,10 @@ def test_actual_n8n_fixed_pair_design(matrix,monkeypatch,variant,source_group):
                 if variant=='artifact':source=fixture_artifact_program(target,'consumer')
                 node=make(target,nid,source)
                 if variant=='artifact':node['inputs']={'file':{'source':'artifact','node_id':sid,'name':'bytes.bin'}}
-                elif variant=='types':node['inputs']={'payload':{'source':'node','node_id':sid,'path':[]}}
+                elif variant=='types':
+                    node['inputs']={'payload':{'source':'node','node_id':sid,'path':[]}}
+                    node['input_schema']={'type':'object','properties':{'payload':copy.deepcopy(portable_schema)}}
+                    node['outputs']={'type':'object','properties':{'received':copy.deepcopy(portable_schema)}}
                 elif variant not in {'order','empty'} and target=='sql':node['inputs']={'id'+str(i+1):{'source':'node','node_id':sid,'path':['rows',i,'order_id']} for i in range(3)}
                 elif variant!='order' and target!='sql':node['inputs']={'orders':{'source':'node','node_id':sid,'path':['rows']}}
                 if variant=='fail':

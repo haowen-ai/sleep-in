@@ -133,13 +133,12 @@
   {
     "id": "MAC-AU-02",
     "tests": [
-      "tests/test_local_accounts.py::test_existing_or_restored_state_never_gets_extra_account"
+      "tests/test_local_accounts.py::test_existing_or_restored_state_never_gets_extra_account",
+      "tests/test_acceptance_local_accounts_extended.py::test_existing_migrated_restored_accounts_unchanged_across_two_starts"
     ],
-    "coverage": "partial",
-    "rationale": "Existing record kinds block extra accounts; full two-start migrated/restored hashes/roles/disabled-user inventory comparison remains.",
-    "remaining": [
-      "Existing record kinds block extra accounts; full two-start migrated/restored hashes/roles/disabled-user inventory comparison remains."
-    ]
+    "coverage": "full",
+    "rationale": "Actual existing, legacy-converted, and encrypted-restored stores retain exact user IDs, hashes, roles and disabled flags across two real app starts; custom owner login works, default/disabled logins fail, and bootstrap never shows an unrelated default card.",
+    "remaining": []
   },
   {
     "id": "MAC-AU-03",
@@ -156,13 +155,12 @@
     "id": "MAC-AU-04",
     "tests": [
       "tests/test_local_accounts.py::test_fresh_account_hint_disappears_after_password_changes",
-      "tests/test_local_accounts.py::test_disabled_initial_user_hides_hint_but_still_blocks_external_reuse"
+      "tests/test_local_accounts.py::test_disabled_initial_user_hides_hint_but_still_blocks_external_reuse",
+      "tests/test_acceptance_local_accounts_extended.py::test_initial_account_hint_never_resurrects_after_recovery_or_stale_marker"
     ],
-    "coverage": "partial",
-    "rationale": "Changed hash/disabled-account hint guard covered; owner-recovery/delete/restored-metadata permutations remain.",
-    "remaining": [
-      "Changed hash/disabled-account hint guard covered; owner-recovery/delete/restored-metadata permutations remain."
-    ]
+    "coverage": "full",
+    "rationale": "Runs real owner recovery command logic with only interactive password input supplied by fixture, verifies old sessions/password revoked and new login, then independently checks disabled/deleted users and actual restored marker without user. Two starts preserve counts/marker and never recreate the public account.",
+    "remaining": []
   },
   {
     "id": "MAC-AU-05",
@@ -178,13 +176,12 @@
     "id": "MAC-AU-06",
     "tests": [
       "tests/test_local_integration.py::test_public_initial_account_cannot_reopen_in_server_mode",
-      "tests/test_local_accounts.py::test_rehashing_same_public_password_does_not_remove_default_guard"
+      "tests/test_local_accounts.py::test_rehashing_same_public_password_does_not_remove_default_guard",
+      "tests/test_acceptance_local_accounts_extended.py::test_server_mode_refuses_public_local_account_before_listening_without_user_mutation"
     ],
-    "coverage": "partial",
-    "rationale": "Existing public account prevents server-mode app construction even after hash change; full socket/database unchanged inventory not yet recorded.",
-    "remaining": [
-      "Existing public account prevents server-mode app construction even after hash change; full socket/database unchanged inventory not yet recorded."
-    ]
+    "coverage": "full",
+    "rationale": "Actual server-mode subprocess refuses initial, disabled and rehashed-public local accounts before listening; chosen loopback socket remains unreachable, entire database record inventory is unchanged, and failure output does not disclose the public password. Transport stays isolated on loopback.",
+    "remaining": []
   },
   {
     "id": "MAC-AU-07",
@@ -204,13 +201,12 @@
       "tests/test_local_integration.py::test_local_bootstrap_rejects_rebinding_and_proxy",
       "tests/test_local_integration.py::test_local_bootstrap_rejects_nonloopback_peer",
       "tests/test_acceptance_lifecycle.py::test_mac_au07_exact_origin_authority_rejected_without_state_changes",
-      "tests/test_local_service.py::test_environment_forces_loopback_and_has_consistent_state"
+      "tests/test_local_service.py::test_environment_forces_loopback_and_has_consistent_state",
+      "tests/test_acceptance_local_accounts_extended.py::test_real_local_listener_and_forwarded_requests_never_expose_default_card"
     ],
-    "coverage": "partial",
-    "rationale": "Forwarded request/peer rejection and enforced child bind configuration checked; real listener inventory remains.",
-    "remaining": [
-      "Forwarded request/peer rejection and enforced child bind configuration checked; real listener inventory remains."
-    ]
+    "coverage": "full",
+    "rationale": "Actual disposable app process has exactly one loopback TCP listener before/after the proxy matrix. Forwarded/X-Forwarded headers and external authorities return 403 without default credentials or database mutation; existing peer-rejection coverage supplies non-loopback request denial.",
+    "remaining": []
   },
   {
     "id": "MAC-AU-09",
@@ -532,26 +528,27 @@
     "id": "MAC-RC-06",
     "tests": [
       "tests/test_workflow_execution_complete.py::test_latest_missed_once_within_grace_and_disabled_pending",
-      "tests/test_acceptance_schedule_security.py::test_sch027_sch029_missed_and_expired_grace_logged_without_runs"
+      "tests/test_acceptance_schedule_security.py::test_sch027_sch029_missed_and_expired_grace_logged_without_runs",
+      "tests/test_acceptance_missed_history.py::test_default_skip_history_covers_all_missed_times_and_future_admission",
+      "tests/test_acceptance_missed_history.py::test_history_auth_acl_and_safe_field_projection",
+      "tests/test_acceptance_missed_history.py::test_history_keeps_trigger_timezone_and_schedule_at_time_of_gap",
+      "tests/test_acceptance_browser_run_feedback.py::test_browser_schedule_history_shows_offline_gap_and_exact_instants"
     ],
-    "coverage": "partial",
-    "rationale": "Controlled due occurrence handling covered; hand-calculated default skip backlog and complete UI offline reason trace remain.",
-    "remaining": [
-      "Controlled due occurrence handling covered; hand-calculated default skip backlog and complete UI offline reason trace remain."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium shows the exact persisted skipped interval, timezone and reason in both locales; reload preserves history and the admitted occurrence opens its matching run.",
+    "remaining": []
   },
   {
     "id": "MAC-RC-07",
     "tests": [
       "tests/test_workflow_execution_complete.py::test_latest_missed_once_within_grace_and_disabled_pending",
       "tests/test_acceptance_schedule_security.py::test_sch021_sch028_two_processes_admit_once_and_side_effect_once",
-      "tests/test_acceptance_schedule_security.py::test_sch027_sch029_missed_and_expired_grace_logged_without_runs"
+      "tests/test_acceptance_schedule_security.py::test_sch027_sch029_missed_and_expired_grace_logged_without_runs",
+      "tests/test_acceptance_missed_history.py::test_latest_only_recovery_history_and_restart_deduplication"
     ],
-    "coverage": "partial",
-    "rationale": "Latest-within-grace and pending disabled behavior covered; repeated restart plus outside-grace effect ledger still required.",
-    "remaining": [
-      "Verify catch-up/restart occurrence ledger against complete latest-only/in-grace/out-of-grace oracle; API UI disclosure remains separately tracked."
-    ]
+    "coverage": "full",
+    "rationale": "Actual service restart over durable cursor admits only latest eligible occurrence, including exact two-hour boundary; +1 second is outside grace. Repeated restarts deduplicate; compact skipped interval excludes admitted latest instant. Existing two-process fixture proves unique admission and real effect once; default-skip companion fixture preserves default policy.",
+    "remaining": []
   },
   {
     "id": "MAC-RC-08",

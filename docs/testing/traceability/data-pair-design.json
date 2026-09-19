@@ -2478,5 +2478,13 @@
     "status": "DESIGNED",
     "level": "D+N+W",
     "priority": "P1"
+  },
+  {
+    "id": "ART02-SPILL",
+    "suite": "workflow-data-cases.md",
+    "summary": "Replacement for ART02 per PRD A05: exactly1MiB UTF-8 serialized data stays inline; +1 byte spills complete checksummed dataset without truncation",
+    "status": "DESIGNED",
+    "level": "W",
+    "priority": "P0"
   }
 ]

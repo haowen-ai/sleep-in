@@ -2,6 +2,16 @@
 
 This ledger supersedes the earlier [core-preview results](RESULTS.md). Tests use synthetic, isolated state. The original test design was committed before implementation; later defects were reproduced with failing tests before fixes. Passing software tests do not establish physical power or public-distribution behavior.
 
+## Additional software closure — 2026-09-18
+
+This candidate is based on `2516bdb9970699021523e181ea3c7c4543780bbb`. That baseline's [CI run](https://github.com/haowenchen0811/sleep-in/actions/runs/35412859958) passed the default regression (**681 passed, 204 skipped**), external SQL (**32 passed**) and clean Compose, but its browser job had **34 passed, 1 failed**. The SQLite ordering story exceeded its deadline because cancellation checks repeatedly opened store transactions. The unchanged two-million-row browser fixture passes locally after throttling that expensive probe; the new candidate still needs its own CI evidence.
+
+The candidate also fixes permanent-output retries, uncertain SQL commit replay, child-process cleanup after the parent exits, unbounded script log files, stalled engine startup deadlines, unavailable-engine queues, operator editor access, lost-request recovery with browser storage disabled, persistent validation messages and required schedule anchors. Schedule history now exposes skipped ranges and links admitted occurrences. Explicit reruns of uncertain effects require a visible decision in both languages.
+
+Focused evidence includes **69 frontend/layout/report tests**, **32 browser-feedback/frontend tests**, the separate actual double-click/storage-disabled run (**1 passed**), native cancellation/retry graphs, database transaction fault injection and browser execution stories. These suites overlap and are not a complete same-revision pass count. Reviewed coverage is **581 full, 58 partial, 33 manual, 3 superseded** across **675 entries**; full is coverage, not execution status. CI must join fresh results for the source commit before acceptance is assessed.
+
+The owner confirmed there is no Apple Developer account or Developer ID certificate. A local ad-hoc build cannot close signing/notarization, clean-device installation or physical Mac power-state gates. No promotion decision has been made.
+
 ## Case-by-case acceptance closure — 2026-09-18
 
 The [reviewed trace](traceability/README.md) now maps every original design ID and expands 310 language-pair combinations that the original inventory omitted. There are 674 designed entries, not 674 independent test functions. Exact pytest selectors, remaining assertions, manual gates and superseded interaction cases are recorded separately. CI preserves regression, actual n8n, external SQL and actual Chromium JUnit evidence, then joins it into the `case-by-case-acceptance` artifact. A green test job does not mean `release_ready` is true.

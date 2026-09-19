@@ -213,13 +213,12 @@
   {
     "id": "SCH-023",
     "tests": [
-      "tests/test_acceptance_schedule_security.py::test_sch023_overlap_is_recorded_without_second_execution"
+      "tests/test_acceptance_schedule_security.py::test_sch023_overlap_is_recorded_without_second_execution",
+      "tests/test_acceptance_external_uncertainty.py::test_sch023_actual_ninety_second_worker_prevents_parallel_write"
     ],
-    "coverage": "partial",
-    "rationale": "Queued active run suppresses next occurrence with persisted overlap_skipped reason.",
-    "remaining": [
-      "Use actual 90-second running subprocess and assert no second simultaneous write; current active run remains queued."
-    ]
+    "coverage": "full",
+    "rationale": "Actual n8n dispatches a Python worker lasting at least 90 monotonic seconds. After at least 60 real elapsed seconds, next minute occurrence finds node running and records exactly one overlap_skipped occurrence; no second run/attempt is admitted and independent effect file confirms one execution.",
+    "remaining": []
   },
   {
     "id": "SCH-024",
@@ -528,13 +527,14 @@
   {
     "id": "PUB-013",
     "tests": [
-      "tests/test_acceptance_schedule_security.py::test_sch031_committed_sql_lost_result_is_uncertain_never_replayed"
+      "tests/test_acceptance_schedule_security.py::test_sch031_committed_sql_lost_result_is_uncertain_never_replayed",
+      "tests/test_acceptance_external_uncertainty.py::test_committed_http_write_lost_ack_is_not_replayed_and_requires_review",
+      "tests/test_acceptance_external_uncertainty.py::test_rejected_inputs_and_successful_runs_do_not_claim_uncertain_effects",
+      "tests/test_acceptance_browser_run_feedback.py::test_browser_failed_effect_warns_before_new_run_in_both_languages"
     ],
-    "coverage": "partial",
-    "rationale": "Committed SQL callback-loss proves uncertain state/no automatic retry, not requested network write and manual warning flow.",
-    "remaining": [
-      "Use loopback HTTP write committed-before-connection-loss fixture; assert manual rerun displays potential side-effect warning."
-    ]
+    "coverage": "full",
+    "rationale": "Real n8n commits an independent synthetic effect then fails. English and Chinese cancel decisions admit nothing; explicit confirmation admits a fresh ID on the same pinned version and records one new effect while preserving the original run.",
+    "remaining": []
   },
   {
     "id": "PUB-014",
@@ -655,13 +655,14 @@
     "id": "SEC-009",
     "tests": [
       "tests/test_workflow_execution_complete.py::test_artifact_tampering_and_outside_run_rejected",
-      "tests/test_runtime.py::test_execute_rejects_symlink_and_excess_outputs"
+      "tests/test_runtime.py::test_execute_rejects_symlink_and_excess_outputs",
+      "tests/test_acceptance_artifacts.py::test_art04_05_06_real_producer_rejects_escape_without_reading_target",
+      "tests/test_acceptance_artifacts.py::test_art05_collected_file_replaced_by_outside_symlink_is_not_opened_or_served",
+      "tests/test_acceptance_artifact_preview_security.py::test_sec009_structured_preview_rejects_host_and_cross_run_references_before_read"
     ],
-    "coverage": "partial",
-    "rationale": "Run-local artifact helper rejects outside path; legacy runtime rejects symlink artifacts.",
-    "remaining": [
-      "Exercise v2 artifact producer, preview and HTTP download for traversal and outside symlink with host canary unchanged."
-    ]
+    "coverage": "full",
+    "rationale": "Actual v2 workers plus authenticated APIs cover producer traversal/outside/cross-node symlinks, postcollection download symlink replacement, and spilled structured-data preview parent traversal/outside symlink/other-run references. Matching checksums do not authorize outside paths; target-byte reads remain zero and host-canary files unchanged.",
+    "remaining": []
   },
   {
     "id": "SEC-010",
@@ -719,36 +720,33 @@
     "id": "OPS-002",
     "tests": [
       "tests/test_workflow_migration.py::test_migration_disabled_idempotent_preserves_schedule_and_source",
-      "tests/test_workflow_migration.py::test_legacy_wrapper_executes_params_and_collects_artifact"
+      "tests/test_workflow_migration.py::test_legacy_wrapper_executes_params_and_collects_artifact",
+      "tests/test_acceptance_operations_edges.py::test_ops002_daily_migration_preserves_source_params_zone_history_and_single_dispatch"
     ],
-    "coverage": "partial",
-    "rationale": "Single Python conversion preserves parameters/anchor and executes old source, disables old schedule at handoff.",
-    "remaining": [
-      "Exact daily/timezone/history-association migration plus manual enable must prove no dual admissions."
-    ]
+    "coverage": "full",
+    "rationale": "Exact daily 07:30 Chicago migration preserves original and archived project source bytes, nested parameters, timezone and legacy task/version/history association. Production admission blocks before explicit handoff; handoff disables old schedule, manual enabling admits one new occurrence at independent UTC oracle. Both real scheduler implementations tick twice and only one native Python effect occurs; historical execution unchanged.",
+    "remaining": []
   },
   {
     "id": "OPS-003",
     "tests": [
-      "tests/test_workflow_migration.py::test_migration_cron_disabled_manual_and_active_handoff_rejected"
+      "tests/test_workflow_migration.py::test_migration_cron_disabled_manual_and_active_handoff_rejected",
+      "tests/test_acceptance_operations_edges.py::test_ops003_unrepresentable_cron_stays_disabled_with_exact_review_metadata"
     ],
-    "coverage": "partial",
-    "rationale": "Cron converts to manual and needs_schedule_review; active legacy run blocks handoff.",
-    "remaining": [
-      "Explicitly assert converted workflow/new trigger disabled and preserve original Cron metadata for review."
-    ]
+    "coverage": "full",
+    "rationale": "Unrepresentable legacy Cron remains byte-for-byte in original task and migration review metadata, new workflow/manual schedule stays disabled with needs_schedule_review before and after handoff, no enabled new trigger or automatic occurrence appears; old schedule is disabled only during explicit handoff.",
+    "remaining": []
   },
   {
     "id": "OPS-004",
     "tests": [
       "tests/test_workflow_operations.py::test_retention_protects_active_and_referenced_artifacts",
-      "tests/test_workflow_operations.py::test_retention_transaction_failure_preserves_files_and_records"
+      "tests/test_workflow_operations.py::test_retention_transaction_failure_preserves_files_and_records",
+      "tests/test_acceptance_operations_edges.py::test_ops004_cleanup_audit_preserves_actual_retry_artifact_and_both_attempt_logs"
     ],
-    "coverage": "partial",
-    "rationale": "Only expired unreferenced artifact tree deleted; active/referenced remain; injected transaction failure rolls back files and metadata.",
-    "remaining": [
-      "Assert cleanup audit record/counts and retained retry-dependent logs as well as artifacts."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated cleanup removes exactly aged data and older metadata, records durable audit time and exact affected/protected IDs, and preserves the active real retry run unchanged. The second native worker attempt consumes its retained artifact successfully; producer logs, failed/successful attempt stdout/stderr and on-disk logs remain intact. Existing reference/transaction-rollback tests retained.",
+    "remaining": []
   },
   {
     "id": "OPS-005",

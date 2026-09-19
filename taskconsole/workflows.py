@@ -433,7 +433,7 @@ class WorkflowService(ExecutionMixin):
         def worker_started(pid):
             identity=process_identity(pid)
             with self.store.transaction() as tx:
-                current=need(tx,'workflow_run',rid);current['nodes'][nid].update(worker_pid=pid,worker_identity=identity);tx.put('workflow_run',current)
+                current=need(tx,'workflow_run',rid);current['nodes'][nid].update(worker_pid=pid,worker_identity=identity,worker_started=True);tx.put('workflow_run',current)
         def worker_exited():
             with self.store.transaction() as tx:
                 current=need(tx,'workflow_run',rid);current['nodes'][nid].update(worker_pid=None,worker_identity=None);tx.put('workflow_run',current)
@@ -451,6 +451,8 @@ class WorkflowService(ExecutionMixin):
         except Exception as exc:
             logs=exc.logs if isinstance(exc,WorkerOutputError) else {key:(result or {}).get(key,'') for key in ('stdout','stderr')}
             result={'status':'failed','error':str(exc),**logs}
+            if isinstance(exc,(ValueError,FileNotFoundError,PermissionError)):
+                result.update(retryable=False,reason='invalid_output' if isinstance(exc,WorkerOutputError) else 'invalid_execution')
         if result['status']!='succeeded':result=sanitize_result(result,secret_values)
         with self.store.transaction() as tx:
             current=need(tx,'workflow_run',rid);state=current['nodes'][nid]
@@ -519,16 +521,27 @@ class WorkflowService(ExecutionMixin):
                 with self.store.transaction() as tx:
                     cursor=tx.get('workflow_cursor',cursor_id)
                     previous=datetime.fromisoformat(cursor['last_tick']) if cursor else moment
-                    since=max(previous,moment-timedelta(seconds=trigger.get('grace_seconds',7200) if trigger.get('missed_policy')=='latest_once' else 30))
-                    if previous<moment-timedelta(seconds=30):
-                        tx.put('workflow_event',{'id':uid(),'workflow_id':wf['id'],'trigger_id':tid,'reason':'offline_gap_latest_once' if trigger.get('missed_policy')=='latest_once' else 'offline_gap_skipped','from':previous.isoformat(),'until':since.isoformat(),'created_at':stamp()})
-                    occurrences=workflow_next_runs(trigger['schedule'],trigger.get('timezone',wf['timezone']),since,count=1441 if trigger.get('missed_policy')=='latest_once' else 1)
+                    latest=trigger.get('missed_policy')=='latest_once'
+                    cutoff=moment-timedelta(seconds=trigger.get('grace_seconds',7200) if latest else 30)
+                    # The grace threshold is inclusive; calculator cursors are exclusive.
+                    since=max(previous,cutoff-timedelta(microseconds=1) if latest else cutoff)
+                    zone=trigger.get('timezone',wf['timezone'])
+                    occurrences=workflow_next_runs(trigger['schedule'],zone,since,count=1441 if trigger.get('missed_policy')=='latest_once' else 1)
                     due=next((d for d in reversed(occurrences) if d<=moment),None)
+                    if previous<moment-timedelta(seconds=30):
+                        # A compact range records every skipped due time without expanding
+                        # years of offline minute schedules into unbounded database rows.
+                        until=due or since
+                        inclusive=due is None
+                        first=workflow_next_runs(trigger['schedule'],zone,previous,count=1)
+                        if first and (first[0]<until or inclusive and first[0]==until):
+                            event_id=hashlib.sha256(('gap:'+cursor_id+':'+previous.isoformat()+':'+until.isoformat()).encode()).hexdigest()
+                            tx.put('workflow_event',{'id':event_id,'workflow_id':wf['id'],'trigger_id':tid,'status':'skipped','reason':'offline_gap_latest_once' if trigger.get('missed_policy')=='latest_once' else 'offline_gap_skipped','from':previous.isoformat(),'until':until.isoformat(),'until_inclusive':inclusive,'timezone':zone,'schedule':copy.deepcopy(trigger['schedule']),'created_at':stamp()})
                     # Cursor and pending intent commit together. Admission may be retried by key.
                     if due:
                         oid=hashlib.sha256((cursor_id+':'+due.isoformat()).encode()).hexdigest()
                         if not tx.get('workflow_occurrence',oid):
-                            tx.put('workflow_occurrence',{'id':oid,'workflow_id':wf['id'],'trigger_id':tid,'occurrence':due.isoformat(),'params':trigger.get('params',{}),'version_id':trigger.get('version_id') or wf['published_version_id'],'status':'pending','attempts':0,'created_at':stamp()})
+                            tx.put('workflow_occurrence',{'id':oid,'workflow_id':wf['id'],'trigger_id':tid,'occurrence':due.isoformat(),'params':trigger.get('params',{}),'version_id':trigger.get('version_id') or wf['published_version_id'],'status':'pending','attempts':0,'timezone':zone,'created_at':stamp()})
                     tx.put('workflow_cursor',{'id':cursor_id,'last_tick':moment.isoformat()})
         with self.store.transaction() as tx:pending=tx.all('workflow_occurrence')
         for item in pending:
@@ -566,6 +579,15 @@ class WorkflowService(ExecutionMixin):
 
 def public_run(run):
     value=copy.deepcopy(run)
+    # Failure cannot undo effects of already started scripts or committed earlier
+    # write nodes. This is a manual-run disclosure, never a retry-policy override.
+    attempted_effect=any(
+        run.get('nodes',{}).get(node['id'],{}).get('worker_started') or
+        node.get('kind')=='sql' and node.get('config',{}).get('mode')=='write' and run.get('nodes',{}).get(node['id'],{}).get('process_started')
+        for node in run.get('snapshot',{}).get('nodes',[]))
+    uncertain=run.get('status') in {'failed','partial','cancelled','timed_out'} and bool(attempted_effect or run.get('recovery_note') or any(state.get('reason')=='interrupted_unknown_effect' for state in run.get('nodes',{}).values()))
+    value['side_effects_uncertain']=uncertain
+    value['review_reason']={'code':'check_external_effects','message':'This run may already have external side effects. Check their outcome before starting a new run.'} if uncertain else None
     for node in run.get('snapshot',{}).get('nodes',[]):
         if node['id'] in value.get('nodes',{}):value['nodes'][node['id']].update(name=node.get('name',node['id']),kind=node['kind'])
     for key in ('snapshot','callback_token','adapter_lease','adapter_pid','adapter_execution_owner'):value.pop(key,None)
@@ -616,6 +638,27 @@ def register_workflow_routes(app,store,require):
     @app.put('/api/workflows/{wid}')
     def put_workflow(wid:str,request:Request,body:dict):
         auth(request,wid,admin=True);return service.save(body,wid)
+
+    @app.get('/api/workflows/{wid}/schedule-history')
+    def schedule_history(wid:str,request:Request):
+        auth(request,wid)
+        with store.transaction() as tx:
+            wf=need(tx,'workflow',wid)
+            occurrences=[row for row in tx.all('workflow_occurrence') if row['workflow_id']==wid]
+            gaps=[row for row in tx.all('workflow_event') if row.get('workflow_id')==wid and row.get('reason') in {'offline_gap_skipped','offline_gap_latest_once'}]
+        fields={'id','trigger_id','status','reason','occurrence','from','until','until_inclusive','run_id','created_at','timezone','schedule'}
+        items=[]
+        for kind,records in (('gap',gaps),('occurrence',occurrences)):
+            for row in records:
+                item={key:copy.deepcopy(value) for key,value in row.items() if key in fields}
+                item['kind']=kind
+                if isinstance(item.get('schedule'),dict):
+                    item['schedule']={key:value for key,value in item['schedule'].items() if key in {'kind','time','times','date','day','weekdays','every','unit','anchor','start','end'}}
+                if kind=='gap':
+                    item.setdefault('status','skipped');item.setdefault('until_inclusive',True)
+                items.append(item)
+        items.sort(key=lambda row:(row.get('occurrence') or row.get('until') or row.get('created_at',''),row['id']),reverse=True)
+        return {'items':items,'timezone':wf['timezone']}
 
     @app.post('/api/workflows/{wid}/publish')
     def publish_workflow(wid:str,request:Request):
