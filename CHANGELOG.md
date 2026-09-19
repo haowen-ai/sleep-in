@@ -31,6 +31,7 @@ Changes being prepared for the next version belong here.
 - Redacted secrets before log chunks are written to disk, including values split across streaming boundaries.
 - Prevented the native Mac controller from blocking while commands emit large output.
 - Completed missing locale updates and browser pause-one/pause-all behavior.
+- Removed a timing race from browser acceptance checks by waiting for asynchronous run-detail rendering under delayed API responses.
 
 ### Known limitations
 
