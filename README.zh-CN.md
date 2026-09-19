@@ -6,7 +6,7 @@
 
 [English](README.md) · 简体中文
 
-[![CI](https://github.com/haowenchen0811/sleep-in/actions/workflows/ci.yml/badge.svg)](https://github.com/haowenchen0811/sleep-in/actions/workflows/ci.yml) · [MIT 许可证](LICENSE)
+[![CI](https://github.com/haowenchen0811/sleep-in/actions/workflows/ci.yml/badge.svg)](https://github.com/haowenchen0811/sleep-in/actions/workflows/ci.yml) · [版本 0.2.0-beta.1](CHANGELOG.md#020-beta1---2026-09-18) · [MIT 许可证](LICENSE)
 
 不要因为周一早上开周会，就得早起拉数据。把整条准备流程提前搭好，周日晚上继续玩，让电脑到点准备好报告。
 
@@ -83,6 +83,7 @@ docker compose exec web python -m taskconsole setup-token
 | 环境与源代码项目 | [运行环境 API](docs/RUNTIME-API.md) |
 | 通知、备份、迁移 | [运维 API](docs/OPERATIONS-API.md) |
 | 数据库真实验证 | [SQL 矩阵](docs/testing/external-sql-matrix.md) |
+| 版本与更新记录 | [Changelog](CHANGELOG.md) · [发布流程](docs/RELEASING.md) |
 | 参与贡献 | [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) |
 
 ```sh

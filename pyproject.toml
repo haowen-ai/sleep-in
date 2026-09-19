@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "n8n-task-console"
-version = "0.1.0"
+version = "0.2.0-beta.1"
 description = "Sleep In — visual scheduled workflows with n8n, SQL and language scripts; English and Chinese"
 requires-python = ">=3.12"
 dynamic = ["dependencies"]
