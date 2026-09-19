@@ -56,13 +56,11 @@
   {
     "id": "GOLD07",
     "tests": [
-      "tests/test_workflows.py::test_missing_optional_uses_default_required_blocks_process"
+      "tests/test_acceptance_gold_concurrency.py::test_gold07_missing_summary_path_is_actionable_and_report_never_invoked"
     ],
-    "coverage": "partial",
-    "rationale": "Real Python source runs; missing binding fails consumer before process_started and marks run failed.",
-    "remaining": [
-      "Actual n8n graph and exact source/target/path diagnostic assertion are missing."
-    ]
+    "coverage": "full",
+    "rationale": "Required dynamic summary.missing is checked by a direct path-resolution oracle and an authenticated published golden graph through actual n8n. Exact F-ORDERS and native Python summary are preserved; report fails before any process/attempt/effect, with exact target report.summary, stable source summary and full path diagnostic; workflow fails without artifacts.",
+    "remaining": []
   },
   {
     "id": "GOLD08",
@@ -85,13 +83,11 @@
   {
     "id": "GOLD10",
     "tests": [
-      "tests/test_workflows_n8n.py::test_actual_n8n_branch_merge_no_input_and_scheduled_occurrence"
+      "tests/test_acceptance_gold_concurrency.py::test_gold10_authenticated_schedule_duplicate_tick_and_pinned_n8n_callback_trace"
     ],
-    "coverage": "partial",
-    "rationale": "Actual due scheduler tick admits once and subsequent tick returns empty; real n8n summary count/total checked.",
-    "remaining": [
-      "Authenticated admission evidence, full GOLD artifact/input oracles and independent per-node effect counts absent."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated publication and scheduled trigger configuration, capability-authenticated duplicate scheduler ticks, and actual n8n produce one immutable-version run for the fixed operation key/occurrence. Asserts one instrumented execute_sql invocation, independent native Python/JS invocation files, exact F-ORDERS, all mapped inputs, summary/report and downloaded artifact bytes/hash, and persisted n8n callback trace. The SQL counter measures calls to the real SQL executor, not a database-server audit.",
+    "remaining": []
   },
   {
     "id": "CHAIN01",
@@ -456,22 +452,21 @@
       "tests/test_acceptance_sql_boundaries.py::test_data16_sqlite_null_and_empty_string_stay_distinct_through_real_python",
       "tests/test_acceptance_external_sql_edges.py::test_sql15_sql16_actual_decimal_null_unicode_temporal_rows_reach_python_and_javascript"
     ],
-    "coverage": "partial",
-    "rationale": "Existing actual SQLite query→Python evidence distinguishes NULL and empty text. Dedicated external PostgreSQL/MySQL/Oracle fixture now stores NULL and empty string in separate rows and asserts exact native n8n Python/JS echo, with Oracle empty-text-as-NULL expectation. External variants remain locally BLOCKED_ENV pending real CI execution.",
-    "remaining": [
-      "Run the dedicated PostgreSQL/MySQL/Oracle null/empty-row Python echo variants successfully in disposable CI services; test code alone is not D evidence."
-    ]
+    "coverage": "full",
+    "rationale": "Existing actual SQLite query→Python evidence distinguishes NULL and empty text. Dedicated external PostgreSQL/MySQL/Oracle fixture now stores NULL and empty string in separate rows and asserts exact native n8n Python/JS echo, with Oracle empty-text-as-NULL expectation. External variants remain locally BLOCKED_ENV pending real CI execution. Actual PostgreSQL/MySQL/Oracle variants executed successfully in CI35414194898 external-sql job105819476652 at4179b295. That job had50 passes and one separate SQL12 Oracle permission-code assertion failure; no overall-green claim.",
+    "remaining": []
   },
   {
     "id": "DATA17",
     "tests": [
       "tests/test_acceptance_data_portability.py::test_helpers_reject_native_objects_before_opaque_conversion",
-      "tests/test_acceptance_data_portability.py::test_plain_object_custom_serializer_cannot_hide_nonportable_values"
+      "tests/test_acceptance_data_portability.py::test_plain_object_custom_serializer_cannot_hide_nonportable_values",
+      "tests/test_acceptance_runtime_remaining.py::test_real_pandas_dataframe_helper_rejects_opaque_output"
     ],
     "coverage": "partial",
-    "rationale": "Actual Python bytes/native objects and JS Buffer/native class/enumerable or hidden toJSON are rejected before opaque conversion with JSON/artifact guidance.",
+    "rationale": "Actual Python bytes/native objects, a real pandas DataFrame (bundled Python pandas2.2.3), and JS Buffer/native class/enumerable or hidden toJSON are rejected before opaque conversion with JSON/artifact guidance. DataFrame worker constructs a genuine two-row table and emits a specific DataFrame diagnostic with no structured output.",
     "remaining": [
-      "Actual pandas DataFrame worker oracle not yet executed; Java has explicit JSON file protocol and no native-object helper, so historical Java-helper prerequisite needs explicit design reconciliation."
+      "Java has explicit JSON file protocol and no native-object helper; the historical Java-helper prerequisite still needs explicit design reconciliation. The pandas worker requires a Python environment with actual pandas available."
     ]
   },
   {
@@ -882,11 +877,9 @@
       "tests/test_workflow_external_sql.py::test_external_null_unicode_decimal_and_unsafe_integer",
       "tests/test_acceptance_external_sql_edges.py::test_sql15_sql16_actual_decimal_null_unicode_temporal_rows_reach_python_and_javascript"
     ],
-    "coverage": "partial",
-    "rationale": "Dedicated PostgreSQL/MySQL/Oracle actual n8n SQL→Python/JS test asserts decimal9007199254740993.01 and unsafe integer remain exact schema-marked strings without numeric conversion. Local external D execution is BLOCKED_ENV: no Docker/database listeners; test implementation is not acceptance evidence until CI completes.",
-    "remaining": [
-      "Run all PostgreSQL/MySQL/Oracle variants against the disposable CI database fixtures and inspect successful assertions; local SQLite or mocked drivers cannot satisfy D."
-    ]
+    "coverage": "full",
+    "rationale": "Dedicated PostgreSQL/MySQL/Oracle actual n8n SQL→Python/JS test asserts decimal9007199254740993.01 and unsafe integer remain exact schema-marked strings without numeric conversion. Actual PostgreSQL/MySQL/Oracle variants executed successfully in CI35414194898 external-sql job105819476652 at4179b295. That job had50 passes and one separate SQL12 Oracle permission-code assertion failure; no overall-green claim.",
+    "remaining": []
   },
   {
     "id": "SQL16",
@@ -894,11 +887,9 @@
       "tests/test_workflow_external_sql.py::test_external_null_unicode_decimal_and_unsafe_integer",
       "tests/test_acceptance_external_sql_edges.py::test_sql15_sql16_actual_decimal_null_unicode_temporal_rows_reach_python_and_javascript"
     ],
-    "coverage": "partial",
-    "rationale": "Dedicated actual external SQL→Python/JS test includes Unicode, NULL, native DATE/timestamp storage and explicit timezone projections where the dialect lacks portable aware datetime results; normalized instant, metadata and downstream equality are asserted. Local external D execution is BLOCKED_ENV: no Docker/database listeners; test implementation is not acceptance evidence until CI completes.",
-    "remaining": [
-      "Run all PostgreSQL/MySQL/Oracle variants against the disposable CI database fixtures and inspect successful assertions; local SQLite or mocked drivers cannot satisfy D."
-    ]
+    "coverage": "full",
+    "rationale": "Dedicated actual external SQL→Python/JS test includes Unicode, NULL, native DATE/timestamp storage and explicit timezone projections where the dialect lacks portable aware datetime results; normalized instant, metadata and downstream equality are asserted. Actual PostgreSQL/MySQL/Oracle variants executed successfully in CI35414194898 external-sql job105819476652 at4179b295. That job had50 passes and one separate SQL12 Oracle permission-code assertion failure; no overall-green claim.",
+    "remaining": []
   },
   {
     "id": "SQL17",
@@ -906,11 +897,9 @@
       "tests/test_workflow_connection_rotation.py::test_published_run_uses_current_connection_revision_and_authorization",
       "tests/test_acceptance_external_sql_edges.py::test_sql17_actual_password_rotation_after_publication_uses_new_authorized_revision"
     ],
-    "coverage": "partial",
-    "rationale": "Dedicated unique database-user fixture rotates only its disposable password after publication, requires stale-auth failure, authorized new revision success and API graph/run/export/log secret scans. Local external D execution is BLOCKED_ENV: no Docker/database listeners; test implementation is not acceptance evidence until CI completes.",
-    "remaining": [
-      "Run all PostgreSQL/MySQL/Oracle variants against the disposable CI database fixtures and inspect successful assertions; local SQLite or mocked drivers cannot satisfy D."
-    ]
+    "coverage": "full",
+    "rationale": "Dedicated unique database-user fixture rotates only its disposable password after publication, requires stale-auth failure, authorized new revision success and API graph/run/export/log secret scans. Actual PostgreSQL/MySQL/Oracle variants executed successfully in CI35414194898 external-sql job105819476652 at4179b295. That job had50 passes and one separate SQL12 Oracle permission-code assertion failure; no overall-green claim.",
+    "remaining": []
   },
   {
     "id": "SQL18",
@@ -932,11 +921,13 @@
   },
   {
     "id": "SQL20",
-    "tests": [],
+    "tests": [
+      "tests/test_acceptance_oracle_tls.py::test_sql20_actual_tls_verification_failure_never_downgrades_connection"
+    ],
     "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
+    "rationale": "Prepared actual ephemeral PostgreSQL TLS Docker fixture with generated CA/server keys and dynamic loopback port. Authenticated product connection test verifies success baseline, rejects unrelated CA and wrong host, while an explicit successful plaintext control makes silent fallback observable. Local collection succeeds; no local Docker means no D evidence yet.",
     "remaining": [
-      "Failure; no silent disable-verification fallback (required level D)"
+      "Run both variants in CI with SLEEP_IN_EXTERNAL_TLS_TESTS=1; inspect actual verified TLS version and failed invalid-CA/hostname product responses."
     ]
   },
   {
@@ -946,32 +937,33 @@
       "tests/test_acceptance_external_sql_edges.py::test_sql21_local_real_commit_transport_boundary",
       "tests/test_acceptance_external_sql_edges.py::test_local_sql_commit_teardown_failure_preserves_business_outcome"
     ],
-    "coverage": "partial",
-    "rationale": "Actual SQLite+n8n RED→GREEN proves pre-statement disconnect retries only under explicit policy, while actual commit followed by lost acknowledgement is nonretryable with one effect/attempt and review reason. Dedicated same-fault trials for all three external drivers are prepared. Local external D execution is BLOCKED_ENV: no Docker/database listeners; test implementation is not acceptance evidence until CI completes.",
-    "remaining": [
-      "Run all PostgreSQL/MySQL/Oracle variants against the disposable CI database fixtures and inspect successful assertions; local SQLite or mocked drivers cannot satisfy D."
-    ]
+    "coverage": "full",
+    "rationale": "Actual SQLite+n8n RED→GREEN proves pre-statement disconnect retries only under explicit policy, while actual commit followed by lost acknowledgement is nonretryable with one effect/attempt and review reason. Dedicated same-fault trials for all three external drivers are prepared. Actual PostgreSQL/MySQL/Oracle variants executed successfully in CI35414194898 external-sql job105819476652 at4179b295. That job had50 passes and one separate SQL12 Oracle permission-code assertion failure; no overall-green claim.",
+    "remaining": []
   },
   {
     "id": "SQL22",
     "tests": [
       "tests/test_workflow_external_sql.py::test_external_real_bound_inputs_and_injection",
       "tests/test_workflow_external_sql.py::test_external_null_bind_and_empty_string_dialect_semantics",
-      "tests/test_workflow_external_sql.py::test_external_write_commit_and_failed_second_statement_rollback"
+      "tests/test_workflow_external_sql.py::test_external_write_commit_and_failed_second_statement_rollback",
+      "tests/test_acceptance_oracle_tls.py::test_sql22_exact_oracle_thin_query_bind_null_commit_and_rollback"
     ],
     "coverage": "partial",
-    "rationale": "Actual Oracle Thin opt-in suite exercises native bind,null,commit/rollback.",
+    "rationale": "Prepared exact Oracle VARCHAR2 F-ORDERS rows and ordered metadata, bound A002/null/injection, actual n8n effect-001 commit once and independent read, parameterized insert/update rollback after real ORA-00942, and committed update. JUnit properties record actual Thin/driver/server/platform/architecture and pinned image scope. Local external fixture unavailable; no new D/M completion claimed.",
     "remaining": [
-      "Exact F-ORDERS and scoped platform/server/driver mode evidence bundle required."
+      "Run with real Oracle fixture and n8n in CI; inspect assertions and driver/server/platform/Thin properties. Evidence applies only to that tested fixture/runner, never wallets, Thick mode or other platforms."
     ]
   },
   {
     "id": "SQL23",
-    "tests": [],
+    "tests": [
+      "tests/test_acceptance_oracle_tls.py::test_sql23_oracle_ddl_implicit_commit_survives_later_failure_without_false_rollback_claim"
+    ],
     "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
+    "rationale": "Prepared disposable owned-table trial: UPDATE before CREATE TABLE persists, table persists, later INSERT rolls back after ORA-00942. Workflow must remain failed with explicit external-effect review warning and no false rollback claim. Exact implicit-commit outcome is recorded in JUnit, with only owned table cleanup. Local Oracle unavailable; real outcome pending CI.",
     "remaining": [
-      "Explicit documented implicit commit outcome; never promise full transaction rollback of DDL (required level D+M)"
+      "Run actual Oracle trial and inspect persisted pre-DDL update/table plus zero post-DDL inserts. Preserve explicit Oracle implicit-commit documentation and scoped driver/server/platform evidence."
     ]
   },
   {
@@ -1222,13 +1214,13 @@
   {
     "id": "FAIL06",
     "tests": [
-      "tests/test_workflows.py::test_workflow_deadline_stops_running_process"
+      "tests/test_workflows.py::test_workflow_deadline_stops_running_process",
+      "tests/test_acceptance_workflow_deadline.py::test_actual_n8n_two_second_budget_includes_import_without_shift_or_hidden_grace",
+      "tests/test_acceptance_workflow_deadline.py::test_actual_whole_graph_deadline_kills_live_worker_child_and_blocks_downstream"
     ],
-    "coverage": "partial",
-    "rationale": "Actual sleeping Python process ends within3s under1s workflow deadline, node/run timed_out.",
-    "remaining": [
-      "Actual n8n multi-node deadline, child descendant termination and no-late-output admission."
-    ]
+    "coverage": "full",
+    "rationale": "Actual n8n shares the original unshifted workflow deadline, including import. The literal two-second case terminated at 2.068s and completed cleanup at 2.106s with zero workers because startup exhausted the budget; it is not evidence of a worker starting within two seconds. A complementary declared thirty-second graph budget starts a real worker and TERM-ignoring child before expiry, terminates at 30.050s, cleans both by 32.853s, and leaves descendants with zero attempts/output despite 120s node limits. Independent effects remain exactly once, and authenticated late submit/execute/finish callbacks cannot alter terminal state.",
+    "remaining": []
   },
   {
     "id": "FAIL07",
@@ -1350,11 +1342,13 @@
   },
   {
     "id": "CAN04",
-    "tests": [],
+    "tests": [
+      "tests/test_acceptance_external_cancel.py::test_can04_cancel_after_real_oracle_commit_preserves_effect_and_never_retries"
+    ],
     "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
+    "rationale": "Prepared actual Oracle+n8n boundary: independent connection must observe effect-001 after COMMIT while DBMS_SESSION.SLEEP is still outstanding; authenticated cancellation must retain committed effect, report review uncertainty without rollback promise, prevent SQL retry/downstream execution and suppress same-key replay. Local fixture unavailable; collected test is not D evidence.",
     "remaining": [
-      "Report boundary accurately; cancellation does not claim rollback; no retry (required level D+N)"
+      "Run actual disposable Oracle+n8n case in external CI, inspect committed effect count1, cancel state, one SQL attempt, blocked downstream and recorded Thin/server/driver/platform evidence."
     ]
   },
   {
@@ -1396,25 +1390,20 @@
   {
     "id": "CON05",
     "tests": [
-      "tests/test_workflow_execution_complete.py::test_graph_entrance_claim_has_one_execution_owner",
-      "tests/test_workflow_execution_complete.py::test_queue_never_dispatches_same_workflow_concurrently"
+      "tests/test_acceptance_gold_concurrency.py::test_two_real_scheduler_processes_claim_one_queued_graph"
     ],
-    "coverage": "partial",
-    "rationale": "Graph claim rejects second owner and fake held dispatch prevents second run.",
-    "remaining": [
-      "Two actual scheduler processes race with real n8n and persisted owning lease."
-    ]
+    "coverage": "full",
+    "rationale": "Two distinct operating-system processes each open their own Store and WorkflowService against the disposable shared state, synchronize on a readiness barrier and race dispatch_pending for one authenticated queued run. Exactly one launches and owns the lease/graph claim; the other returns no dispatch. Actual n8n execution database contains one execution; independent fsynced business-effect ledger, native node attempt and output each show one invocation; redispatch is a no-op.",
+    "remaining": []
   },
   {
     "id": "CON06",
     "tests": [
-      "tests/test_workflow_execution_complete.py::test_api_trigger_schema_pin_idempotency_and_queue"
+      "tests/test_acceptance_gold_concurrency.py::test_authenticated_bounded_queue_drains_sequentially_with_frozen_parameters"
     ],
-    "coverage": "partial",
-    "rationale": "Bounded queue preserves version and refuses exceeding limit.",
-    "remaining": [
-      "Real authenticated API/n8n sequential drain, default overlap skip reason and exact parameter snapshots."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated API triggers admit one live run and two waiting runs under explicit queue_limit=2; the next is rejected and default overlap returns workflow_active. A due default scheduled trigger persists skipped/overlap_skipped. A real worker barrier holds the first run while pending nodes have zero attempts; editing workflow params does not change queued snapshots. Three actual n8n graphs drain sequentially with exact per-run params/input/output, nonoverlapping run timestamps, one attempt each, persisted n8n execution traces and fsynced independent effect ledger [1,2,3].",
+    "remaining": []
   },
   {
     "id": "CON07",
@@ -1428,24 +1417,21 @@
   },
   {
     "id": "CON08",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "Correct counts/results; bounded resource use measured; no scale/concurrency claim from graph compilation alone (required level N)"
-    ]
+    "tests": [
+      "tests/test_acceptance_runtime_remaining.py::test_actual_graph_scale_has_exact_effects_and_measured_resources"
+    ],
+    "coverage": "full",
+    "rationale": "Six actual n8n executions cover 10/25/50-node chain and diamond graphs with authenticated publication/admission, exact every-node inputs/results, independent native invocation files, one persisted n8n node trace each, and predecessor ordering. JUnit records actual elapsed time and sampled aggregate RSS/process count for owned adapter+worker PID subtrees at 0.2s intervals (excludes app/server, not absolute host peak). Each graph is bounded by 180s, sampled RSS below2GiB and at most16 owned processes. No compilation-only scale or throughput/concurrency claim.",
+    "remaining": []
   },
   {
     "id": "N01",
     "tests": [
-      "tests/test_workflows_n8n.py::test_compile_real_connections_and_join_barriers",
-      "tests/test_workflows_n8n.py::test_actual_n8n_sql_python_javascript_graph"
+      "tests/test_acceptance_gold_concurrency.py::test_gold10_authenticated_schedule_duplicate_tick_and_pinned_n8n_callback_trace"
     ],
-    "coverage": "partial",
-    "rationale": "Compiler asserts actual HTTP nodes/edges/barrier and real n8n returns execution ID/exact result.",
-    "remaining": [
-      "Persisted callback trace plus pinned n8n version recorded in per-case evidence."
-    ]
+    "coverage": "full",
+    "rationale": "Invokes the actual n8n --version command and requires pinned 2.39.7, then the real import/execute adapter runs an authenticated published SQL→Python→JavaScript graph. Checks emitted distinct nodes and dependency edges, exact native outputs and authenticated artifact bytes/hash. Reads the actual per-run n8n SQLite execution_entity/execution_data, verifies one workflow execution with matching persisted IDs, decodes callback trace, and asserts each node terminal callback and finish succeeded.",
+    "remaining": []
   },
   {
     "id": "N02",
@@ -1521,12 +1507,12 @@
   },
   {
     "id": "N10",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "Distinct n8n user dirs/database/ports; no modifications to existing n8n state; no duplicate task brokers (required level N+M)"
-    ]
+    "tests": [
+      "tests/test_acceptance_n8n_isolation.py::test_two_actual_graphs_isolate_existing_n8n_state_database_and_broker_configuration"
+    ],
+    "coverage": "full",
+    "rationale": "On the development Mac, actual n8n CLI first creates an unrelated installation/database. Two actual concurrent graphs override inherited installation/DB/broker settings, own distinct SQLite databases and broker port configurations with runners disabled, execute each business worker once, and leave every unrelated installation file hash unchanged. An independently occupied inherited port remains untouched. This synthetic isolated installation is not the user's personal n8n account.",
+    "remaining": []
   },
   {
     "id": "N11",
@@ -1568,12 +1554,12 @@
   },
   {
     "id": "N15",
-    "tests": [],
-    "coverage": "partial",
-    "rationale": "Automatable acceptance gap. No exact automated assertion and required execution-level evidence has been identified for this fixed case.",
-    "remaining": [
-      "At most one admitted node attempt; final effect count1 or0 with clear failure, never2 (required level N+F)"
-    ]
+    "tests": [
+      "tests/test_acceptance_runtime_remaining.py::test_timeout_before_worker_then_late_callback_and_duplicate_cli_never_replay"
+    ],
+    "coverage": "full",
+    "rationale": "Real loopback HTTP proxy holds the actual n8n submit callback before forwarding beyond its10s timeout. The real graph fails with timeout diagnostics and zero node attempts/effects. Releasing the late authenticated callback leaves the entire terminal run unchanged. A second actual n8n execute CLI against the imported graph creates a second persisted engine execution but is denied by graph ownership; no worker starts, no business ledger appears, and original run identity/state stays exact.",
+    "remaining": []
   },
   {
     "id": "N16",
@@ -1605,23 +1591,24 @@
   {
     "id": "VER03",
     "tests": [
-      "tests/test_workflows.py::test_published_runtime_executable_remains_pinned"
+      "tests/test_acceptance_runtime_version_upgrades.py::test_authenticated_managed_dependency_upgrade_pins_old_run_and_blocks_missing_old_executable",
+      "tests/test_acceptance_runtime_version_upgrades.py::test_pinned_runtime_missing_or_nonexecutable_tool_is_actionable"
     ],
-    "coverage": "partial",
-    "rationale": "Direct real workers ignore changed SLEEP_IN_PYTHON after publication.",
-    "remaining": [
-      "Actual n8n+API runtime/dependency upgrade and unavailable-old-runtime rejection."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated APIs build genuine managed Python environments from two locally built hash-locked wheel versions and distinct shared modules, then publish v1/v2. Actual n8n proves a previously admitted v1 keeps its original dependency/shared-module values and executable while the next default run uses v2. Moving only the test-owned old executable makes an explicitly admitted old publication fail with actionable pinned-runtime unavailable guidance, no worker invocation/output or silent rebase; immutable snapshots/history remain exact. Separate executable/Java missing and non-executable guards preserve existing manifest/hash verification.",
+    "remaining": []
   },
   {
     "id": "VER04",
     "tests": [
-      "tests/test_workflows.py::test_compiler_identity_invalidates_build_cache"
+      "tests/test_acceptance_runtime_version_upgrades.py::test_authenticated_publication_cache_tracks_real_compile_flags_and_header_dependency",
+      "tests/test_acceptance_runtime_version_upgrades.py::test_authenticated_same_path_real_gcc_to_clang_upgrade_invalidates_native_cache"
     ],
     "coverage": "partial",
-    "rationale": "Real C build cache digest changes for injected compiler-version string.",
+    "rationale": "Authenticated publication plus real native C workers verify changed compile flags and header dependencies invalidate the build cache and change exact outputs while preserving the same runtime ID. Identical republish reuses the original artifact hash/mtime, and the original binary remains unchanged. A separate genuine GCC-to-Clang upgrade test switches a test-owned symlink at the same executable path and asserts actual compiler hashes/version/output/cache differences; it is skipped locally because macOS gcc aliases Apple Clang, with no fabricated version response.",
     "remaining": [
-      "Actual upgraded compiler identity and authenticated publication; flags/dependencies/architecture cases."
+      "Actual same-path distinct GCC/Clang upgrade awaits Linux CI execution.",
+      "Architecture identity/cache behavior has not been verified across actual different target architectures."
     ]
   },
   {
@@ -1646,25 +1633,23 @@
   {
     "id": "VER07",
     "tests": [
-      "tests/test_workflow_api_contract.py::test_operator_cannot_author_publish_test_or_read_credentials"
+      "tests/test_workflow_api_contract.py::test_operator_cannot_author_publish_test_or_read_credentials",
+      "tests/test_acceptance_transfer_authorization.py::test_operator_cannot_override_unavailable_runtime_or_build_it"
     ],
-    "coverage": "partial",
-    "rationale": "Authenticated operator denied author,publish,test,connections; allowed formal run.",
-    "remaining": [
-      "Unavailable runtime override route must also return403."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated operator receives403 for removing an actually unbuilt runtime binding, publication, runtime build/version/create; persisted source/runtime, draft state and empty admissions remain unchanged.",
+    "remaining": []
   },
   {
     "id": "VER08",
     "tests": [
       "tests/test_workflow_transfer.py::test_export_excludes_configured_secrets_paths_ids_and_history",
-      "tests/test_workflow_transfer.py::test_roundtrip_retains_graph_but_requires_rebinding_and_publication"
+      "tests/test_workflow_transfer.py::test_roundtrip_retains_graph_but_requires_rebinding_and_publication",
+      "tests/test_acceptance_transfer_authorization.py::test_authenticated_portable_transfer_to_fresh_install_requires_rebinding"
     ],
-    "coverage": "partial",
-    "rationale": "Service export redacts secret/path/history and import requires rebinding/publication.",
-    "remaining": [
-      "Authenticated API export/import into fresh state and disabled triggers after validation."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated API export/import across two fresh stores removes configured endpoints, secrets and runtime/connection identities, preserves authored graph/mapping/literals, creates a disabled unpublished draft with explicit rebinding errors, rejects publish/run before repair, and leaves source unchanged.",
+    "remaining": []
   },
   {
     "id": "API01",
@@ -1678,13 +1663,13 @@
   {
     "id": "API02",
     "tests": [
-      "tests/test_workflow_api_contract.py::test_published_run_dedupe_snapshot_and_cancel"
+      "tests/test_workflow_api_contract.py::test_published_run_dedupe_snapshot_and_cancel",
+      "tests/test_acceptance_browser_async_admission.py::test_browser_async_202_is_not_success_before_all_required_nodes_finish",
+      "tests/test_acceptance_orchestration_faults.py::test_capabilities_pending_nodes_and_terminal_replay_are_snapshot_scoped"
     ],
-    "coverage": "partial",
-    "rationale": "Authenticated public POST run returns202 and persisted version/params.",
-    "remaining": [
-      "Real n8n completion prerequisites and UI queued/running/terminal observations."
-    ]
+    "coverage": "full",
+    "rationale": "Authenticated202 persists queued run/version; real Chromium observes running while a required worker is blocked and downstream has zero attempts/effects, never premature success. Releasing that worker permits exactly one downstream effect and complete data, actual n8n execution identity and terminal reload. Paired N08 callback test independently rejects early finish.",
+    "remaining": []
   },
   {
     "id": "API03",

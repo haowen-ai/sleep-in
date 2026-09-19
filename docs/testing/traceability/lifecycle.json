@@ -122,13 +122,12 @@
   {
     "id": "MAC-AU-01",
     "tests": [
-      "tests/test_local_integration.py::test_local_first_login_changes_hide_hint_and_revoke_session"
+      "tests/test_local_integration.py::test_local_first_login_changes_hide_hint_and_revoke_session",
+      "tests/test_acceptance_browser_repair.py::test_browser_default_account_exact_fill_is_conditional_and_never_submits"
     ],
-    "coverage": "partial",
-    "rationale": "Actual bootstrap/login HTTP and public account tested; English page labels and use-account first journey require current real-browser evidence.",
-    "remaining": [
-      "Actual bootstrap/login HTTP and public account tested; English page labels and use-account first journey require current real-browser evidence."
-    ]
+    "coverage": "full",
+    "rationale": "Actual Chromium starts in English even with a fresh Chinese browser locale; the server-provided default-account card fills exactly without submitting, switches both languages, and only explicit Sign in authenticates. Absent eligibility metadata leaves both fields empty and hides the card.",
+    "remaining": []
   },
   {
     "id": "MAC-AU-02",
@@ -143,13 +142,12 @@
   {
     "id": "MAC-AU-03",
     "tests": [
-      "tests/test_acceptance_lifecycle.py::test_mac_au03_password_change_revokes_both_sessions_and_survives_restart"
+      "tests/test_acceptance_lifecycle.py::test_mac_au03_password_change_revokes_both_sessions_and_survives_restart",
+      "tests/test_acceptance_browser_account_sessions.py::test_mac_au03_two_browser_sessions_revoke_restart_and_password_diagnostics"
     ],
-    "coverage": "partial",
-    "rationale": "Two actual HTTP sessions revoked, old password refused, new works, hint stays hidden after recreation; both browser reloads and sanitized crash/log scan remain.",
-    "remaining": [
-      "Two actual HTTP sessions revoked, old password refused, new works, hint stays hidden after recreation; both browser reloads and sanitized crash/log scan remain."
-    ]
+    "coverage": "full",
+    "rationale": "Two actual isolated Chromium contexts authenticate using local default card, change password through Account, both reload to signed-out state and hide card. Every prechange session, including separate HTTP fixture session, is revoked; old password fails and new succeeds. Actual isolated supervisor restarts, old cookies remain denied, card stays hidden and new password works. Real health/ready/bootstrap/native status and owned launch/service logs disclose no new password, raw sessions or owned dispatch/key values; sanitized scan summary contains no canaries.",
+    "remaining": []
   },
   {
     "id": "MAC-AU-04",
@@ -220,12 +218,18 @@
   {
     "id": "MAC-AU-10",
     "tests": [
-      "tests/test_acceptance_lifecycle.py::test_mac_au03_password_change_revokes_both_sessions_and_survives_restart"
+      "tests/test_acceptance_lifecycle.py::test_mac_au03_password_change_revokes_both_sessions_and_survives_restart",
+      "tests/test_acceptance_browser_account_sessions.py::test_mac_au03_two_browser_sessions_revoke_restart_and_password_diagnostics",
+      "tests/test_acceptance_browser_account_sessions.py::test_mac_au10_real_worker_stdout_stderr_failure_logs_hide_known_secret",
+      "tests/test_acceptance_stream_redaction.py::test_stream_masks_every_chunk_partition_utf8_overlap_and_short_values",
+      "tests/test_acceptance_stream_redaction.py::test_stream_never_releases_an_unresolved_secret_prefix",
+      "tests/test_acceptance_stream_redaction.py::test_real_ongoing_disk_logs_are_masked_before_worker_exit",
+      "tests/test_acceptance_stream_redaction.py::test_redacted_truncation_tail_caps_file_and_preserves_raw_count"
     ],
     "coverage": "partial",
-    "rationale": "New password absent from bootstrap tested; complete health/status/crash/runtime-log canary scan not yet covered.",
+    "rationale": "Actual password/browser/restart case passes owned HTTP/bootstrap/health/native status and launch/service log canary scans. Real supervisor+n8n credential-bound failure originally exposed physical stdout/stderr secrets and now passes after pre-write streaming masking. Tests prove arbitrary PIPE chunk partitions, UTF8, overlapping/short credentials, safe markers, live on-disk masking before success/failure/cancel/SIGKILL, 1MiB file and100k sanitized-tail bounds, and exact raw byte counts. No OS crash dump was generated or inspected.",
     "remaining": [
-      "New password absent from bootstrap tested; complete health/status/crash/runtime-log canary scan not yet covered."
+      "Exercise and scan an actual owned crash diagnostic on designated test platform; controlled Python exception, worker SIGKILL and normal logs do not establish OS crash-dump sanitization."
     ]
   },
   {
@@ -553,13 +557,12 @@
   {
     "id": "MAC-RC-08",
     "tests": [
-      "tests/test_workflow_schedule_contract.py::test_fixed_schedule_oracles"
+      "tests/test_workflow_schedule_contract.py::test_fixed_schedule_oracles",
+      "tests/test_acceptance_native_recovery_edges.py::test_mac_rc08_dst_pause_offline_process_restart_and_product_timezone"
     ],
-    "coverage": "partial",
-    "rationale": "DST calculator independent UTC oracles covered; pause/offline restart and product timezone-change dispatch comparison remain.",
-    "remaining": [
-      "DST calculator independent UTC oracles covered; pause/offline restart and product timezone-change dispatch comparison remain."
-    ]
+    "coverage": "full",
+    "rationale": "Independent expected UTC tables prove spring nonexistent time is skipped and first fall fold alone is admitted. Authenticated API pauses/resumes and changes Chicago to Shanghai; fresh scheduler interpreters share only durable store state across offline gaps. Future API preview equals admitted UTC; repeated restart/tick never duplicates either real Python run.",
+    "remaining": []
   },
   {
     "id": "MAC-RC-09",
@@ -578,23 +581,21 @@
       "tests/test_local_service.py::test_single_instance_lock_releases_after_owner_exits",
       "tests/test_local_service.py::test_service_status_never_reports_stale_pid_as_running",
       "tests/test_local_service.py::test_live_lock_does_not_trust_previous_generations_ready_status",
-      "tests/test_workflow_execution_complete.py::test_recovery_terminates_only_verified_detached_worker"
+      "tests/test_workflow_execution_complete.py::test_recovery_terminates_only_verified_detached_worker",
+      "tests/test_acceptance_native_recovery_edges.py::test_mac_rc10_live_lock_and_reused_pid_record_never_kill_unrelated_process"
     ],
-    "coverage": "partial",
-    "rationale": "Lock generation/stale status and verified worker cleanup covered; combined real reused-PID owner recovery trial remains.",
-    "remaining": [
-      "Lock generation/stale status and verified worker cleanup covered; combined real reused-PID owner recovery trial remains."
-    ]
+    "coverage": "full",
+    "rationale": "Actual isolated supervisor retains PID, generation and children on second start; competing serve process is refused by live instance lock. After owner exit, stale running status references a live owned unrelated sentinel PID and is never trusted as healthy. Restart preserves gap metadata, leaves sentinel alive, and executes a real n8n workflow once. Existing worker recovery case additionally checks process identity before termination.",
+    "remaining": []
   },
   {
     "id": "MAC-RC-11",
     "tests": [
-      "tests/test_acceptance_storage.py::test_failed_admission_is_actionable_atomic_and_retry_keeps_identity"
+      "tests/test_acceptance_storage.py::test_failed_admission_is_actionable_atomic_and_retry_keeps_identity",
+      "tests/test_acceptance_native_recovery_edges.py::test_mac_rc11_status_persistence_failure_preserves_history_preferences_and_effect_dedup"
     ],
-    "coverage": "partial",
-    "rationale": "Real SQLite write rejection yields safe actionable503, transaction preserves preferences/publication, same-key recovery admits once, integrity_check succeeds. Native status-file failure and prior history fault remain untested.",
-    "remaining": [
-      "Inject native status-file persistence failure while service operates, preserving prior completed history and independent effect ledger; do not infer this from HTTP admission rollback."
-    ]
+    "coverage": "full",
+    "rationale": "Actual isolated supervisor/n8n completes an independent file effect; only disposable local-status.json is then made unavailable by a directory obstruction. Supervisor/children exit; status CLI returns a storage-path-specific failure rather than healthy success. Restoring status storage preserves preferences, exact completed history and same-key dedup; effect remains once, future actual n8n work succeeds, SQLite integrity passes. Existing real SQLite admission-failure test proves failed persistence cannot claim success and preserves admission atomicity.",
+    "remaining": []
   }
 ]

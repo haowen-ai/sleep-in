@@ -2,7 +2,7 @@
 export const NODE_WIDTH=240, NODE_HEIGHT=116;
 export const nodeRect=n=>({x:n.position?.x||0,y:n.position?.y||0,width:NODE_WIDTH,height:NODE_HEIGHT});
 export const toWorld=(point,camera)=>({x:(point.x-camera.x)/camera.zoom,y:(point.y-camera.y)/camera.zoom});
-export function zoomAt(camera,point,factor){const world=toWorld(point,camera),zoom=Math.max(.2,Math.min(2.5,camera.zoom*factor));return {zoom,x:point.x-world.x*zoom,y:point.y-world.y*zoom};}
+export function zoomAt(camera,point,factor,minZoom=.2){const world=toWorld(point,camera),zoom=Math.max(minZoom,Math.min(2.5,camera.zoom*factor));return {zoom,x:point.x-world.x*zoom,y:point.y-world.y*zoom};}
 const inside=(p,r)=>p.x>r.x&&p.x<r.x+r.width&&p.y>r.y&&p.y<r.y+r.height;
 export function segmentCrosses(a,b,r){if(a.x===b.x)return a.x>r.x&&a.x<r.x+r.width&&Math.max(a.y,b.y)>r.y&&Math.min(a.y,b.y)<r.y+r.height;if(a.y===b.y)return a.y>r.y&&a.y<r.y+r.height&&Math.max(a.x,b.x)>r.x&&Math.min(a.x,b.x)<r.x+r.width;return true;}
 const vectors={top:[0,-1],right:[1,0],bottom:[0,1],left:[-1,0]};

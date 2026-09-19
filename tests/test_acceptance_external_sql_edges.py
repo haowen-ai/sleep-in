@@ -229,11 +229,21 @@ def test_sql12_actual_read_only_principal_cannot_write_even_when_connection_flag
     elif role['dialect'] == 'mysql':
         assert denied.value.args[0] in {1142, 1143}
     else:
-        assert denied.value.args[0].code == 1031
+        error = denied.value.args[0]
+        # Oracle 26ai reports the specific missing object privilege as ORA-41900.
+        # https://docs.oracle.com/en/error-help/db/ora-41900/
+        assert error.code in {1031, 41900}
+        if error.code == 41900:
+            assert 'missing INSERT privilege' in error.message
+            assert '"' + role['table'].split('.')[-1].upper() + '"' in error.message
+        else:
+            assert 'insufficient privileges' in error.message.lower()
     node.update(source='SELECT COUNT(*) AS "n" FROM ' + role['table'])
     node['config']['mode'] = 'query'
     rows = execute_sql(client.app.state.store, node, {}, 'readonly-role-test')['output']['data']['rows']
     assert int(rows[0]['n']) == 2
+    node['source'] += " WHERE order_id='forbidden-effect'"
+    assert int(execute_sql(client.app.state.store, node, {}, 'readonly-role-test')['output']['data']['rows'][0]['n']) == 0
     assert role['old_password'] not in client.get('/api/connections').text
 
 

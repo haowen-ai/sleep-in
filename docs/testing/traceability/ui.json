@@ -91,15 +91,12 @@
   {
     "id": "UI-G09",
     "tests": [
-      "tests/test_workflow_fixed_layout.py::FixedLayoutTests::test_merges_and_history_always_reflow_without_new_dependencies"
+      "tests/test_workflow_fixed_layout.py::FixedLayoutTests::test_merges_and_history_always_reflow_without_new_dependencies",
+      "tests/test_acceptance_browser_accessibility.py::test_browser_branched_graph_layout_zoom_fit_and_outline_preserve_all_data"
     ],
-    "coverage": "partial",
-    "rationale": "Model verifies branching/merges and history retain dependency semantics under automatic downward layout.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Exercise 10/25/50-node layout, zoom boundaries, fit, outline selection and save/reload.",
-      "Measure render/interaction times and manually review overflow, reachability and overlay controls."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium renders fixed downward branched graphs with10/25/50 nodes, preserves all logical nodes/edges/bindings across layout normalization and save/reload, exercises zoom limits and Fit, verifies complete graph bounds/no page-wide overflow, and reaches the farthest node through Node list. Fit-relative zoom prevents Zoom out from jumping inward after a large fit. Per-size render and complete toolbar-loop timings are recorded as measurements without a performance guarantee. Root independently reviewed test-owned fit screenshots for all sizes and selected-node49 at1440x900: full graph contained, outline/inspector reachable, toolbar visible with no collision; no claim that50-node card text is readable at11% fit.",
+    "remaining": []
   },
   {
     "id": "UI-G10",
@@ -117,13 +114,12 @@
     "tests": [
       "tests/test_workflows_n8n.py::test_actual_n8n_sql_python_javascript_graph",
       "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_field_picker_preserves_literal_keys_and_indexes_as_path_tokens",
-      "tests/test_acceptance_browser.py::test_browser_field_picker_executes_exact_sql_python_js_with_real_n8n"
+      "tests/test_acceptance_browser.py::test_browser_field_picker_executes_exact_sql_python_js_with_real_n8n",
+      "tests/test_acceptance_browser_dataflow.py::test_browser_g1_visual_mappings_have_independent_single_invocation_witnesses"
     ],
-    "coverage": "partial",
-    "rationale": "Real Chromium authors both source/field mappings, saves stable IDs/dependencies, and runs actual n8n. It verifies exact ordered SQL rows, Python 3/30.75 summary, JS summary input, one recorded attempt/node, downloaded report bytes and persisted n8n execution identity.",
-    "remaining": [
-      "Add fixture-local independent execution counters for all three nodes; current integration asserts one recorded attempt per node rather than independent counters."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium authors both source/field mappings from unbound G1 nodes, saves stable IDs/dependencies, and executes actual n8n. Exact ordered three-row SQL data reaches Python once, 3/30.75 summary reaches JavaScript once, and the admitted snapshot retains bindings. Independent fixture-local SQL invocation witness (materialized CTE UDF), Python and JavaScript counters each equal one; the SQL witness observes query invocation without a production business SQL write.",
+    "remaining": []
   },
   {
     "id": "UI-M01B",
@@ -196,14 +192,12 @@
     "id": "UI-M07",
     "tests": [
       "tests/test_workflow_join_contract.py::test_join_truth_table",
-      "tests/test_workflow_join_contract.py::test_any_join_waits_for_all_terminal_markers"
+      "tests/test_workflow_join_contract.py::test_any_join_waits_for_all_terminal_markers",
+      "tests/test_acceptance_browser_dataflow.py::test_browser_real_diamond_optional_data_never_tolerates_required_failure"
     ],
-    "coverage": "partial",
-    "rationale": "All parameterized truth-table combinations are required: skip fallback, required failure blocking, separate tolerated failure/partial status and all/any join; waiting barrier tested.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Inspect actual n8n branch completion markers and UI status for each designated G3 variant."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium executes four actual n8n diamond variants for each explicit all/any join: skipped optional predecessor uses the visible explicit fallback, failed optional predecessor remains blocked under required dependency policy, required c failure blocks admission, and separate required=false tolerance admits the merge with Partial run status. Terminal markers, zero attempts for blocked target, persisted snapshots, independent target invocation counter, input provenance and visible node/run statuses are asserted. The existing full C03 truth table and barrier tests cover the remaining activation combinations.",
+    "remaining": []
   },
   {
     "id": "UI-M08",
@@ -253,13 +247,12 @@
     "tests": [
       "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_field_picker_uses_contract_and_samples_preserving_whole_arrays",
       "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_field_picker_preserves_literal_keys_and_indexes_as_path_tokens",
-      "tests/test_acceptance_browser.py::test_browser_node_test_explicit_input_and_stale_sample_with_real_n8n"
+      "tests/test_acceptance_browser.py::test_browser_node_test_explicit_input_and_stale_sample_with_real_n8n",
+      "tests/test_acceptance_browser_dataflow.py::test_browser_declared_fields_whole_arrays_stale_and_expired_samples_remain_distinct"
     ],
-    "coverage": "partial",
-    "rationale": "Real Chromium/node-only n8n execution records explicit input and run attribution; draft source edits show a stale label and server sample.stale. Picker models preserve schema/sample paths and whole arrays.",
-    "remaining": [
-      "Browser-test declared schema without a sample, array selection, and sample expiry under retention with no unrelated-run substitution."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium selects a whole declared array before any run sample exists, executes actual n8n, observes prior summary.count=3 with run attribution and stale indication after source/schema edits, then maps a declared renamed nested field as a node binding and executes the new snapshot. A real retention cleanup expires the old run data while preserving metadata: the run page shows EN/ZH expiry notice and exact run ID, omits unavailable preview controls, and never substitutes a successful unrelated workflow sample. Reopened declared field bindings remain intact without sample data.",
+    "remaining": []
   },
   {
     "id": "UI-M13",
@@ -291,13 +284,12 @@
     "tests": [
       "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_locale_updates_labels_attributes_without_replacing_editor_values",
       "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_save_ack_keeps_form_references_and_does_not_clean_later_edits",
-      "tests/test_acceptance_browser.py::test_browser_locale_preserves_unsaved_graph_source_and_mapping"
+      "tests/test_acceptance_browser.py::test_browser_locale_preserves_unsaved_graph_source_and_mapping",
+      "tests/test_acceptance_browser_dataflow.py::test_browser_g1_locale_preserves_added_node_edge_upstream_draft_and_undo"
     ],
-    "coverage": "partial",
-    "rationale": "Real Chromium preserves Unicode name, unblurred source bytes, uncommitted constant-mapping fields, dirty state and undo/redo across EN/ZH/EN, then saves/reloads exact values; model save acknowledgement preserves edit revisions.",
-    "remaining": [
-      "Extend the browser fixture to unsaved node and edge changes plus upstream mapping state and capture the complete original G1 graph/selection before and after switching."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium starts from saved G1, adds an unsaved node/dependency/upstream mapping, authors a Unicode name and unblurred source bytes, and switches EN/ZH/EN. It compares all IDs, graph positions/paths, selected node, pending source/field controls, dirty state and undo availability; no workflow reload or mutation occurs during switching. Save/reload preserves the exact draft, and undo/redo removes/restores only the final mapping with graph/source equality.",
+    "remaining": []
   },
   {
     "id": "UI-L03",
@@ -313,13 +305,14 @@
   {
     "id": "UI-L04",
     "tests": [
-      "tests/test_acceptance_browser.py::test_browser_structure_insert_branch_rewire_rejects_cycle"
+      "tests/test_acceptance_browser.py::test_browser_structure_insert_branch_rewire_rejects_cycle",
+      "tests/test_acceptance_browser_accessibility.py::test_browser_keyboard_only_sql_python_mapping_publish_and_actual_run",
+      "tests/test_acceptance_browser_accessibility.py::test_run_drawer_navigation_label_names_its_destination"
     ],
     "coverage": "partial",
-    "rationale": "Real Chromium keyboard focuses a connection and Enter opens the endpoint editor. This is one supported keyboard action, not the full keyboard/assistive-technology journey.",
+    "rationale": "Real Chromium starts with a blank workflow and records zero pointer events throughout keyboard-only SQL/Python library insertion, outline selection, names/source text entry, source Tab escape, native source/field selection, upstream binding, save, publication, actual n8n execution and run-detail navigation. Exact three-row input yields3/30.75 with an independent Python invocation counter of1 and durable engine identity. Labeled controls resolve their associated inputs; the drawer navigation label regression names the run-detail destination. Test-owned screenshots support separate visual review.",
     "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Perform complete keyboard-only add/edit/map/save/publish/run journey and manual assistive-technology/label association review."
+      "Complete manual assistive-technology review, including screen-reader announcements and logical visible focus order; automated keyboard navigation and label checks are not screen-reader evidence."
     ]
   },
   {
@@ -519,26 +512,23 @@
     "tests": [
       "tests/test_workflow_api_contract.py::test_operator_cannot_author_publish_test_or_read_credentials",
       "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_operator_editor_does_not_request_admin_credential_metadata",
-      "tests/test_acceptance_browser_execution.py::test_browser_operator_runs_published_but_cannot_author"
+      "tests/test_acceptance_browser_execution.py::test_browser_operator_runs_published_but_cannot_author",
+      "tests/test_acceptance_browser_runtime.py::test_browser_genuinely_missing_compilers_block_publication_and_explain_repair"
     ],
-    "coverage": "partial",
-    "rationale": "Actual operator browser opens editor without admin-only metadata requests, sees disabled source and no author/publish/test actions, receives403 for direct workflow/connection/runtime mutations, and executes published G1 through actual n8n. Frontend regression forbids credentials/runtime-profile/source-project admin reads.",
-    "remaining": [
-      "Use genuinely unavailable Java/C/C++ controlled toolchain fixtures to inspect runtime-center reason, publication refusal and repair guidance."
-    ]
+    "coverage": "full",
+    "rationale": "Real operator browser executes published G1 through actual n8n while author/publish/test controls are unavailable and direct admin mutations return403. A separate isolated server with genuinely empty PATH detects Java/C/C++ executables as absent: runtime-center Unavailable status, concrete install/restart reason, repair guidance and native capability limits are visible. Selecting each unavailable language/profile never makes it ready, and actual publication remains422 with no version or run.",
+    "remaining": []
   },
   {
     "id": "UI-R10",
     "tests": [
       "tests/test_workflow_frontend.py::WorkflowFrontendTests::test_real_editor_node_test_uses_explicit_inputs_and_runtime_selection",
-      "tests/test_workflows.py::test_published_runtime_executable_remains_pinned"
+      "tests/test_workflows.py::test_published_runtime_executable_remains_pinned",
+      "tests/test_acceptance_browser_runtime.py::test_browser_all_native_profiles_are_language_scoped_and_freeze_real_builds"
     ],
-    "coverage": "partial",
-    "rationale": "DOM persists selected immutable Python profile; real worker remains pinned after detector environment changes.",
-    "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Exercise all advertised language-specific choices, matching profiles, build failure and captured identities; prove native capability limits and availability changes."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium creates and self-tests six actual native language profiles, checks language-only selectors and Python/JavaScript entry modes, changes only the Python immutable version, saves/reloads all selections, and publishes G1 plus Shell/Java/C/C++. Actual n8n executes the seven-language graph. Java Entry and C/C++ compile configuration are captured; genuinely invalid Java/C/C++ source blocks publication without replacing v1. Removing execute permission only from the fixture-owned copied Python pack after publication causes an actionable pinned-runtime failure, no JavaScript attempt and no fallback. Both durable run snapshots retain exact selected version IDs, verified runtime hashes and compiler build identities; UI states native CPU/memory isolation limits.",
+    "remaining": []
   },
   {
     "id": "UI-R11",
@@ -548,24 +538,25 @@
       "tests/test_workflows_n8n.py::test_actual_n8n_sql_python_javascript_graph",
       "tests/test_acceptance_browser.py::test_browser_field_picker_executes_exact_sql_python_js_with_real_n8n",
       "tests/test_acceptance_browser_execution.py::test_browser_template_instances_are_independent_and_export_omits_connection",
-      "tests/test_acceptance_browser_execution.py::test_browser_settings_export_downloads_portable_template"
+      "tests/test_acceptance_browser_execution.py::test_browser_settings_export_downloads_portable_template",
+      "tests/test_acceptance_browser_external_sql.py::test_ui_r11_template_rebinds_explicitly_to_actual_postgresql_without_mutating_other_instance"
     ],
     "coverage": "partial",
-    "rationale": "Real Chromium creates two independent template instances, edits one without changing the other or catalog, executes the unmodified G1 through actual n8n, explicitly rebinds its SQL node to a separately provisioned managed SQLite connection, and downloads portable export without connection ID/run history/encrypted secrets.",
+    "rationale": "Existing actual browser/n8n synthetic template and instance/export isolation evidence retained. New PostgreSQL story explicitly rebinds through editor, checks real F-ORDERS and summary/report bytes, keeps catalog/other clone unchanged, checks secret-free portable export and awaits durable adapter completion. External database browser run remains pending CI.",
     "remaining": [
-      "Execute the replacement using a separately provisioned non-SQLite test connection; current browser fixture proves managed-SQLite rebind/save only and makes no external-dialect runtime claim."
+      "Run new real PostgreSQL+n8n+Chromium story in external CI; local relay unit evidence and collected test code do not satisfy browser/database integration."
     ]
   },
   {
     "id": "UI-R12",
     "tests": [
-      "tests/test_workflow_api_contract.py::test_connection_secret_not_returned_in_metadata"
+      "tests/test_workflow_api_contract.py::test_connection_secret_not_returned_in_metadata",
+      "tests/test_acceptance_browser_external_sql.py::test_ui_r12_actual_connection_test_timestamp_does_not_hide_later_network_failure"
     ],
     "coverage": "partial",
-    "rationale": "HTTP verifies connection metadata omits secret values; it does not execute connectivity loss scenario.",
+    "rationale": "New actual PostgreSQL browser story verifies successful connection-test response/time then closes only owned loopback relay. Retest must report failure with updated metadata; previously published real n8n execution must fail safely, block downstream, omit secrets and persist adapter completion. Local relay forwarding/shutdown passed, but external database browser run remains pending CI.",
     "remaining": [
-      "Execute the complete case in a real browser against the persisted API; the Node DOM harness is not browser evidence.",
-      "Use real external test connection success then outage, timestamped test result and safe runtime database failure with no secret injection."
+      "Run new real PostgreSQL+n8n+Chromium story in external CI; local relay unit evidence and collected test code do not satisfy browser/database integration."
     ]
   },
   {

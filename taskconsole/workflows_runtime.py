@@ -13,6 +13,7 @@ import subprocess
 import sys
 import time
 from .workflows_build_lock import subprocess_lock_options
+from .workflows_log_redaction import StreamRedactor
 
 LANGUAGES = ('python','javascript','shell','sql','java','c','cpp','custom')
 
@@ -150,18 +151,21 @@ def portable(value):
 
 def verify_frozen_node(node):
     from .workflows_projects import file_hash,manifest_tree
+    runtime=node.get('_runtime',{})
+    for key in ('executable','java'):
+        if runtime.get(key+'_sha256') and (not Path(runtime[key]).is_file() or not os.access(runtime[key],os.X_OK)):
+            raise ValueError('Pinned runtime '+key+' unavailable; restore the pinned runtime or publish a new version')
     for key,label in [('_runtime','runtime'),('_project','source project'),('_build','compiled project')]:
         record=node.get(key,{})
         if not record.get('manifest') or not record.get('directory'):continue
         actual=manifest_tree(record['directory'])
         if key=='_build':actual.pop('build-result.json',None)
         if actual!=record['manifest']:raise ValueError('Immutable '+label+' content changed')
-    runtime=node.get('_runtime',{})
     for key in ('executable','java'):
         if runtime.get(key+'_sha256') and file_hash(runtime[key])!=runtime[key+'_sha256']:raise ValueError('Immutable runtime executable changed')
 
 
-def run_script(node,inputs,directory,root,cancelled=lambda:False):
+def run_script(node,inputs,directory,root,cancelled=lambda:False,*,redaction_values=()):
     verify_frozen_node(node)
     directory=Path(directory);directory.mkdir(parents=True,exist_ok=True)
     artifacts=directory/'artifacts';artifacts.mkdir(exist_ok=True)
@@ -208,10 +212,17 @@ def run_script(node,inputs,directory,root,cancelled=lambda:False):
     if not argv[0]: raise ValueError(f'{lang} runtime unavailable')
     timeout=min(max(int(node.get('config',{}).get('timeout',300)),1),3600)
     started=time.monotonic()
-    captures={name:{'bytes_seen':0,'tail':b''} for name in ('stdout','stderr')}
+    captures={name:{'bytes_seen':0,'clean_bytes':0,'tail':b'','redactor':StreamRedactor(redaction_values)} for name in ('stdout','stderr')}
     limit=1048576;tail_limit=100000;draining_since=None
-    with (directory/'stdout.txt').open('wb') as stdout, (directory/'stderr.txt').open('wb') as stderr, selectors.DefaultSelector() as streams:
+    with (directory/'stdout.txt').open('w+b') as stdout, (directory/'stderr.txt').open('w+b') as stderr, selectors.DefaultSelector() as streams:
         targets={'stdout':stdout,'stderr':stderr}
+        def capture_clean(name,chunk):
+            capture=captures[name];target=targets[name]
+            remaining=max(0,limit-capture['clean_bytes'])
+            if remaining:target.write(chunk[:remaining])
+            capture['clean_bytes']+=len(chunk)
+            capture['tail']=(capture['tail']+chunk)[-tail_limit:]
+            target.flush()
         proc=subprocess.Popen(argv,cwd=project_dir,env=env,stdout=subprocess.PIPE,stderr=subprocess.PIPE,start_new_session=True,**subprocess_lock_options())
         for name,pipe in [('stdout',proc.stdout),('stderr',proc.stderr)]:
             os.set_blocking(pipe.fileno(),False);streams.register(pipe,selectors.EVENT_READ,name)
@@ -245,12 +256,11 @@ def run_script(node,inputs,directory,root,cancelled=lambda:False):
                     try:chunk=os.read(key.fileobj.fileno(),65536)
                     except BlockingIOError:continue
                     if not chunk:
+                        capture_clean(key.data,captures[key.data]['redactor'].finish())
                         streams.unregister(key.fileobj);key.fileobj.close();continue
-                    capture=captures[key.data];target=targets[key.data]
-                    remaining=max(0,limit-capture['bytes_seen'])
-                    if remaining:target.write(chunk[:remaining])
+                    capture=captures[key.data]
                     capture['bytes_seen']+=len(chunk)
-                    capture['tail']=(capture['tail']+chunk)[-tail_limit:]
+                    capture_clean(key.data,capture['redactor'].feed(chunk))
                 if draining_since is not None and time.monotonic()-draining_since>2:
                     for key in list(streams.get_map().values()):streams.unregister(key.fileobj);key.fileobj.close()
         finally:
@@ -263,14 +273,27 @@ def run_script(node,inputs,directory,root,cancelled=lambda:False):
             for key in list(streams.get_map().values()):streams.unregister(key.fileobj);key.fileobj.close()
             for name,capture in captures.items():
                 target=targets[name]
-                if capture['bytes_seen']>limit:
-                    target.seek(limit-tail_limit-200)
-                    target.write(f"\n[Log truncated: {capture['bytes_seen']} bytes produced; final output follows]\n".encode())
-                    target.write(capture['tail']);target.truncate()
+                capture_clean(name,capture['redactor'].finish())
+                if capture['clean_bytes']>limit:
+                    header=f"\n[Log truncated: {capture['bytes_seen']} bytes produced; final output follows]\n".encode()
+                    target.seek(0)
+                    prefix=target.read(max(0,limit-len(capture['tail'])-len(header)))
+                    # Separate safe pieces can form a credential at their join.
+                    # Mask the bounded composition before any byte is overwritten.
+                    redactor=StreamRedactor(redaction_values)
+                    payload=redactor.feed(prefix+header+capture['tail'])+redactor.finish()
+                    target.seek(0)
+                    target.write(payload[-limit:]);target.truncate()
                 target.flush()
             if callable(node.get('_on_process_exit')):node['_on_process_exit']()
-    logs={name:read_log_tail(directory/(name+'.txt')) for name in ('stdout','stderr')}
-    logs['log_capture']={name:{'bytes_seen':value['bytes_seen'],'bytes_stored':(directory/(name+'.txt')).stat().st_size,'truncated':value['bytes_seen']>limit} for name,value in captures.items()}
+    logs={}
+    for name in ('stdout','stderr'):
+        # read_log_tail adds its own notice after reading the sanitized file.
+        # Mask that complete text too, including joins and UTF-8 replacement.
+        text=read_log_tail(directory/(name+'.txt')).encode('utf-8')
+        redactor=StreamRedactor(redaction_values)
+        logs[name]=(redactor.feed(text)+redactor.finish()).decode('utf-8',errors='replace')
+    logs['log_capture']={name:{'bytes_seen':value['bytes_seen'],'bytes_stored':(directory/(name+'.txt')).stat().st_size,'truncated':value['clean_bytes']>limit} for name,value in captures.items()}
     if reason or proc.returncode: return {**logs,'status':reason if reason in {'cancelled','timed_out'} else 'failed','error':reason or f'Process exited {proc.returncode}'}
     try:
         if not out.exists():

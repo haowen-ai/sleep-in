@@ -409,13 +409,13 @@
   {
     "id": "PUB-001",
     "tests": [
-      "tests/test_acceptance_schedule_security.py::test_pub001_invalid_draft_retains_errors_but_publish_identifies_node"
+      "tests/test_acceptance_schedule_security.py::test_pub001_invalid_draft_retains_errors_but_publish_identifies_node",
+      "tests/test_acceptance_browser_repair.py::test_browser_saved_validation_survives_reopen_and_targets_repair",
+      "tests/test_acceptance_browser_repair.py::test_browser_publication_only_error_keeps_node_target"
     ],
-    "coverage": "partial",
-    "rationale": "HTTP draft persists node-scoped errors; publication rejects and identifies source node.",
-    "remaining": [
-      "Browser publish/error navigation must visibly locate the invalid node."
-    ]
+    "coverage": "full",
+    "rationale": "Actual Chromium saves/reopens invalid drafts with linked node/input errors, rejects publication without a version, clicks the publication-only error to select its node, repairs SQL connection/mapping and successfully publishes without a business run.",
+    "remaining": []
   },
   {
     "id": "PUB-002",
@@ -676,13 +676,12 @@
   {
     "id": "SEC-011",
     "tests": [
-      "tests/test_acceptance_browser.py::test_browser_duplicate_delete_cancel_undo_and_xss_literal"
+      "tests/test_acceptance_browser.py::test_browser_duplicate_delete_cancel_undo_and_xss_literal",
+      "tests/test_acceptance_browser_execution.py::test_browser_logs_attempts_download_and_reload_stay_with_exact_run"
     ],
-    "coverage": "partial",
-    "rationale": "Real Chromium node-name HTML payload renders literal text with no script/image element.",
-    "remaining": [
-      "Add payload to workflow list and actual run logs and verify no DOM execution on both pages."
-    ]
+    "coverage": "full",
+    "rationale": "Real Chromium proves node-name payload stays literal on canvas. Actual n8n Python emits img-onerror and script canaries into stdout/stderr; same payload appears as workflow name on list. List and run-log pages preserve literal text, create no injected image/script elements, and never set the execution canary. API log bytes retain the literal payload.",
+    "remaining": []
   },
   {
     "id": "SEC-012",
@@ -752,13 +751,13 @@
     "id": "OPS-005",
     "tests": [
       "tests/test_workflow_backup.py::test_encrypted_backup_restores_secrets_sources_and_disabled_schedules",
-      "tests/test_workflow_backup.py::test_backup_rejects_active_and_restore_refuses_existing_installation"
+      "tests/test_workflow_backup.py::test_backup_rejects_active_and_restore_refuses_existing_installation",
+      "tests/test_acceptance_backup_integrity.py::test_encrypted_owner_recovery_preserves_published_graph_and_connections"
     ],
     "coverage": "partial",
-    "rationale": "Encrypted disaster backup restores to new directory, disables schedules, and protects existing installation. It intentionally restores encrypted secrets, while this historical oracle requests secret re-entry.",
+    "rationale": "Encrypted disaster backup restores to new directory, disables schedules, and protects existing installation. It intentionally restores encrypted secrets, while this historical oracle requests secret re-entry. Dedicated actual encrypted restore now verifies graph/publication/mappings/runtime IDs, connection revision/config, managed SQLite rows, disabled triggers, rebuild-required flags and unchanged source installation.",
     "remaining": [
-      "Resolve approved distinction between portable secret-free template and encrypted full recovery; do not relabel encrypted recovery as meeting secret re-entry oracle.",
-      "Assert full graph/publication/runtime/connection-reference integrity on restored installation."
+      "Resolve approved distinction between portable secret-free template and encrypted full recovery; do not relabel encrypted recovery as meeting secret re-entry oracle."
     ]
   },
   {

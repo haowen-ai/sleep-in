@@ -47,7 +47,29 @@ jobs:
 
   workflow-integration:
     runs-on: ubuntu-24.04
-    timeout-minutes: 75
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - suite: engine
+            tests: >-
+              tests/test_workflows_n8n.py tests/test_workflow_execution_n8n_complete.py tests/test_runtime_language_matrix.py tests/test_runtime_packs.py tests/test_runtime_projects.py tests/test_local_supervisor_integration.py
+          - suite: data
+            tests: >-
+              tests/test_acceptance_data.py tests/test_acceptance_data_edges.py tests/test_acceptance_data_contracts.py tests/test_acceptance_data_portability.py tests/test_acceptance_json.py tests/test_acceptance_artifacts.py tests/test_acceptance_storage.py tests/test_acceptance_sql_boundaries.py tests/test_acceptance_sql_progress.py tests/test_acceptance_artifact_preview_security.py tests/test_acceptance_version_snapshots.py tests/test_acceptance_runtime_version_upgrades.py
+          - suite: schedule
+            tests: >-
+              tests/test_acceptance_schedule_security.py tests/test_acceptance_schedule_security_closure.py tests/test_acceptance_auth_matrix.py tests/test_acceptance_schedule_anchor.py tests/test_acceptance_missed_history.py tests/test_acceptance_local_accounts_extended.py
+          - suite: recovery
+            tests: >-
+              tests/test_acceptance_lifecycle.py tests/test_acceptance_release_edges.py tests/test_acceptance_admission_recovery.py tests/test_acceptance_local_recovery.py tests/test_acceptance_engine_recovery.py tests/test_acceptance_native_recovery_edges.py tests/test_acceptance_backup_integrity.py tests/test_acceptance_transfer_authorization.py tests/test_acceptance_delivery.py tests/test_acceptance_operations_edges.py
+          - suite: execution
+            tests: >-
+              tests/test_acceptance_branches.py tests/test_acceptance_concurrency.py tests/test_acceptance_orchestration_faults.py tests/test_acceptance_external_uncertainty.py tests/test_acceptance_execution_limits.py tests/test_acceptance_retry_cancel.py tests/test_acceptance_adapter_deadline.py tests/test_acceptance_workflow_deadline.py tests/test_acceptance_stream_redaction.py
+          - suite: scale-isolation
+            tests: >-
+              tests/test_acceptance_gold_concurrency.py tests/test_acceptance_runtime_remaining.py tests/test_acceptance_n8n_isolation.py
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -57,7 +79,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
-      - run: pip install -r requirements-dev.txt
+      - run: pip install -r requirements-dev.txt pandas==2.2.3
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -78,11 +100,11 @@ jobs:
           if shutil.which('gradle'): print('SLEEP_IN_TEST_GRADLE=' + shutil.which('gradle'))
           PY
       - name: Verify actual graphs and supervisor lifecycle
-        run: python -m pytest -q tests/test_workflows_n8n.py tests/test_workflow_execution_n8n_complete.py tests/test_runtime_language_matrix.py tests/test_runtime_packs.py tests/test_runtime_projects.py tests/test_local_supervisor_integration.py tests/test_acceptance_data.py tests/test_acceptance_data_edges.py tests/test_acceptance_branches.py tests/test_acceptance_concurrency.py tests/test_acceptance_schedule_security.py tests/test_acceptance_schedule_security_closure.py tests/test_acceptance_lifecycle.py tests/test_acceptance_release_edges.py tests/test_acceptance_admission_recovery.py tests/test_acceptance_storage.py tests/test_acceptance_delivery.py tests/test_acceptance_data_contracts.py tests/test_acceptance_local_recovery.py tests/test_acceptance_json.py tests/test_acceptance_artifacts.py tests/test_acceptance_orchestration_faults.py tests/test_acceptance_auth_matrix.py tests/test_acceptance_sql_boundaries.py tests/test_acceptance_engine_recovery.py tests/test_acceptance_version_snapshots.py tests/test_acceptance_data_portability.py tests/test_acceptance_missed_history.py tests/test_acceptance_external_uncertainty.py tests/test_acceptance_local_accounts_extended.py tests/test_acceptance_schedule_anchor.py tests/test_acceptance_execution_limits.py tests/test_acceptance_retry_cancel.py tests/test_acceptance_adapter_deadline.py tests/test_acceptance_sql_progress.py tests/test_acceptance_artifact_preview_security.py tests/test_acceptance_operations_edges.py -ra --junitxml=integration-results.xml
+        run: python -m pytest -q ${{ matrix.tests }} -o junit_family=xunit1 -ra --junitxml=integration-results.xml
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: integration-evidence
+          name: integration-${{ matrix.suite }}-evidence
           path: integration-results.xml
 
   compose-smoke:
@@ -134,12 +156,20 @@ jobs:
           print('SLEEP_IN_NODE=' + shutil.which('node'))
           print('SLEEP_IN_TEST_JAVAC=' + shutil.which('javac'))
           PY
+      - name: Install Chromium for external-connection browser stories
+        run: |
+          npm install --prefix "$RUNNER_TEMP/sleep-in-browser" --no-audit --no-fund playwright@1.62.1
+          node "$RUNNER_TEMP/sleep-in-browser/node_modules/playwright/cli.js" install --with-deps chromium
+          echo "PLAYWRIGHT_MODULE=$RUNNER_TEMP/sleep-in-browser/node_modules/playwright/index.mjs" >> "$GITHUB_ENV"
+          echo "NODE=$(command -v node)" >> "$GITHUB_ENV"
       - name: Start isolated database fixtures
         run: docker compose -f deploy/sql-matrix-compose.yaml up --wait --wait-timeout 600
       - name: Exercise real SQL transactions and typed results
         env:
           SLEEP_IN_EXTERNAL_SQL_TESTS: "1"
-        run: python -m pytest -q tests/test_workflow_external_sql.py tests/test_runtime_language_matrix.py::test_actual_n8n_external_directed_pairs tests/test_acceptance_external_sql_edges.py -ra --junitxml=external-sql-results.xml
+          SLEEP_IN_EXTERNAL_TLS_TESTS: "1"
+          SLEEP_IN_BROWSER_TEST: "1"
+        run: python -m pytest -q tests/test_workflow_external_sql.py tests/test_runtime_language_matrix.py::test_actual_n8n_external_directed_pairs tests/test_acceptance_external_sql_edges.py tests/test_acceptance_oracle_tls.py tests/test_acceptance_external_cancel.py tests/test_acceptance_browser_external_sql.py -o junit_family=xunit1 -ra --junitxml=external-sql-results.xml
       - name: Record versions and diagnostics
         if: always()
         run: |
@@ -159,7 +189,7 @@ jobs:
 
   browser:
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -170,6 +200,10 @@ jobs:
         with:
           node-version: "24"
       - run: pip install -r requirements-dev.txt
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
       - name: Install actual engine for browser execution stories
         run: npm install --prefix "$RUNNER_TEMP/sleep-in-n8n" --no-audit --no-fund n8n@2.39.7
       - name: Configure browser engine
@@ -180,6 +214,7 @@ jobs:
           print('SLEEP_IN_N8N_COMMAND=' + argv)
           print('SLEEP_IN_TEST_N8N_COMMAND=' + argv)
           print('SLEEP_IN_NODE=' + shutil.which('node'))
+          print('SLEEP_IN_TEST_JAVAC=' + shutil.which('javac'))
           PY
       - name: Install isolated Chromium test runtime
         run: |
@@ -190,12 +225,15 @@ jobs:
       - name: Verify actual browser against a fresh local application
         env:
           SLEEP_IN_BROWSER_TEST: "1"
-        run: python -m pytest -q tests/test_acceptance_browser.py tests/test_acceptance_browser_mapping.py tests/test_acceptance_browser_schedules.py tests/test_acceptance_browser_repair.py tests/test_acceptance_browser_run_feedback.py tests/test_acceptance_browser_execution.py --junitxml=browser-results.xml
+          SLEEP_IN_BROWSER_EVIDENCE_DIR: ${{ github.workspace }}/.browser-evidence
+        run: python -m pytest -q tests/test_acceptance_browser.py tests/test_acceptance_browser_mapping.py tests/test_acceptance_browser_schedules.py tests/test_acceptance_browser_repair.py tests/test_acceptance_browser_run_feedback.py tests/test_acceptance_browser_execution.py tests/test_acceptance_browser_dataflow.py tests/test_acceptance_browser_async_admission.py tests/test_acceptance_browser_runtime.py tests/test_acceptance_browser_account_sessions.py tests/test_acceptance_browser_accessibility.py --junitxml=browser-results.xml
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: browser-evidence
-          path: browser-results.xml
+          path: |
+            browser-results.xml
+            .browser-evidence/
 
   acceptance-evidence:
     if: always()

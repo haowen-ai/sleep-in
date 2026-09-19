@@ -2,17 +2,27 @@
 
 This ledger supersedes the earlier [core-preview results](RESULTS.md). Tests use synthetic, isolated state. The original test design was committed before implementation; later defects were reproduced with failing tests before fixes. Passing software tests do not establish physical power or public-distribution behavior.
 
-## Additional software closure — 2026-09-18
+## Current software checkpoint — 2026-09-18
 
-This candidate is based on `2516bdb9970699021523e181ea3c7c4543780bbb`. That baseline's [CI run](https://github.com/haowenchen0811/sleep-in/actions/runs/35412859958) passed the default regression (**681 passed, 204 skipped**), external SQL (**32 passed**) and clean Compose, but its browser job had **34 passed, 1 failed**. The SQLite ordering story exceeded its deadline because cancellation checks repeatedly opened store transactions. The unchanged two-million-row browser fixture passes locally after throttling that expensive probe; the new candidate still needs its own CI evidence.
+Verified pushed source: `4179b2950097fc7a7b83304e70a38d441d5a7ff7`. Its [CI run](https://github.com/haowenchen0811/sleep-in/actions/runs/35414194898) has completed these jobs:
 
-The candidate also fixes permanent-output retries, uncertain SQL commit replay, child-process cleanup after the parent exits, unbounded script log files, stalled engine startup deadlines, unavailable-engine queues, operator editor access, lost-request recovery with browser storage disabled, persistent validation messages and required schedule anchors. Schedule history now exposes skipped ranges and links admitted occurrences. Explicit reruns of uncertain effects require a visible decision in both languages.
+| Job | Observed result | Scope |
+| --- | --- | --- |
+| Default regression | 738 passed, 259 skipped | Fixture-dependent cases remain skipped here; do not count them as passes |
+| Actual Chromium | 54 passed | Isolated authenticated application and actual n8n execution stories |
+| External SQL | 50 passed, 1 failed | Oracle read-only permission was denied with ORA-41900; the test expected only ORA-01031. The narrow assertion correction still requires a new real-Oracle run |
+| Compose | Passed | Fresh container build, scheduled graph and exact artifact smoke |
+| Workflow integration | Still running at this checkpoint | No final pass claim |
 
-Focused evidence includes **69 frontend/layout/report tests**, **32 browser-feedback/frontend tests**, the separate actual double-click/storage-disabled run (**1 passed**), native cancellation/retry graphs, database transaction fault injection and browser execution stories. These suites overlap and are not a complete same-revision pass count. Reviewed coverage is **581 full, 58 partial, 33 manual, 3 superseded** across **675 entries**; full is coverage, not execution status. CI must join fresh results for the source commit before acceptance is assessed.
+The frozen `2516bdb` complete local run finished with **856 passed, 28 fixture skips and 1 failed browser assertion**. All graph and output assertions in that case passed; the final page-content assertion read before asynchronous run details mounted. A bounded wait for the exact Succeeded summary, followed by the unchanged content assertion, passes in an actual Chromium/n8n rerun. This follow-up is not a claim that the frozen run passed.
 
-The owner confirmed there is no Apple Developer account or Developer ID certificate. A local ad-hoc build cannot close signing/notarization, clean-device installation or physical Mac power-state gates. No promotion decision has been made.
+These jobs overlap; their counts must not be added. Earlier source `2516bdb9970699021523e181ea3c7c4543780bbb` completed **427 integration passes / 3 fixture skips**, but that evidence does not establish a pass for later source. Its browser deadline regression was fixed and the same story passes in the 4179 browser job.
 
-## Case-by-case acceptance closure — 2026-09-18
+The next candidate adds exact browser branch/locale/sample-retention stories, measured 10/25/50-node graphs, delayed callback replay, native recovery, authenticated fresh-install transfer, backup reference integrity, Oracle/TLS/cancellation boundaries and external-connection browser tests. Reproduced defects fixed in this candidate include a missing expiry notice, 50-node Fit clipping, inverted zoom after fitting a large graph, and known credentials reaching physical worker logs. Logs are now masked before disk writes, including chunk boundaries and final truncation-marker joins. Local scoped results remain development evidence until the new revision's CI results are joined to its reviewed case mappings. Do not combine initial failing development reports with later corrected ones as if they were one release run.
+
+The owner confirmed there is no Apple Developer account or Developer ID certificate. The 4179 Mac preview was built, ad-hoc signature/self-tests passed, and all 64 packaged resources matched its committed source. This does not close signing/notarization, clean-device installation, physical Mac power-state gates, or remaining partial software cases. **Acceptance is incomplete; promotion has not started.**
+
+## Earlier case-by-case acceptance checkpoint — 2026-09-18
 
 The [reviewed trace](traceability/README.md) now maps every original design ID and expands 310 language-pair combinations that the original inventory omitted. There are 674 designed entries, not 674 independent test functions. Exact pytest selectors, remaining assertions, manual gates and superseded interaction cases are recorded separately. CI preserves regression, actual n8n, external SQL and actual Chromium JUnit evidence, then joins it into the `case-by-case-acceptance` artifact. A green test job does not mean `release_ready` is true.
 
@@ -80,7 +90,7 @@ Chrome, 2026-09-17, isolated localhost port 8767:
 - At 390 × 844, opened navigation and run history. Page width equalled viewport width (390); the table scrolls within its own panel. Full phone graph authoring is not advertised. Temporary viewport override was reset.
 - Original preview/user drafts were kept separate from these test records.
 
-## PRD acceptance trace
+## Historical PRD acceptance trace (not current release approval)
 
 | Criterion | Software and evidence | Release disposition |
 | --- | --- | --- |
@@ -98,7 +108,7 @@ Chrome, 2026-09-17, isolated localhost port 8767:
 | A12 | Duplicate callback/admission, deadline/cancel, process-identity-checked crash cleanup | Actual subprocess and n8n tests |
 | A13 | Independent notification outbox, tests off, masked payloads, exact recipient/partial refusal | Loopback SMTP/HTTP verified |
 | A14 | Portable source-inclusive exports remove environment/connection credentials; imports require rebind | Automated |
-| A15 | Free-direction UI, keyboard/model tests, 1024 and 390 actual viewport checks | Browser plus tests; no claim of user study |
+| A15 | Earlier free-direction preview checks; current PRD uses fixed downward layout and has separate case mappings | Historical browser evidence only; use current UI-G/UI-L mappings |
 | A16 | Compose includes native v2 orchestrator, checks real schedule/execution ID/artifact | Fresh Compose CI passed |
 | A17 | GUI progress, private runtime bootstrap, repeated-start singleton | Build/fixture tested; clean non-developer Mac still required |
 | A18 | Visible fresh-local credentials, change hides card/revokes sessions, restored/external guards | Automated; fresh-local browser login verified |

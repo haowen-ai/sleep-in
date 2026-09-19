@@ -154,6 +154,8 @@ Provide dialect templates, bound parameter lists, schema and limited previews. B
 
 Transactions are per SQL node; supported writes commit on success and roll back on failure. Do not promise rollback across nodes/databases or conceal dialect-specific implicit commits. Outputs: rows, columns, rowCount, and affectedRows for writes. Provide query timeout and result limits with full dataset exports.
 
+Oracle DDL is a concrete exception: an implicit commit occurs before syntactically valid DDL and after successful DDL. A later failure may leave an earlier update and the created table committed. Display the failed run with an external-effects review warning; do not claim all statements were rolled back or automatically replay them. [Oracle transaction reference](https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/COMMIT.html).
+
 The first Oracle target is a tested Thin connection path. Extra-client/wallet/older-server requirements are runtime extensions, not automatically supported configurations. Do not redistribute restricted clients. Publish a tested database/driver/platform matrix.
 
 ## 9. Runtime center
@@ -189,11 +191,11 @@ A workflow can have multiple named manual, scheduled and API triggers, each with
 | Monthly | Day 1–31 or month-end and time; missing dates skip by default |
 | Once | Date and time; complete the trigger after execution |
 
-All forms specify timezone, start and optional end. Show a natural-language summary and next five occurrences with timezone. Preview and dispatch share a calculator. DST gaps skip; repeated wall times use the first occurrence. No UI or new public API requires or offers Cron expressions. Internal representation must not leak into user setup.
+All forms specify timezone, start and optional end. Show a natural-language summary and next five occurrences with timezone. Preview and dispatch share a calculator. Recurring occurrences in DST gaps skip; repeated wall times use the first occurrence. Explicit start/end/interval-anchor values must identify an existing instant: reject a nonexistent wall time with a field error rather than silently moving the boundary. Interpret offset-free boundaries in the selected timezone, persist their UTC instant, and require a fixed starting anchor for intervals. No UI or new public API requires or offers Cron expressions. Internal representation must not leak into user setup.
 
 API admission validates authorization, schema and publication, persists a run, then returns HTTP 202 and a run ID. It is not execution success. Support request idempotency and asynchronous status lookup. Do not expose demo trigger endpoints to the public network by default.
 
-Default overlap policy skips new triggers while a workflow is active, with a recorded reason. An advanced bounded sequential queue may be selected. Offline occurrences are skipped rather than replayed in a burst.
+Default overlap policy skips new triggers while a workflow is active, with a recorded reason. An advanced bounded sequential queue may be selected. Offline occurrences are skipped with a visible range and reason by default. An optional latest-once policy admits only the most recent eligible occurrence within its configured grace period (default two hours), never a burst of the backlog.
 
 ## 11. Drafts, tests, publication and runs
 
@@ -213,7 +215,7 @@ Notifications live in workflow settings, not as business nodes. Initial channels
 
 Select final failure, timeout, recovery and optionally success, with explicit recipients/channels. Send workflow/run/node identifiers, time, a masked error summary and a detail link; omit raw business data and full logs by default. Test sending displays its target. Notification delivery failure is recorded independently and does not restart business steps.
 
-Run names use selectable workflow/date/parameter fields with a preview. Nodes and workflows have separate timeouts; nodes cannot exceed the remaining workflow deadline. Business automatic retries default to zero; users may opt into bounded retries and delays. Warn about idempotency on side-effecting steps. Stopping execution does not undo external changes.
+Run names use selectable workflow/date/parameter fields with a preview. Nodes and workflows have separate timeouts; nodes cannot exceed the remaining workflow deadline. The workflow budget starts when orchestration begins and includes n8n import/startup, rather than adding a hidden startup allowance. Business automatic retries default to zero; users may opt into bounded retries and delays. Warn about idempotency on side-effecting steps. Stopping execution does not undo external changes. Unknown SQL commit outcomes and deterministic output validation errors cannot automatically repeat business work. A new run after an uncertain effect requires an explicit warning/decision. Cap each script stdout/stderr file at 1 MiB, preserve a marked final tail, and keep structured output independent of log truncation.
 
 Default logs/data retention: 30 days; metadata: 90 days. Allow separate success/failure policies and show what will be removed. Active runs and their referenced artifacts are protected; retry dependencies extend retention. Record cleanup outcomes. Reconciliation after restart restores known state; uncertain side effects require inspection rather than blind replay.
 

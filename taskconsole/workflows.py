@@ -443,7 +443,7 @@ class WorkflowService(ExecutionMixin):
             with self.store.transaction() as tx:
                 current=need(tx,'workflow_run',rid);current['nodes'][nid]['process_started']=True;tx.put('workflow_run',current)
             if node['kind']=='sql':result=execute_sql(self.store,node,inputs,run['workflow_id'],lambda:self._cancelled(rid))
-            else:result=run_script(node,inputs,directory,self.store.path,lambda:self._cancelled(rid))
+            else:result=run_script(node,inputs,directory,self.store.path,lambda:self._cancelled(rid),redaction_values=secret_values)
             if result['status']=='succeeded':
                 check_schema(result['output']['data'],node.get('outputs',{}))
                 result=sanitize_result(result,secret_values)
