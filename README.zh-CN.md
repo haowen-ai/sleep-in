@@ -6,7 +6,7 @@
 
 [English](README.md) · 简体中文
 
-[![CI](https://github.com/haowenchen0811/sleep-in/actions/workflows/ci.yml/badge.svg)](https://github.com/haowenchen0811/sleep-in/actions/workflows/ci.yml) · [版本 0.2.0-beta.1](CHANGELOG.md#020-beta1---2026-09-18) · [MIT 许可证](LICENSE)
+[![CI](https://github.com/haowen-ai/sleep-in/actions/workflows/ci.yml/badge.svg)](https://github.com/haowen-ai/sleep-in/actions/workflows/ci.yml) · [版本 0.2.0-beta.2](CHANGELOG.md#020-beta2---2026-09-19) · [MIT 许可证](LICENSE)
 
 不要因为周一早上开周会，就得早起拉数据。把整条准备流程提前搭好，周日晚上继续玩，让电脑到点准备好报告。
 
@@ -41,7 +41,7 @@ flowchart TD
 支持 Apple silicon、macOS 13 及以上。安装器下载独立的 Python、Node、n8n 环境；首次需要联网和数 GB 可用空间。无需 Docker，也无需租服务器。
 
 ```sh
-git clone https://github.com/haowenchen0811/sleep-in.git
+git clone https://github.com/haowen-ai/sleep-in.git
 cd sleep-in
 ./launch-mac.command
 ```

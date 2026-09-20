@@ -6,7 +6,7 @@ Audited source: `47f6e905a142315c0c26267f635d69354bf1949f`.
 
 ## Current automated evidence
 
-[GitHub Actions run 35373110451](https://github.com/haowenchen0811/sleep-in/actions/runs/35373110451), all four jobs completed successfully:
+[GitHub Actions run 35373110451](https://github.com/haowen-ai/sleep-in/actions/runs/35373110451), all four jobs completed successfully:
 
 | Job | Observed result |
 | --- | --- |

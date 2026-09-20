@@ -6,7 +6,7 @@ A self-hosted, visual low-code workspace for complex scheduled workflows.
 
 English · [简体中文](README.zh-CN.md)
 
-[![CI](https://github.com/haowenchen0811/sleep-in/actions/workflows/ci.yml/badge.svg)](https://github.com/haowenchen0811/sleep-in/actions/workflows/ci.yml) · [Version 0.2.0-beta.1](CHANGELOG.md#020-beta1---2026-09-18) · [MIT license](LICENSE)
+[![CI](https://github.com/haowen-ai/sleep-in/actions/workflows/ci.yml/badge.svg)](https://github.com/haowen-ai/sleep-in/actions/workflows/ci.yml) · [Version 0.2.0-beta.2](CHANGELOG.md#020-beta2---2026-09-19) · [MIT license](LICENSE)
 
 Monday's meeting shouldn't make you wake up early to pull data. Build the preparation flow once, enjoy Sunday evening, and let your computer prepare the report.
 
@@ -41,7 +41,7 @@ This is an independently written application. n8n executes the published depende
 Apple silicon, macOS 13 or later. The source launcher downloads private Python, Node and n8n runtimes; first installation needs internet and several gigabytes of free space. No Docker or rented server is required.
 
 ```sh
-git clone https://github.com/haowenchen0811/sleep-in.git
+git clone https://github.com/haowen-ai/sleep-in.git
 cd sleep-in
 ./launch-mac.command
 ```

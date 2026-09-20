@@ -13,7 +13,7 @@ The sections below preserve the **v1** verification history. Current visual-work
 
 ## Automated coverage
 
-The final local suite passed **80 tests**, with one PostgreSQL-only test skipped because local PostgreSQL was not configured. The [Linux test job](https://github.com/haowenchen0811/sleep-in/actions/runs/35282367674) passed with PostgreSQL configured.
+The final local suite passed **80 tests**, with one PostgreSQL-only test skipped because local PostgreSQL was not configured. The [Linux test job](https://github.com/haowen-ai/sleep-in/actions/runs/35282367674) passed with PostgreSQL configured.
 
 Tests cover schedule DST gaps/folds, short months, interval anchors, setup/login/CSRF/roles, session revocation, immutable run snapshots, overlap/deduplication, safe archives, runtime behavior, cancellation/timeouts, Unicode logs, artifacts, backup/restore and translation behavior.
 
@@ -21,7 +21,7 @@ The GitHub CI workflow runs the test suite plus a disposable Compose deployment 
 
 ## Observed integration results — 2026-09-17
 
-- The [first Compose job](https://github.com/haowenchen0811/sleep-in/actions/runs/35281424065/job/105404011645) passed on Ubuntu: fresh containers, PostgreSQL, automatic n8n initialization, an actual scheduled execution, exact output-file content, and repeated workflow initialization without duplication.
+- The [first Compose job](https://github.com/haowen-ai/sleep-in/actions/runs/35281424065/job/105404011645) passed on Ubuntu: fresh containers, PostgreSQL, automatic n8n initialization, an actual scheduled execution, exact output-file content, and repeated workflow initialization without duplication.
 - An isolated native n8n 2.39.7 instance on macOS sent real five-second heartbeats. A browser-created one-minute task repeatedly succeeded, showing stdout and its output in the run detail page.
 - The artifact API returned HTTP 200, the exact 39-byte expected file and an attachment header. The local browser's download navigation was blocked by its client environment; that specific browser download path is not claimed as passed.
 - Browser checks confirmed English sign-in, task creation, preservation of unsaved task fields when switching languages, immediate translated navigation/status labels, and a manual execution changing from queued to succeeded with its final logs and artifact shown automatically.

@@ -4,13 +4,13 @@ This ledger supersedes the earlier [core-preview results](RESULTS.md). Tests use
 
 ## Round closeout — 2026-09-18
 
-Production source `74f549aa3b9f2d2f127b2d5dc3cf64b677d0f8c3` is pushed; its [full CI](https://github.com/haowenchen0811/sleep-in/actions/runs/35417044871) was still running at closeout. A new independent localhost preview at `http://127.0.0.1:8767/` has healthy app/worker and available n8n, with OS power assertions explicitly disabled for testing. All 65 packaged resources in the rebuilt local preview match this source; Swift build, ad-hoc signature and side-effect-free self-tests passed.
+Production source `74f549aa3b9f2d2f127b2d5dc3cf64b677d0f8c3` is pushed; its [full CI](https://github.com/haowen-ai/sleep-in/actions/runs/35417044871) was still running at closeout. A new independent localhost preview at `http://127.0.0.1:8767/` has healthy app/worker and available n8n, with OS power assertions explicitly disabled for testing. All 65 packaged resources in the rebuilt local preview match this source; Swift build, ad-hoc signature and side-effect-free self-tests passed.
 
 The final additional browser pause-one/global-pause scenario passed locally with actual supervisor/n8n (1 passed, 27.30 seconds). It changes test coverage only; its CI fixture configuration and exact case mapping accompany this closeout. No further feature expansion is included. CI results are pending, and formal signing, physical Mac trials and remaining acceptance gaps are not claimed complete.
 
 ## Previous candidate — 2026-09-18
 
-Pushed candidate `863da8b43512ceb5195d68544e2da91a867b1024` has [same-revision CI evidence](https://github.com/haowenchen0811/sleep-in/actions/runs/35415901572). Its default regression passed 766 tests with 299 fixture skips. The six actual integration groups passed: engine 116 / 3 skips; data 196; execution 60; recovery 68; schedule 93; scale/isolation 13. Compose passed. External SQL had 58 passes and one failure: after an Oracle transaction committed and cancellation completed at the node, the workflow remained `cancelling`. Actual Chromium passed 69 tests. This candidate is therefore not green. These job counts overlap and must not be summed as unique tests.
+Pushed candidate `863da8b43512ceb5195d68544e2da91a867b1024` has [same-revision CI evidence](https://github.com/haowen-ai/sleep-in/actions/runs/35415901572). Its default regression passed 766 tests with 299 fixture skips. The six actual integration groups passed: engine 116 / 3 skips; data 196; execution 60; recovery 68; schedule 93; scale/isolation 13. Compose passed. External SQL had 58 passes and one failure: after an Oracle transaction committed and cancellation completed at the node, the workflow remained `cancelling`. Actual Chromium passed 69 tests. This candidate is therefore not green. These job counts overlap and must not be summed as unique tests.
 
 A local Mac preview passed Swift compilation, ad-hoc signature verification and side-effect-free self-tests; all 65 packaged resources match `863da8b`. It remains unnotarized and is not public-release approval.
 
@@ -28,7 +28,7 @@ The reviewed mappings currently classify 623 entries as full coverage, 16 partia
 
 ## Previous software checkpoint — 2026-09-18
 
-Verified pushed source: `4179b2950097fc7a7b83304e70a38d441d5a7ff7`. Its [CI run](https://github.com/haowenchen0811/sleep-in/actions/runs/35414194898) has completed these jobs:
+Verified pushed source: `4179b2950097fc7a7b83304e70a38d441d5a7ff7`. Its [CI run](https://github.com/haowen-ai/sleep-in/actions/runs/35414194898) has completed these jobs:
 
 | Job | Observed result | Scope |
 | --- | --- | --- |
@@ -56,7 +56,7 @@ Both PRDs now present the current fixed-downward, Mac-first flow consistently. F
 
 ### Checkpoint CI and follow-up verification
 
-Source `857139220eb7b818eed894d6969ace06d7434129` was tested in [the acceptance-branch run](https://github.com/haowenchen0811/sleep-in/actions/runs/35387223595). Real n8n integration passed **297 tests with 3 fixture skips**, the PostgreSQL/MySQL/Oracle job passed **32 tests**, the real Chromium job passed **15 tests**, and fresh Compose passed. The complete default regression had **575 passed, 159 skipped, 1 failed**: an older partial-SMTP-delivery assertion expected a retryable failure instead of the new uncertain outcome. This run is therefore **not green and not release-ready**. Counts overlap.
+Source `857139220eb7b818eed894d6969ace06d7434129` was tested in [the acceptance-branch run](https://github.com/haowen-ai/sleep-in/actions/runs/35387223595). Real n8n integration passed **297 tests with 3 fixture skips**, the PostgreSQL/MySQL/Oracle job passed **32 tests**, the real Chromium job passed **15 tests**, and fresh Compose passed. The complete default regression had **575 passed, 159 skipped, 1 failed**: an older partial-SMTP-delivery assertion expected a retryable failure instead of the new uncertain outcome. This run is therefore **not green and not release-ready**. Counts overlap.
 
 The follow-up preserves the stricter no-duplicate-mail contract: partial delivery is uncertain, cannot retry the entire message, and does not change the business run. All 19 notification/SMTP tests pass locally after updating that old assertion. Additional local acceptance covers mapping, nullable schema validation, duplicate JSON fields, file isolation/expiry, browser inputs and actual n8n orchestration faults. These later changes require their own complete CI revision; the checkpoint result must not be represented as evidence for them.
 
@@ -66,7 +66,7 @@ Reviewed mapping coverage is now **527 full, 112 partial, 33 manual and 2 supers
 
 ## Pre-closure acceptance audit — 2026-09-18
 
-Source `47f6e905a142315c0c26267f635d69354bf1949f` has [four successful CI jobs](https://github.com/haowenchen0811/sleep-in/actions/runs/35373110451): default regression **396 passed, 96 skipped**; integration **100 passed**; external SQL **29 passed**; clean Compose scheduled graph/artifact/bootstrap checks passed. Counts overlap. At that revision the 364-case design index had no per-case execution trace, and Mac physical/distribution gates remained open. Therefore this was **not complete PRD acceptance or an all-designed-cases-passed claim**. See the [historical audit](ACCEPTANCE-AUDIT-2026-09-18.md).
+Source `47f6e905a142315c0c26267f635d69354bf1949f` has [four successful CI jobs](https://github.com/haowen-ai/sleep-in/actions/runs/35373110451): default regression **396 passed, 96 skipped**; integration **100 passed**; external SQL **29 passed**; clean Compose scheduled graph/artifact/bootstrap checks passed. Counts overlap. At that revision the 364-case design index had no per-case execution trace, and Mac physical/distribution gates remained open. Therefore this was **not complete PRD acceptance or an all-designed-cases-passed claim**. See the [historical audit](ACCEPTANCE-AUDIT-2026-09-18.md).
 
 ## Flowchart editing revision — 2026-09-18
 
@@ -92,7 +92,7 @@ Component evidence already obtained:
 
 ## Historical GitHub Actions verification — source 38dcfb6
 
-[All four jobs passed](https://github.com/haowenchen0811/sleep-in/actions/runs/35322543880) for source commit `38dcfb65f09e08e0c3ada8cadc9f2d21998ddf53`:
+[All four jobs passed](https://github.com/haowen-ai/sleep-in/actions/runs/35322543880) for source commit `38dcfb65f09e08e0c3ada8cadc9f2d21998ddf53`:
 
 | Job | Result |
 | --- | --- |

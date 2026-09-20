@@ -6,6 +6,18 @@ Sleep In follows [Semantic Versioning](https://semver.org/). Every published ver
 
 Changes being prepared for the next version belong here.
 
+## [0.2.0-beta.2] - 2026-09-19
+
+### Changed
+
+- Moved the public repository from `haowenchen0811/sleep-in` to `haowen-ai/sleep-in` and updated clone, CI, release and historical verification links.
+
+### Known limitations
+
+- This is a beta release. The Mac application is ad-hoc signed and has not been Developer ID signed or notarized.
+- Physical clean-Mac installation, lock-screen, battery, login/reboot and multi-day power trials remain release gates.
+- A Mac must remain powered on and awake at the operating-system level. Shutdown, exhausted battery, lid-close sleep and explicit system sleep prevent execution.
+
 ## [0.2.0-beta.1] - 2026-09-18
 
 ### Added
@@ -48,6 +60,7 @@ Changes being prepared for the next version belong here.
 - Execution queue, logs, cancellation, timeouts and downloadable artifacts.
 - Local setup, roles, variables and backup/restore commands.
 
-[Unreleased]: https://github.com/haowenchen0811/sleep-in/compare/v0.2.0-beta.1...HEAD
-[0.2.0-beta.1]: https://github.com/haowenchen0811/sleep-in/releases/tag/v0.2.0-beta.1
-[0.1.0]: https://github.com/haowenchen0811/sleep-in/releases/tag/v0.1.0
+[Unreleased]: https://github.com/haowen-ai/sleep-in/compare/v0.2.0-beta.2...HEAD
+[0.2.0-beta.2]: https://github.com/haowen-ai/sleep-in/releases/tag/v0.2.0-beta.2
+[0.2.0-beta.1]: https://github.com/haowen-ai/sleep-in/releases/tag/v0.2.0-beta.1
+[0.1.0]: https://github.com/haowen-ai/sleep-in/releases/tag/v0.1.0
